@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -44,6 +45,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const t = useCallback(
     (key: string) => resolveKey(dictionaries[locale], key),

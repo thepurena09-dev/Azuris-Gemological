@@ -23,9 +23,26 @@ React 19 + TypeScript + Tailwind + shadcn/ui · FastAPI · MongoDB (Motor, from 
 Phosphor icons · Cormorant Garamond + Outfit fonts. Design: Luxury & Institutional Trust
 (dark default, champagne-gold accents).
 
+## Design System — LOCKED v2 (Light Luxury, approved 2026-06)
+Permanent identity: **Light theme only** (no dark mode / no theme switch). White (#FFFFFF) + #F8F8F6
+surfaces, #111 text / #666 secondary, #E5E5E5 borders. **Deep Emerald #0F3D3E** primary accent;
+**Champagne Gold #C9A227** secondary accent (sparing). Fonts: **Playfair Display** (headings) + **Inter** (body).
+Max content width 1280px, editorial spacing. Tokens live in `frontend/src/index.css` (:root) + `tailwind.config.js`.
+Full spec: `/app/design_guidelines.json`.
+
 ---
 
 ## Progress Log
+
+### Sprint 2 — Configuration & Environment Layer ✅ (2026-06, verified 100% backend + frontend)
+- Backend `core/config.py`: Pydantic **Settings** (env-driven; app metadata, environment, api_prefix,
+  log_level, mongo_url, db_name, cors_origins) with `get_settings()` cache + `cors_origins_list` /
+  `allow_credentials` / `is_production` properties.
+- `server.py` now builds the app + CORS from Settings; **CORS hardened** (credentials disabled when origins == `*`).
+- `/api/health` is config-driven → `{status, service, version, sprint:2, environment}`.
+- Frontend `src/config/index.ts` expanded: env-validated `appConfig`, `apiBase`, `apiUrl()` (trailing-slash safe).
+- Added `.env.example` templates (backend + frontend). No secrets hardcoded.
+- **Global Light Luxury design tokens** applied (see Design System v2). a11y: `<html lang>` syncs with locale.
 
 ### Sprint 1 — Frontend & Backend Foundation ✅ (2026-06, verified 100% backend + frontend)
 - Converted frontend to **TypeScript** (tsconfig, index.tsx, App.tsx; removed jsconfig.json/JS entries).
@@ -41,8 +58,8 @@ Phosphor icons · Cormorant Garamond + Outfit fonts. Design: Luxury & Institutio
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next:** Sprint 2 — Configuration & Environment Layer (Pydantic Settings, CORS hardening,
-  frontend config/, .env templates). Note: revisit `CORS_ORIGINS='*'` + `allow_credentials=True` here.
+- **P0 next:** Sprint 3 — MongoDB Connection & DB Layer (Motor connection manager, index bootstrap,
+  init script, DB status in healthcheck). Settings `mongo_url`/`db_name` already declared.
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
