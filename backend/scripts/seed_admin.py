@@ -21,6 +21,10 @@ async def seed() -> None:
     settings = get_settings()
     if settings.is_production:
         raise SystemExit("Refusing to seed: ENVIRONMENT=production.")
+    if not settings.admin_password:
+        raise SystemExit(
+            "ADMIN_PASSWORD is not set. Provide it via the environment before seeding."
+        )
 
     await mongodb.connect()
     repo = AdminRepository(mongodb.db)

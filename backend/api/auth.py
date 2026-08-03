@@ -163,3 +163,27 @@ async def logout(
 @router.get("/me", response_model=AdminResponse)
 async def me(admin: Admin = Depends(get_current_admin)):
     return AdminResponse(**admin.model_dump())
+
+
+class PermissionsResponse(BaseModel):
+    role: str
+    permissions: list[str]
+
+
+@router.get("/permissions", response_model=PermissionsResponse)
+async def my_permissions(admin: Admin = Depends(get_current_admin)):
+    """Role validation / RBAC introspection for the authenticated admin.
+
+    Returns the caller's role and resolved permission set (SUPER_ADMIN => all).
+    Not a business feature — lets the future admin UI hide unauthorized actions.
+    """
+    from auth.rbac import ALL_PERMISSIONS, permissions_for
+    from models.enums import AdminRole as _Role
+
+    if admin.role == _Role.SUPER_ADMIN.value:
+        perms = ALL_PERMISSIONS
+    else:
+        perms = permissions_for(admin.role)
+    return PermissionsResponse(
+        role=admin.role, permissions=sorted(p.value for p in perms)
+    )

@@ -8,6 +8,7 @@ but their env contracts can be declared here as they are introduced.
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -27,7 +28,7 @@ class Settings(BaseSettings):
     # --- Application metadata ---
     app_name: str = "Azuris Gemological Platform API"
     app_version: str = "0.1.0"
-    sprint: int = 6
+    sprint: int = 7
     environment: str = "development"  # development | staging | production
     api_prefix: str = "/api"
     log_level: str = "INFO"
@@ -37,12 +38,15 @@ class Settings(BaseSettings):
     db_name: str
 
     # --- Auth / JWT (Sprint 6) ---
+    # jwt_secret has NO default: it MUST come from the environment. Missing it
+    # causes Settings() to raise, so the backend fails fast at startup.
     jwt_secret: str
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 15
     refresh_token_days: int = 7
     admin_email: str = "admin@azuris.local"
-    admin_password: str = "AzurisDev@2026!"
+    # No default password: the dev seed requires ADMIN_PASSWORD from the env.
+    admin_password: Optional[str] = None
 
     # --- CORS ---
     cors_origins: str = "*"

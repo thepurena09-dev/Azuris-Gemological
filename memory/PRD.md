@@ -37,6 +37,16 @@ not attached to the job; refinement executed from the written visual direction.)
 
 ## Progress Log
 
+### Sprint 7 — RBAC & Authorization Guards ✅ (2026-06, validated via assertion script + API)
+- `auth/rbac.py`: `Permission` enum (31 perms), least-privilege `ROLE_PERMISSIONS` matrix for the 4 locked roles
+  (SUPER_ADMIN = all implicitly), `permissions_for`/`has_permission`, and guard factories
+  `require_roles(...)` / `require_permission(..., require_all=)` layered on `get_current_admin`.
+- **Default deny**: unknown role → empty perms; unauthorized → generic **403** (`errors.forbidden`).
+- `GET /api/auth/permissions`: RBAC introspection (caller's role + resolved permissions) — no business CRUD/endpoints added.
+- Verified allow/deny per role for `require_roles` & `require_permission`, SUPER_ADMIN bypass, invalid-role deny.
+- **Hardening revisions:** `JWT_SECRET` has no default (missing → app fails to start); dev seed now requires
+  `ADMIN_PASSWORD` from env and aborts if absent (no hardcoded password).
+
 ### Sprint 6 — Authentication Foundation ✅ (2026-06, verified 12/12 backend)
 - Admin-only JWT auth (Bearer/JSON): `POST /api/auth/login|refresh|logout`, `GET /api/auth/me`.
 - **Argon2id** password hashing (`auth/security.py`); hashes never returned.
@@ -115,8 +125,8 @@ not attached to the job; refinement executed from the written visual direction.)
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next:** Sprint 7 — RBAC & Authorization Guards (four locked roles, `Depends` guards, default-deny,
-  SUPER_ADMIN full access, generic 403). Builds on `get_current_admin` from Sprint 6.
+- **P0 next:** Sprint 8 — Global Error Handling & Response Envelope (unified success/error/validation
+  envelopes + middleware; standardized codes; internal errors never leak). Will formalize `errors.py`.
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
