@@ -5,7 +5,7 @@ import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { TEST_IDS } from "@/constants/testIds";
 
 const PANEL_IMAGE =
-  "https://images.unsplash.com/photo-1587947330318-88fcd9055420?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400";
+  "https://images.unsplash.com/photo-1600287648597-d81be16a5a16?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400";
 
 export default function LoginPage() {
   const { t } = useLanguage();
@@ -19,10 +19,10 @@ export default function LoginPage() {
       <div className="relative hidden overflow-hidden bg-secondary lg:block">
         <img
           src={PANEL_IMAGE}
-          alt="Diamond jewelry"
+          alt="Sapphire jewelry"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-between p-14">
           <Link to="/" className="flex flex-col leading-none">
             <span className="font-serif text-2xl font-medium tracking-tight text-foreground">

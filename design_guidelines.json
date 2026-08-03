@@ -1,108 +1,80 @@
 {
-  "theme_archetype": "LIGHT LUXURY — Elegant · Minimal · Timeless · Editorial",
+  "theme_archetype": "LIGHT LUXURY — Royal Editorial (RC1)",
   "theme_preference": "light_only",
-  "status": "LOCKED v2 (user-approved 2026-06). Light theme is the permanent visual identity. Dark mode is NOT used.",
-  "references": ["GIA", "Rolex", "Apple", "Cartier", "Tiffany & Co."],
-  "avoid": [
-    "Marketplace styling",
-    "Gaming-style dark themes",
-    "Overly colorful interfaces",
-    "Dark image overlays",
-    "Overuse of gold (accent only)"
-  ],
+  "status": "LOCKED v3 (client redesign, 2026-06). Pure-white luxury editorial. No dark mode.",
+  "references": ["GIA", "Cartier", "Rolex", "Van Cleef & Arpels", "Graff", "Tiffany & Co."],
+  "avoid": ["Crypto", "Gaming", "Startup/SaaS", "Glassmorphism", "Neon", "Button gradients", "Colorful icons", "Overuse of gold"],
   "default_language": "id",
   "supported_languages": ["id", "en"],
   "colors": {
     "raw_hex": {
       "background": "#FFFFFF",
-      "secondary_background": "#F8F8F6",
-      "primary_text": "#111111",
-      "secondary_text": "#666666",
-      "border": "#E5E5E5",
-      "primary_accent_deep_emerald": "#0F3D3E",
-      "secondary_accent_champagne_gold": "#C9A227",
-      "success": "#2E7D32",
-      "warning": "#F9A825",
-      "error": "#C62828"
+      "secondary_background_warm_white": "#FAF9F6",
+      "card": "#FFFFFF",
+      "primary_text_deep_navy": "#0D1B2A",
+      "secondary_text": "#5F6B7A",
+      "primary_accent_royal_blue": "#1E4FA8",
+      "secondary_accent_champagne_gold": "#C7A247",
+      "border": "#E7E7E7",
+      "success": "#3AA76D"
     },
     "hsl_tokens_light": {
       "background": "0 0% 100%",
-      "foreground": "0 0% 7%",
+      "foreground": "211 53% 11%",
       "card": "0 0% 100%",
-      "card-foreground": "0 0% 7%",
-      "primary": "181 61% 15%",
+      "primary": "211 53% 11%",
       "primary-foreground": "0 0% 100%",
-      "secondary": "48 12% 97%",
-      "muted": "48 12% 97%",
-      "muted-foreground": "0 0% 40%",
-      "accent": "48 12% 97%",
-      "gold": "45 68% 47%",
-      "success": "123 46% 33%",
-      "warning": "43 95% 56%",
-      "destructive": "0 66% 47%",
-      "border": "0 0% 90%",
-      "input": "0 0% 90%",
-      "ring": "181 61% 15%",
-      "radius": "0.625rem"
+      "secondary": "45 30% 97%",
+      "muted": "45 30% 97%",
+      "muted-foreground": "213 12% 43%",
+      "royal": "219 70% 39%",
+      "gold": "43 53% 53%",
+      "success": "148 48% 44%",
+      "border": "0 0% 91%",
+      "ring": "219 70% 39%",
+      "radius": "0.875rem"
     },
     "usage_rules": [
-      "Deep Emerald (#0F3D3E) is the PRIMARY accent — buttons, active states, links, icons.",
-      "Champagne Gold (#C9A227) is a SECONDARY accent — use sparingly (thin rules, small marks, hairline dividers). Never as a large fill.",
-      "Backgrounds are white / #F8F8F6 only. No dark sections.",
-      "Text: #111 primary, #666 secondary. Borders #E5E5E5 hairline."
+      "Deep Navy (#0D1B2A) = primary text + primary buttons (white text).",
+      "Royal Blue (#1E4FA8) = links, active states, chart primary line.",
+      "Champagne Gold (#C7A247) = SPARING accent only (thin dividers, active indicator, small marks, secondary-button border/icon). Never a large fill.",
+      "Backgrounds pure white or warm white #FAF9F6. Borders hairline #E7E7E7. Soft shadows only."
     ]
   },
   "typography": {
-    "headings": {
-      "family": "Playfair Display",
-      "weights": ["400", "500", "600", "700", "800"],
-      "description": "Editorial luxury serif for all display/headings. Elegant, high-contrast."
-    },
-    "body": {
-      "family": "Inter",
-      "weights": ["300", "400", "500", "600", "700"],
-      "description": "Clean, highly-readable sans for body, UI, data."
-    },
-    "fallback": "system sans-serif",
-    "rules": [
-      "Emphasize elegance and readability.",
-      "Uppercase labels use wide tracking (tracking-[0.2em]) at small sizes.",
-      "Generous line-height for editorial body copy."
-    ]
+    "headings": { "family": "Playfair Display", "note": "Large elegant editorial headings." },
+    "body": { "family": "Inter", "note": "High readability, comfortable spacing." },
+    "fallback": "system sans-serif"
   },
   "layout": {
-    "max_content_width": "1280px (Tailwind max-w-7xl)",
-    "style": "Editorial: large white space, clean sections, premium spacing (p-8 / p-12 / p-16 / py-24).",
-    "grid": "Simple, aligned editorial grids. No busy bento or overlapping chaos."
+    "max_content_width": "1280px (max-w-7xl)",
+    "style": "Editorial, large whitespace, luxury spacing, section spacing 100-140px.",
+    "corners": "12-16px rounded (radius 0.875rem)",
+    "shadows": "soft/subtle only"
   },
   "components": {
+    "header": "White, thin bottom border, logo left, nav center, language switch + navy Sign In right, sticky, premium spacing.",
     "buttons": {
-      "primary": "Deep Emerald background, white text.",
-      "secondary": "White background, emerald border, emerald text.",
-      "ghost": "Text only (emerald), no border/background."
+      "primary": "Deep Navy background, white text, rounded-lg, large.",
+      "secondary": "White background, gold border, gold icon, navy text.",
+      "hover": "Soft elevation (shadow) only — no gradient."
     },
-    "cards": {
-      "style": "White cards, very subtle shadows, soft #E5E5E5 borders, large padding, rounded corners (radius 0.625rem)."
-    },
-    "navigation": {
-      "style": "Clean white/near-white sticky header with hairline bottom border. Includes ID/EN language switcher."
+    "cards": "White, soft shadow, thin border, large padding, rounded (14px).",
+    "home_hero": "Content left (title/subtitle/CTA unchanged) + large bright luxury gemstone photography right (cut diamond / blue sapphire / white diamond). Bright studio lighting, no dark overlays.",
+    "admin": {
+      "sidebar": "Deep Navy, logo top, minimal thin-stroke icons, gold active menu indicator, no gradients/transparency.",
+      "topbar": "White, minimal — search, notifications, profile, premium spacing.",
+      "cards": "White, soft shadow, rounded, luxury spacing.",
+      "charts": "White background, royal-blue primary line, gold secondary line, minimal grid (introduced in analytics sprint)."
     }
   },
-  "icons": {
-    "library": "@phosphor-icons/react",
-    "usage": "Consistent Phosphor icons; thin/regular/duotone weights, emerald or neutral tones."
-  },
-  "images": {
-    "direction": "Large premium gemstone photography, bright backgrounds, clean compositions. NO dark overlays."
-  },
-  "motion": {
-    "policy": "Restrained. Keep existing subtle hover color transitions only. Do NOT add new animations or grain textures (per locked direction)."
-  },
+  "icons": { "library": "@phosphor-icons/react", "usage": "Minimal, thin stroke, gold or navy, consistent size." },
+  "images": { "direction": "Bright high-end cut diamonds / blue sapphire / white diamond / luxury jewelry on bright studio backgrounds. No dark overlays, no raw mineral/purple crystals." },
+  "motion": { "policy": "Restrained: soft hover elevation + existing color transitions only. No new animations, no grain." },
   "instructions_to_main_agent": [
-    "Light theme only — never apply a `dark` class or theme switching.",
-    "Tokens live in src/index.css (:root) and tailwind.config.js. All pages inherit automatically.",
-    "Use emerald for primary actions/accents; gold strictly as a sparing secondary accent.",
-    "Keep layouts, routing, and pages unchanged unless a sprint explicitly adds them.",
-    "Ensure all interactive elements retain data-testid attributes."
+    "Light theme only; tokens in src/index.css (:root) + tailwind.config.js (navy primary, royal, gold).",
+    "Royal blue for interactive/active; gold strictly sparing.",
+    "Keep routing, component structure, API, auth, RBAC, and business logic unchanged (visual-only redesign).",
+    "Preserve all data-testid attributes."
   ]
 }

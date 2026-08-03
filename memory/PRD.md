@@ -28,10 +28,13 @@ Permanent identity: **Light theme only** (no dark mode / no theme switch). White
 surfaces, #111 text / #666 secondary, #E5E5E5 borders. **Deep Emerald #0F3D3E** primary accent;
 **Champagne Gold #C9A227** secondary accent (sparing). Fonts: **Playfair Display** (headings) + **Inter** (body).
 Max content width 1280px, editorial spacing. Tokens live in `frontend/src/index.css` (:root) + `tailwind.config.js`.
-Full spec: `/app/design_guidelines.json`. **Refinement v3 (2026-06):** bright emerald-on-white
-photography, larger Playfair headings, champagne-gold hairline accents, premium squared buttons,
-cleaner white navigation, warmer ivory secondary, editorial whitespace. (User-referenced image was
-not attached to the job; refinement executed from the written visual direction.)
+Full spec: `/app/design_guidelines.json`. **Refinement v3 → Royal Editorial (RC1 redesign, 2026-06):**
+Pure white / warm-white `#FAF9F6` surfaces, **Deep Navy `#0D1B2A`** text & primary buttons, **Royal Blue
+`#1E4FA8`** accent (links/active/charts), **Champagne Gold `#C7A247`** sparing accent, `#E7E7E7` borders,
+14px rounded corners, soft shadows, no glassmorphism/gradients. Fonts: Playfair Display + Inter. Editorial
+two-column hero (content left, bright diamond photography right). Admin: Deep Navy sidebar + gold active +
+white topbar + premium cards. Visual-only; routing/components/API/logic unchanged. (Reference image was not
+attached to the job; executed from the detailed written direction.)
 
 ---
 

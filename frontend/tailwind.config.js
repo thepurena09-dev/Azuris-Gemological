@@ -55,6 +55,10 @@ module.exports = {
           DEFAULT: 'hsl(var(--gold))',
           foreground: 'hsl(var(--gold-foreground))'
         },
+        royal: {
+          DEFAULT: 'hsl(var(--royal))',
+          foreground: 'hsl(var(--royal-foreground))'
+        },
         success: {
           DEFAULT: 'hsl(var(--success))',
           foreground: 'hsl(var(--success-foreground))'

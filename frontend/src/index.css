@@ -3,64 +3,62 @@
 @tailwind utilities;
 
 /* ============================================================
-   Azuris Gemological — LIGHT LUXURY Design System (LOCKED v2)
-   Identity: Luxury · Elegant · Minimal · Timeless · Editorial.
-   References: GIA · Rolex · Apple · Cartier · Tiffany & Co.
-   Fonts: Playfair Display (headings) · Inter (body).
-   Accent: Deep Emerald (primary) · Champagne Gold (secondary, sparing).
-   Light theme only — no dark mode.
+   Azuris Gemological — LIGHT LUXURY (Royal / Editorial) v3 LOCKED
+   References: GIA · Cartier · Rolex · Van Cleef & Arpels · Graff · Tiffany.
+   Pure white, warm-white surfaces, Deep Navy text, Royal Blue primary accent,
+   Champagne Gold secondary accent (sparing). Playfair Display + Inter.
+   Light theme only. No glassmorphism, no neon, no button gradients.
    ============================================================ */
 
 @layer base {
   :root {
-    /* Surfaces */
-    --background: 0 0% 100%;          /* #FFFFFF */
-    --foreground: 0 0% 7%;            /* #111111 */
-    --card: 0 0% 100%;                /* #FFFFFF */
-    --card-foreground: 0 0% 7%;
+    --background: 0 0% 100%;            /* #FFFFFF */
+    --foreground: 211 53% 11%;          /* Deep Navy #0D1B2A */
+    --card: 0 0% 100%;
+    --card-foreground: 211 53% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 211 53% 11%;
 
-    /* Primary = Deep Emerald Green #0F3D3E */
-    --primary: 181 61% 15%;
+    /* Primary = Deep Navy (buttons, headings) */
+    --primary: 211 53% 11%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary background — soft warm ivory #F8F8F6 */
-    --secondary: 40 30% 97%;
-    --secondary-foreground: 0 0% 7%;
+    /* Warm white secondary surface #FAF9F6 */
+    --secondary: 45 30% 97%;
+    --secondary-foreground: 211 53% 11%;
+    --muted: 45 30% 97%;
+    --muted-foreground: 213 12% 43%;    /* #5F6B7A */
+    --accent: 45 30% 97%;
+    --accent-foreground: 211 53% 11%;
 
-    --muted: 40 30% 97%;
-    --muted-foreground: 0 0% 40%;     /* #666666 */
+    /* Royal Blue accent #1E4FA8 (links, charts, active) */
+    --royal: 219 70% 39%;
+    --royal-foreground: 0 0% 100%;
 
-    /* Accent surface stays neutral; gold is used via .text-gold only */
-    --accent: 40 30% 97%;
-    --accent-foreground: 181 61% 15%;
-
-    /* Secondary Accent = Champagne Gold #C9A227 (use sparingly) */
-    --gold: 45 68% 47%;
-    --gold-foreground: 0 0% 7%;
+    /* Champagne Gold accent #C7A247 (sparing: dividers, marks) */
+    --gold: 43 53% 53%;
+    --gold-foreground: 211 53% 11%;
 
     /* Status */
-    --success: 123 46% 33%;           /* #2E7D32 */
+    --success: 148 48% 44%;             /* #3AA76D */
     --success-foreground: 0 0% 100%;
-    --warning: 43 95% 56%;            /* #F9A825 */
-    --warning-foreground: 0 0% 7%;
-    --destructive: 0 66% 47%;         /* #C62828 */
+    --warning: 43 95% 56%;
+    --warning-foreground: 211 53% 11%;
+    --destructive: 0 66% 47%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Lines */
-    --border: 0 0% 90%;               /* #E5E5E5 */
-    --input: 0 0% 90%;
-    --ring: 181 61% 15%;
+    /* Lines — soft #E7E7E7 */
+    --border: 0 0% 91%;
+    --input: 0 0% 91%;
+    --ring: 219 70% 39%;
 
-    /* Charts (editorial: emerald + gold family) */
-    --chart-1: 181 61% 15%;
-    --chart-2: 45 68% 47%;
-    --chart-3: 123 46% 33%;
-    --chart-4: 181 30% 40%;
-    --chart-5: 45 40% 65%;
+    --chart-1: 219 70% 39%;             /* royal */
+    --chart-2: 43 53% 53%;              /* gold */
+    --chart-3: 148 48% 44%;
+    --chart-4: 211 53% 25%;
+    --chart-5: 43 40% 70%;
 
-    --radius: 0.625rem;               /* soft, premium rounded corners */
+    --radius: 0.875rem;                 /* 14px rounded corners */
   }
 }
 
@@ -95,8 +93,8 @@
   }
 
   ::selection {
-    background: hsl(var(--primary) / 0.9);
-    color: hsl(var(--primary-foreground));
+    background: hsl(var(--royal) / 0.9);
+    color: hsl(var(--royal-foreground));
   }
 }
 
