@@ -1,10 +1,56 @@
-# Azuris Gemological — Sprint 4.5: BUSINESS RULES LOCK v1.0
+# Azuris Gemological — Sprint 4.5: BUSINESS RULES LOCK v1.1
 
 Documentation only. No code. This document is the permanent, authoritative
 specification of business behavior for every locked entity. It sits beneath the
 **Business Blueprint v1** and **Architecture Lock v1.1** and must not be
 contradicted by any future sprint. Implementation sprints (5+) enforce — never
 redefine — these rules.
+
+---
+
+## ADDENDUM v1.1 — Locked Business Decisions (authoritative)
+
+### A. Certificate Number Format (LOCKED)
+Permanent business identifier pattern: **`AZR-GEM-YYYY-000001`**
+- `AZR-GEM` — fixed brand/product prefix.
+- `YYYY` — 4-digit issuing year (UTC).
+- `000001` — zero-padded 6-digit sequence, monotonically increasing (per year).
+- Globally **unique, immutable, never reused**. Independent of `_id` and `uuid`.
+- Example: `AZR-GEM-2026-000042`.
+
+### B. Owner Name Masking (LOCKED)
+Public displays of an owner's name are masked. Length is preserved; revealed
+characters come from the **start** of each name part, remaining characters become `*`.
+- **First name:** reveal the first **4** characters; mask the rest. If the first
+  name is ≤ 4 characters, it is shown in full.
+- **Last name:** reveal the first **3** characters; mask the rest. Edge rule: to
+  never expose a full family name, if the last name is ≤ 3 characters, reveal only
+  the **first 1** character and mask the remaining (length preserved).
+- Only the first and last name tokens are displayed; any middle names are omitted.
+- Locked examples:
+  - `Alexander Wijaya` → `Alex***** Wij***`
+  - `John Doe` → `John D**`
+- Applies everywhere an owner is shown publicly (public verification results,
+  membership cards, any public/limited projection).
+
+### C. Verification Resolution Priority (LOCKED)
+When resolving a verification request, the system follows this strict order:
+1. **QR Token** (the high-entropy secret) →
+2. **Security Code** (exact-match manual credential) →
+3. **Certificate** (current version) →
+4. **Gemstone** (subject of authenticity) →
+5. **Owner** (masked display).
+QR token is the primary entry point; the security code is the manual fallback;
+resolution then walks certificate → gemstone → owner. A break at any level yields
+a generic non-authentic result (internal precise `result` still logged).
+
+### D. Certificate Version Visibility (LOCKED)
+- The **current** version (`is_current = true`) is the **only** version shown publicly.
+- **Previous versions** remain **archived** (retained, immutable) and are **not** public.
+- **Admins** (per RBAC) can access **every** version, current and superseded.
+
+---
+
 
 ## Global Conventions (apply to every entity unless overridden)
 - **Dual identifier:** internal `_id` (ObjectId, never exposed) + public `uuid` (UUID v4, immutable once created, used in all external URLs/QRs/references).
@@ -59,7 +105,8 @@ redefine — these rules.
 - **Immutable fields:** `uuid`, `certificate_number` (globally unique, never reused, never edited), `gemstone_id`, and — per version — the grading snapshot (`color_grade`, `clarity_grade`, `cut_grade`, `carat_weight`, `measurements`) and `version`, `created_version_at`, `created_version_by`. **Issued versions are immutable.**
 - **Editable fields:** only while `draft` — grading fields and bilingual `comments_id/en`. After issuance, changes require a new version.
 - **Versioning rules:** `version` starts at 1; each re-issue increments `version`, sets `is_current=true` on the new version and `false` on all others; **exactly one** current version per certificate at any time. Superseded versions are retained (immutable, never deleted).
-- **Security rules:** the verification link/QR references the stable public `verification_uuid`/token, not the certificate `_id`. `certificate_number` is human-readable; unguessability is provided by the token, not the number.
+- **Security rules:** the verification link/QR references the stable public `verification_uuid`/token, not the certificate `_id`. `certificate_number` follows the locked format **`AZR-GEM-YYYY-000001`** (unique, immutable, never reused); unguessability is provided by the token, not the number.
+- **Version visibility (v1.1 lock):** only the **current** version is public; **previous versions stay archived** (retained, not public); **admins can access every version**.
 - **Validation:** `certificate_number` required & unique; `gemstone_id` must reference an existing (verified-or-later) stone; `carat_weight > 0` when set.
 - **Audit:** issue, re-issue (version_create), and revoke are all logged with before/after and version metadata.
 - **Business constraints:** a gemstone may hold multiple certificate versions over time but only one `is_current`. A revoked certificate cannot be un-revoked; a corrected document must be a new re-issue.
@@ -112,7 +159,7 @@ redefine — these rules.
 - **Immutable fields:** `uuid`, `customer_id`, `card_number` (unique), and per-version identity snapshot; issued versions immutable.
 - **Editable fields:** `status`, `masked_name`, `pdf_media_id`; identity corrections create a new version.
 - **Versioning rules:** versioned like certificates — one `is_current`; superseded retained.
-- **Security rules:** card shows **masked identity only**; no full PII, no contact details, no secrets.
+- **Security rules:** card shows **masked identity only** (locked masking format: first name first 4 chars, last name first 3 chars, remainder `*`); no full PII, no contact details, no secrets.
 - **Validation:** `card_number` required & unique; `customer_id` must exist; `masked_name` required.
 - **Audit:** generation, versioning, status changes logged.
 - **Business constraints:** one current card version per customer; card generation requires an existing customer with recorded consent.
@@ -138,7 +185,7 @@ redefine — these rules.
 - **Lifecycle of a request:** receive → match → mask → respond → log (always).
 - **Security rules:**
   - Generic failure messages for all negative outcomes (not_found / invalid_code / expired / revoked surface as a single "could not verify" style message to the user, while the precise `result` is stored in `verification_logs`).
-  - No secrets echoed; owner name returned **masked**; no prices; no PII.
+  - No secrets echoed; owner name returned **masked** per the locked format (first name first 4 chars, last name first 3 chars, remainder `*`; e.g. `Alexander Wijaya → Alex***** Wij***`, `John Doe → John D**`); no prices; no PII.
   - Every attempt (success or failure) is recorded in `verification_logs` with minimal safe metadata (method, result, hashed IP, masked cert number, timestamp) — never the token or code.
   - Rate limiting + abuse protection applied (hardening sprint).
 - **Validation:** token length ≥ 16; manual requires both fields; both methods require an `is_active` token and a non-revoked, non-archived subject.
@@ -169,4 +216,4 @@ redefine — these rules.
 - **Audit spine:** admin mutations → `audit_logs`; public verification → `verification_logs`; auth/security → `security_logs`; all append-only, redacted.
 - **Status is never skipped or reversed** except where an explicit transition above allows it.
 
-**End of Business Rules Lock v1.0 — no code implemented. Awaiting approval to proceed with Sprint 5.**
+**End of Business Rules Lock v1.1 — no code implemented. Awaiting approval to proceed with Sprint 5.**

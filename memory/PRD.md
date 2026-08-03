@@ -37,10 +37,12 @@ not attached to the job; refinement executed from the written visual direction.)
 
 ## Progress Log
 
-### Sprint 4.5 — Business Rules Lock ✅ (2026-06, documentation only)
+### Sprint 4.5 — Business Rules Lock ✅ (2026-06, documentation only; updated to v1.1)
 - `/app/docs/BUSINESS_RULES_LOCK.md` — permanent business rules for all 10 domains (gemstones, jewelry,
   certificates, warranties, ownership, verification, membership cards, media, public verification, admin ops):
   lifecycle, status transitions, immutable/editable fields, versioning, security, validation, audit, constraints.
+- **v1.1 locks:** certificate number `AZR-GEM-YYYY-000001`; owner masking (first name 4 / last name 3, remainder `*`);
+  verification priority QR→Code→Certificate→Gemstone→Owner; certificate version visibility (current public, previous archived, admin sees all).
 - Enforced (not redefined) by implementation sprints 5+.
 
 ### Sprint 4 — Domain Models & Schemas ✅ (2026-06, validated via assertion script)
