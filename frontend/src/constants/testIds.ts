@@ -38,6 +38,9 @@ export const TEST_IDS = {
     comingSoon: "coming-soon-message",
     ctaHome: "cta-home",
     ctaVerify: "cta-verify",
+    ctaPreview: "cta-preview",
+    previewModal: "certificate-preview-modal",
+    previewImage: "certificate-preview-image",
   },
   admin: {
     layout: "admin-layout",

@@ -26,6 +26,11 @@ const id = {
   home: {
     description:
       "Standar internasional untuk hasil yang dapat dipercaya, didukung oleh teknologi modern dan ahli gemologi profesional.",
+    preview: "Preview",
+    previewBadge: "Contoh Sertifikat Digital",
+    previewTitle: "Contoh Sertifikat Digital Azuris",
+    previewSubtitle:
+      "Pratinjau format laporan gemologi resmi Azuris — lengkap dengan identitas batu, hasil analisis, dan kode verifikasi.",
     stats: {
       accurate: { value: "100%", label: "Akurat & Terpercaya" },
       global: { value: "Global", label: "Standar Internasional" },

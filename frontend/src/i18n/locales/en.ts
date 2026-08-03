@@ -25,6 +25,11 @@ const en = {
   home: {
     description:
       "International standards for results you can trust, supported by modern technology and professional gemologists.",
+    preview: "Preview",
+    previewBadge: "Digital Certificate Sample",
+    previewTitle: "Azuris Digital Certificate Sample",
+    previewSubtitle:
+      "A preview of the official Azuris gemological report format — including stone identity, analysis results, and a verification code.",
     stats: {
       accurate: { value: "100%", label: "Accurate & Trusted" },
       global: { value: "Global", label: "International Standard" },

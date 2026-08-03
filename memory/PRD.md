@@ -138,3 +138,12 @@ attached to the job; executed from the detailed written direction.)
 ## Known Notes (deferred)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
+
+## UI Refinements (RC1 — visual only, business logic FROZEN at Sprint 7)
+- 2026-06: HomePage hero redesigned to a balanced two-column editorial layout (copy left, framed
+  sapphire image right) — fixes empty/blank left space on ultra-wide screens.
+- 2026-06: Added a physical "Preview" button (CTA row + floating card on the image) that opens a
+  certificate preview modal showing a generated luxury sample certificate (`CERT_PREVIEW_IMAGE`).
+  Modal is a local `useState` overlay (avoids untyped .jsx Dialog in .tsx). New i18n keys:
+  home.preview / previewBadge / previewTitle / previewSubtitle. New testids: cta-preview,
+  certificate-preview-modal, certificate-preview-image, certificate-preview-close.
