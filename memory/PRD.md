@@ -37,6 +37,17 @@ not attached to the job; refinement executed from the written visual direction.)
 
 ## Progress Log
 
+### Sprint 6 — Authentication Foundation ✅ (2026-06, verified 12/12 backend)
+- Admin-only JWT auth (Bearer/JSON): `POST /api/auth/login|refresh|logout`, `GET /api/auth/me`.
+- **Argon2id** password hashing (`auth/security.py`); hashes never returned.
+- Access (15m) + refresh (7d) tokens (`auth/jwt_handler.py`, HS256); **refresh rotation** + server-side
+  store (`repositories/auth.py`, `refresh_tokens` collection) → logout & rotation invalidate refresh tokens.
+- `get_current_admin` dependency (`auth/dependencies.py`); generic 401 (`errors.py`) — no user enumeration.
+- All auth events → `security_logs` (login_success/login_fail/logout/token_refresh); IPs hashed, no secrets.
+- Dev-only seed `scripts/seed_admin.py` (SUPER_ADMIN admin@azuris.local; refuses ENVIRONMENT=production).
+- JWT settings added to config/.env; `models.enums.SecurityEventType` gained `LOGOUT`.
+- No customer/public login, OAuth, email verification, password reset, MFA, or module authorization (Sprint 7).
+
 ### Sprint 5 — Repository Layer Foundation ✅ (2026-06, validated against test DB)
 - `repositories/domain.py`: generic `DomainRepository[T]` (extends Sprint 3 `BaseRepository`) with model
   translation (from_mongo/to_mongo), create/get_by_uuid/get_by_id, list (pagination+filter+sort),
@@ -104,8 +115,8 @@ not attached to the job; refinement executed from the written visual direction.)
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next:** Sprint 6 — Authentication Foundation (JWT access/refresh, admin login, token rotation,
-  password hashing, `last_activity`, security_logs on auth events). Uses AdminRepository from Sprint 5.
+- **P0 next:** Sprint 7 — RBAC & Authorization Guards (four locked roles, `Depends` guards, default-deny,
+  SUPER_ADMIN full access, generic 403). Builds on `get_current_admin` from Sprint 6.
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
