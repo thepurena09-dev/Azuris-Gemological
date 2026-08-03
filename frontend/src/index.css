@@ -25,15 +25,15 @@
     --primary: 181 61% 15%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary background #F8F8F6 */
-    --secondary: 48 12% 97%;
+    /* Secondary background — soft warm ivory #F8F8F6 */
+    --secondary: 40 30% 97%;
     --secondary-foreground: 0 0% 7%;
 
-    --muted: 48 12% 97%;
+    --muted: 40 30% 97%;
     --muted-foreground: 0 0% 40%;     /* #666666 */
 
     /* Accent surface stays neutral; gold is used via .text-gold only */
-    --accent: 48 12% 97%;
+    --accent: 40 30% 97%;
     --accent-foreground: 181 61% 15%;
 
     /* Secondary Accent = Champagne Gold #C9A227 (use sparingly) */

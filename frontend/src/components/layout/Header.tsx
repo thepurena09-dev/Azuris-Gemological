@@ -20,23 +20,23 @@ export default function Header() {
   return (
     <header
       data-testid={TEST_IDS.header.root}
-      className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-border bg-background/95"
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-10">
+      <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6 md:px-10">
         <Link
           to="/"
           data-testid={TEST_IDS.header.brand}
           className="group flex flex-col leading-none"
         >
-          <span className="font-serif text-2xl font-light tracking-tighter text-foreground transition-colors duration-500 group-hover:text-primary">
+          <span className="font-serif text-[1.65rem] font-medium tracking-tight text-foreground transition-colors duration-300 group-hover:text-primary">
             AZURIS
           </span>
-          <span className="mt-1 text-[0.6rem] uppercase tracking-[0.35em] text-muted-foreground">
+          <span className="mt-1.5 text-[0.55rem] uppercase tracking-[0.45em] text-muted-foreground">
             Gemological
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-9 lg:flex">
+        <nav className="hidden items-center gap-11 lg:flex">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -44,7 +44,7 @@ export default function Header() {
               end={item.end}
               data-testid={item.testId}
               className={({ isActive }) =>
-                `relative text-xs uppercase tracking-[0.2em] transition-colors duration-500 ${
+                `text-[0.7rem] uppercase tracking-[0.25em] transition-colors duration-300 ${
                   isActive
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -56,12 +56,12 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <LanguageSwitcher />
           <Link
             to="/login"
             data-testid={TEST_IDS.header.navLogin}
-            className="hidden rounded-full border border-primary/40 px-5 py-2 text-xs uppercase tracking-[0.2em] text-primary transition-all duration-500 hover:bg-primary hover:text-primary-foreground sm:inline-block"
+            className="hidden rounded-sm bg-primary px-6 py-3 text-[0.65rem] uppercase tracking-[0.25em] text-primary-foreground transition-colors duration-300 hover:bg-primary/90 sm:inline-block"
           >
             {t("nav.login")}
           </Link>
@@ -78,7 +78,7 @@ export default function Header() {
       </div>
 
       {open && (
-        <div className="border-t border-border/60 bg-background/95 px-6 py-6 lg:hidden">
+        <div className="border-t border-border bg-background px-6 py-6 lg:hidden">
           <nav className="flex flex-col gap-5">
             {navItems.map((item) => (
               <NavLink
@@ -87,7 +87,7 @@ export default function Header() {
                 end={item.end}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `text-sm uppercase tracking-[0.2em] ${
+                  `text-sm uppercase tracking-[0.25em] ${
                     isActive ? "text-primary" : "text-muted-foreground"
                   }`
                 }
@@ -98,7 +98,7 @@ export default function Header() {
             <Link
               to="/login"
               onClick={() => setOpen(false)}
-              className="mt-2 rounded-full border border-primary/40 px-5 py-2 text-center text-xs uppercase tracking-[0.2em] text-primary"
+              className="mt-2 rounded-sm bg-primary px-6 py-3 text-center text-[0.65rem] uppercase tracking-[0.25em] text-primary-foreground"
             >
               {t("nav.login")}
             </Link>

@@ -12,7 +12,7 @@ def test_health_endpoint_returns_expected_payload():
     assert data.get("status") == "ok"
     assert data.get("service") == "azuris-platform"
     assert data.get("version") == "0.1.0"
-    assert data.get("sprint") == 2
+    assert data.get("sprint") == 3
     assert data.get("environment") == "development"
 
 

@@ -1,11 +1,12 @@
 """Azuris Gemological — Backend application entrypoint.
 
-Through Sprint 2: application shell + centralized configuration layer.
+Through Sprint 3: application shell + configuration + MongoDB data backbone.
 - FastAPI app boot (metadata from Settings)
 - Environment-driven CORS (spec-safe credentials handling)
-- Health endpoint (GET /api/health)
+- MongoDB connection lifecycle (connect + index bootstrap on startup)
+- Health endpoint with database status (GET /api/health)
 
-No business logic, no database collections, no authentication.
+No authentication, no CRUD endpoints, no business modules.
 """
 
 import logging
@@ -15,6 +16,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from api.health import router as health_router
 from core.config import get_settings
+from db.init import init_database
+from db.mongodb import mongodb
 
 settings = get_settings()
 
@@ -45,9 +48,17 @@ app.add_middleware(
 @app.on_event("startup")
 async def on_startup() -> None:
     logger.info(
-        "Azuris backend started — env=%s, sprint=%s, cors=%s (credentials=%s).",
+        "Azuris backend starting — env=%s, sprint=%s.",
         settings.environment,
         settings.sprint,
-        settings.cors_origins_list,
-        settings.allow_credentials,
     )
+    try:
+        summary = await init_database()
+        logger.info("Database ready. Indexes: %s", summary)
+    except Exception as exc:  # noqa: BLE001 - never block boot on DB availability
+        logger.error("Database initialization failed: %s", exc)
+
+
+@app.on_event("shutdown")
+async def on_shutdown() -> None:
+    await mongodb.disconnect()

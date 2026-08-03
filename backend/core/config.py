@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # --- Application metadata ---
     app_name: str = "Azuris Gemological Platform API"
     app_version: str = "0.1.0"
-    sprint: int = 2
+    sprint: int = 3
     environment: str = "development"  # development | staging | production
     api_prefix: str = "/api"
     log_level: str = "INFO"

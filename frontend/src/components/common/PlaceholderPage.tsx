@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CaretRight, Sparkle } from "@phosphor-icons/react";
+import { CaretRight } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 
@@ -22,17 +22,20 @@ export default function PlaceholderPage({
   const { t } = useLanguage();
 
   return (
-    <section data-testid={testId} className="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-32">
+    <section
+      data-testid={testId}
+      className="mx-auto max-w-7xl px-6 py-28 md:px-10 md:py-40"
+    >
       <nav
         data-testid={TEST_IDS.common.breadcrumb}
-        className="mb-10 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground"
+        className="mb-12 flex items-center text-[0.7rem] uppercase tracking-[0.25em] text-muted-foreground"
       >
         <Link to="/" className="transition-colors hover:text-foreground">
           {t("breadcrumbHome")}
         </Link>
         {breadcrumbs.map((crumb) => (
           <span key={crumb.label} className="flex items-center">
-            <CaretRight size={12} weight="bold" className="mx-3 text-primary/60" />
+            <CaretRight size={11} weight="bold" className="mx-3 text-gold" />
             {crumb.to ? (
               <Link to={crumb.to} className="transition-colors hover:text-foreground">
                 {crumb.label}
@@ -44,24 +47,23 @@ export default function PlaceholderPage({
         ))}
       </nav>
 
-      <h1 className="max-w-3xl font-serif text-5xl font-light tracking-tighter md:text-6xl">
+      <div className="flex items-center gap-4">
+        <span className="h-px w-10 bg-gold" />
+        <span className="text-[0.7rem] uppercase tracking-[0.4em] text-gold">
+          {t("sprintNotice")}
+        </span>
+      </div>
+
+      <h1 className="mt-8 max-w-4xl font-serif text-6xl font-normal leading-[1.03] tracking-tight md:text-8xl">
         {title}
       </h1>
 
-      <div className="mt-16 max-w-2xl border-l border-primary/40 pl-8">
-        <div className="mb-5 flex items-center gap-3 text-primary">
-          <Sparkle size={22} weight="duotone" />
-          <span className="text-xs uppercase tracking-[0.3em]">
-            {t("sprintNotice")}
-          </span>
-        </div>
-        <p
-          data-testid={TEST_IDS.common.comingSoon}
-          className="text-lg leading-relaxed text-muted-foreground"
-        >
-          {t("comingSoon")}
-        </p>
-      </div>
+      <p
+        data-testid={TEST_IDS.common.comingSoon}
+        className="mt-14 max-w-2xl text-xl font-light leading-relaxed text-muted-foreground"
+      >
+        {t("comingSoon")}
+      </p>
     </section>
   );
 }

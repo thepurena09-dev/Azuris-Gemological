@@ -27,7 +27,7 @@ const backendUrl = readBackendUrl();
 export const appConfig = {
   name: "Azuris Gemological",
   version: "0.1.0",
-  sprint: 2,
+  sprint: 3,
   environment: (process.env.NODE_ENV === "production"
     ? "production"
     : "development") as Environment,
