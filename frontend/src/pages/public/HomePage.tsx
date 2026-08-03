@@ -48,10 +48,10 @@ export default function HomePage() {
           {/* marble vein texture — sharp, premium veins over the white background */}
           <div className="pointer-events-none absolute inset-0">
             <div
-              className="absolute inset-0 bg-cover bg-center opacity-[0.65] mix-blend-multiply contrast-125 saturate-125"
+              className="absolute inset-0 bg-cover bg-center opacity-90 mix-blend-multiply contrast-150 saturate-150"
               style={{ backgroundImage: `url(${MARBLE_BG})` }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary/70 via-secondary/25 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-secondary/55 via-secondary/10 to-transparent" />
             <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-gold/10 blur-3xl" />
           </div>
 
@@ -98,12 +98,10 @@ export default function HomePage() {
                   type="button"
                   data-testid={TEST_IDS.common.ctaPreview}
                   onClick={() => setPreviewOpen(true)}
-                  className="group inline-flex items-center gap-2 px-2 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-foreground transition-colors duration-300 hover:text-royal"
+                  className="group inline-flex items-center gap-3 rounded-lg bg-gold px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary shadow-sm transition-shadow duration-300 hover:shadow-xl"
                 >
-                  <Eye size={18} weight="regular" className="text-gold transition-transform duration-300 group-hover:scale-110" />
-                  <span className="border-b border-transparent pb-0.5 transition-colors duration-300 group-hover:border-gold">
-                    {t("home.preview")}
-                  </span>
+                  <Eye size={18} weight="regular" className="text-primary transition-transform duration-300 group-hover:scale-110" />
+                  {t("home.preview")}
                 </button>
               </div>
             </div>
