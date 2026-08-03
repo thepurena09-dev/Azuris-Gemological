@@ -15,7 +15,10 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 
 const HERO_IMAGE =
-  "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/4b2af966dff0609c424ad0916be569527aa95a96a9218ce74111ead9a08b4b8d.jpeg";
+  "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/11e5956f874718e6db198dda556242a9e59a93fb2ea1cd0b3fe0d77cc5e02724.jpeg";
+
+const MARBLE_BG =
+  "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/471de241d9f547602cdb9e66015dfbbf750dd607ba86384b9931906a5173fa15.jpeg";
 
 const CERT_PREVIEW_IMAGE =
   "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/0d47639e6e497245d458ccc63d3dfef83fa6bcc954a41cf25e2143e94cbeec9d.jpeg";
@@ -42,9 +45,13 @@ export default function HomePage() {
     <div data-testid={TEST_IDS.page.home} className="bg-background">
       {/* Hero — balanced editorial two-column */}
       <section className="relative overflow-hidden bg-secondary">
-          {/* soft ambient accents to fill negative space elegantly */}
+          {/* marble vein texture — fills the plain white background elegantly */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-40 top-1/2 h-[40rem] w-[40rem] -translate-y-1/2 rounded-full bg-royal/[0.06] blur-3xl" />
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-multiply"
+              style={{ backgroundImage: `url(${MARBLE_BG})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-secondary/85 via-secondary/45 to-transparent" />
             <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-gold/10 blur-3xl" />
           </div>
 
