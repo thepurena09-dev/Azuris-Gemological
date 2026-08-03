@@ -7,7 +7,7 @@ const id = {
   brand: "Azuris Gemological",
   tagline: "Sertifikasi & Verifikasi Batu Mulia Kelas Dunia",
   comingSoon: "Halaman ini akan diimplementasikan pada sprint berikutnya.",
-  sprintNotice: "Kerangka aplikasi — Sprint 1",
+  sprintNotice: "Kerangka aplikasi — Sprint 2",
   breadcrumbHome: "Beranda",
   nav: {
     home: "Beranda",

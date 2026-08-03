@@ -1,46 +1,42 @@
 """Azuris Gemological — Backend application entrypoint.
 
-Sprint 1: Application shell only.
-- FastAPI app boot
-- CORS configuration
+Through Sprint 2: application shell + centralized configuration layer.
+- FastAPI app boot (metadata from Settings)
+- Environment-driven CORS (spec-safe credentials handling)
 - Health endpoint (GET /api/health)
 
 No business logic, no database collections, no authentication.
-Subsystems (config, db, auth, storage, business modules) are scaffolded as
-empty packages and will be implemented in their respective sprints.
 """
+
+import logging
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from pathlib import Path
-import logging
-import os
 
 from api.health import router as health_router
+from core.config import get_settings
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / ".env")
+settings = get_settings()
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, settings.log_level.upper(), logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger("azuris")
 
 app = FastAPI(
-    title="Azuris Gemological Platform API",
-    version="0.1.0",
+    title=settings.app_name,
+    version=settings.app_version,
     description="Luxury gemological certification & verification platform.",
 )
 
-# Public API routes are mounted under the /api prefix (Kubernetes ingress rule).
-app.include_router(health_router, prefix="/api")
+# Public API routes are mounted under the configured prefix (K8s ingress: /api).
+app.include_router(health_router, prefix=settings.api_prefix)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=settings.allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,4 +44,10 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    logger.info("Azuris backend started (Sprint 1 — application shell).")
+    logger.info(
+        "Azuris backend started — env=%s, sprint=%s, cors=%s (credentials=%s).",
+        settings.environment,
+        settings.sprint,
+        settings.cors_origins_list,
+        settings.allow_credentials,
+    )

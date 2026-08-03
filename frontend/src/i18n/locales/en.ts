@@ -6,7 +6,7 @@ const en = {
   brand: "Azuris Gemological",
   tagline: "World-Class Gemstone Certification & Verification",
   comingSoon: "This page will be implemented in a future sprint.",
-  sprintNotice: "Application shell — Sprint 1",
+  sprintNotice: "Application shell — Sprint 2",
   breadcrumbHome: "Home",
   nav: {
     home: "Home",

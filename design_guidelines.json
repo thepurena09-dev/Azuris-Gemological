@@ -1,160 +1,108 @@
 {
-  "theme_archetype": "Archetype 5: LUXURY & INSTITUTIONAL TRUST",
-  "theme_preference": "dark_and_light",
+  "theme_archetype": "LIGHT LUXURY — Elegant · Minimal · Timeless · Editorial",
+  "theme_preference": "light_only",
+  "status": "LOCKED v2 (user-approved 2026-06). Light theme is the permanent visual identity. Dark mode is NOT used.",
+  "references": ["GIA", "Rolex", "Apple", "Cartier", "Tiffany & Co."],
+  "avoid": [
+    "Marketplace styling",
+    "Gaming-style dark themes",
+    "Overly colorful interfaces",
+    "Dark image overlays",
+    "Overuse of gold (accent only)"
+  ],
   "default_language": "id",
   "supported_languages": ["id", "en"],
   "colors": {
-    "light": {
-      "background": "0 0% 98%",
-      "foreground": "220 30% 10%",
+    "raw_hex": {
+      "background": "#FFFFFF",
+      "secondary_background": "#F8F8F6",
+      "primary_text": "#111111",
+      "secondary_text": "#666666",
+      "border": "#E5E5E5",
+      "primary_accent_deep_emerald": "#0F3D3E",
+      "secondary_accent_champagne_gold": "#C9A227",
+      "success": "#2E7D32",
+      "warning": "#F9A825",
+      "error": "#C62828"
+    },
+    "hsl_tokens_light": {
+      "background": "0 0% 100%",
+      "foreground": "0 0% 7%",
       "card": "0 0% 100%",
-      "card-foreground": "220 30% 10%",
-      "popover": "0 0% 100%",
-      "popover-foreground": "220 30% 10%",
-      "primary": "220 30% 10%",
-      "primary-foreground": "43 60% 85%",
-      "secondary": "43 40% 92%",
-      "secondary-foreground": "220 30% 10%",
-      "muted": "220 10% 94%",
-      "muted-foreground": "220 15% 45%",
-      "accent": "43 40% 92%",
-      "accent-foreground": "220 30% 10%",
-      "destructive": "0 84.2% 60.2%",
-      "destructive-foreground": "0 0% 98%",
-      "border": "43 20% 88%",
-      "input": "43 20% 88%",
-      "ring": "220 30% 10%",
-      "radius": "0.15rem"
+      "card-foreground": "0 0% 7%",
+      "primary": "181 61% 15%",
+      "primary-foreground": "0 0% 100%",
+      "secondary": "48 12% 97%",
+      "muted": "48 12% 97%",
+      "muted-foreground": "0 0% 40%",
+      "accent": "48 12% 97%",
+      "gold": "45 68% 47%",
+      "success": "123 46% 33%",
+      "warning": "43 95% 56%",
+      "destructive": "0 66% 47%",
+      "border": "0 0% 90%",
+      "input": "0 0% 90%",
+      "ring": "181 61% 15%",
+      "radius": "0.625rem"
     },
-    "dark": {
-      "background": "220 25% 4%",
-      "foreground": "0 0% 98%",
-      "card": "220 25% 6%",
-      "card-foreground": "0 0% 98%",
-      "popover": "220 25% 6%",
-      "popover-foreground": "0 0% 98%",
-      "primary": "43 60% 75%",
-      "primary-foreground": "220 25% 4%",
-      "secondary": "220 20% 12%",
-      "secondary-foreground": "0 0% 98%",
-      "muted": "220 20% 12%",
-      "muted-foreground": "220 15% 65%",
-      "accent": "220 20% 12%",
-      "accent-foreground": "43 60% 75%",
-      "destructive": "0 62.8% 30.6%",
-      "destructive-foreground": "0 0% 98%",
-      "border": "220 20% 14%",
-      "input": "220 20% 14%",
-      "ring": "43 60% 75%"
-    },
-    "description": "Dark mode emphasizes deep obsidian/midnight tones with champagne gold accents to highlight gemstone brilliance. Light mode uses pearl white with stark contrasting deep tones to ensure institutional credibility."
+    "usage_rules": [
+      "Deep Emerald (#0F3D3E) is the PRIMARY accent — buttons, active states, links, icons.",
+      "Champagne Gold (#C9A227) is a SECONDARY accent — use sparingly (thin rules, small marks, hairline dividers). Never as a large fill.",
+      "Backgrounds are white / #F8F8F6 only. No dark sections.",
+      "Text: #111 primary, #666 secondary. Borders #E5E5E5 hairline."
+    ]
   },
   "typography": {
     "headings": {
-      "family": "Cormorant Garamond",
-      "weights": ["300", "400", "600"],
-      "description": "A high-end editorial serif. Use for all display text, hero sections, and elegant catalog names. Tracking MUST be tight (-tracking-tighter) on large sizes."
+      "family": "Playfair Display",
+      "weights": ["400", "500", "600", "700", "800"],
+      "description": "Editorial luxury serif for all display/headings. Elegant, high-contrast."
     },
     "body": {
-      "family": "Outfit",
-      "weights": ["300", "400", "500"],
-      "description": "A clean, modern geometric sans-serif for high readability in dense data (lab certificates, admin dashboard, verification portal)."
+      "family": "Inter",
+      "weights": ["300", "400", "500", "600", "700"],
+      "description": "Clean, highly-readable sans for body, UI, data."
     },
+    "fallback": "system sans-serif",
     "rules": [
-      "No generic fonts (Inter, Space Grotesk, Roboto) allowed.",
-      "H1 sizes fluid: text-5xl md:text-6xl+, tracking-tighter.",
-      "Uppercase labels must use extreme tracking: tracking-[0.2em] text-xs.",
-      "Maintain a 2-step tailwind scale gap between H1 and subtitles."
+      "Emphasize elegance and readability.",
+      "Uppercase labels use wide tracking (tracking-[0.2em]) at small sizes.",
+      "Generous line-height for editorial body copy."
     ]
   },
-  "layouts": {
-    "marketing": {
-      "hero": "Asymmetrical layout, full-screen background with deep contrast gradients overlay (bg-black/40). Never centered generic text. Include subtle grain texture.",
-      "bento_grid": "For catalog showcasing: md:grid-cols-12, wide gaps (gap-8), overlapping elements. E.g., Col-span-8 for hero gem, col-span-4 for lab details.",
-      "spacing": "Extremely generous padding. Use p-8, p-12, p-16, p-24 for section breathing room."
-    },
-    "dashboard_and_verification": {
-      "grid": "High-density technical grid (grid-cols-4 or grid-cols-12).",
-      "surfaces": "Flat solid background with 1px delicate borders (border-white/10 or border-black/10). No muddy shadows. Use sharp edges.",
-      "spacing": "Tight, efficient (p-4 to p-8), ensuring data visibility."
-    }
+  "layout": {
+    "max_content_width": "1280px (Tailwind max-w-7xl)",
+    "style": "Editorial: large white space, clean sections, premium spacing (p-8 / p-12 / p-16 / py-24).",
+    "grid": "Simple, aligned editorial grids. No busy bento or overlapping chaos."
   },
   "components": {
-    "cards": {
-      "marketing": "Crystal Glassmorphism: backdrop-blur-xl bg-white/5 (dark mode) or bg-black/5 (light mode). Must have 1px inner border. Ambient shadow-2xl.",
-      "dashboard": "Neumorphism/Flat with 1px crisp borders. Minimal radius (rounded-sm or rounded-none)."
-    },
     "buttons": {
-      "primary": "Pill-shaped (rounded-full) for Catalog/WhatsApp CTA. Hover: slight lift, increased glow.",
-      "secondary": "Sharp rectangular with 1px border. Minimalist.",
-      "states": "Hover MUST have explicit text and background colors defined. Never rely on inheritance."
+      "primary": "Deep Emerald background, white text.",
+      "secondary": "White background, emerald border, emerald text.",
+      "ghost": "Text only (emerald), no border/background."
+    },
+    "cards": {
+      "style": "White cards, very subtle shadows, soft #E5E5E5 borders, large padding, rounded corners (radius 0.625rem)."
     },
     "navigation": {
-      "style": "Sticky Crystal Glass header. Never fully transparent if content scrolls behind. Include language switcher (ID/EN)."
-    },
-    "verification_portal": {
-      "style": "Technical/Swiss Brutalist approach nested in luxury context. Stark contrast, mono-spaced numbers for cert IDs, clear QR scanner UI box."
+      "style": "Clean white/near-white sticky header with hairline bottom border. Includes ID/EN language switcher."
     }
   },
-  "motion": {
-    "transitions": "Slow, cinematic eases. Use transition-all duration-500 ease-out for hover states.",
-    "scroll": "Smooth scrolling via Lenis for a weighty, premium feel.",
-    "interactions": "Subtle scale-up (scale-105) on gemstone imagery. Reveal text via mask-image animations."
-  },
-  "icons_and_assets": {
+  "icons": {
     "library": "@phosphor-icons/react",
-    "weight": "duotone",
-    "usage": "Use thin, elegant weights. Avoid blocky icons."
+    "usage": "Consistent Phosphor icons; thin/regular/duotone weights, emerald or neutral tones."
   },
-  "image_urls": {
-    "gemstones": [
-      {
-        "url": "https://images.unsplash.com/photo-1632980205460-e490e885e848",
-        "description": "Macro shot of purple crystals. Use for hero or abstract aesthetic backgrounds."
-      },
-      {
-        "url": "https://images.unsplash.com/photo-1521133573892-e44906baee46",
-        "description": "Detail purple crystal quartz stone."
-      }
-    ],
-    "jewelry_catalog": [
-      {
-        "url": "https://images.pexels.com/photos/7700270/pexels-photo-7700270.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Luxurious silver diamond ring. Use for jewelry catalog placeholders."
-      },
-      {
-        "url": "https://images.pexels.com/photos/8706563/pexels-photo-8706563.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-        "description": "Man holding gold chains. Lifestyle luxury imagery."
-      }
-    ],
-    "lab_verification": [
-      {
-        "url": "https://images.unsplash.com/photo-1614308460927-5024ba2e1dcb",
-        "description": "Close up of a microscope lens. Use for institutional trust / lab verification sections."
-      },
-      {
-        "url": "https://images.pexels.com/photos/8532830/pexels-photo-8532830.jpeg",
-        "description": "Scientists in laboratory. Use for the 'About Us' or 'Certification Process' pages."
-      }
-    ]
+  "images": {
+    "direction": "Large premium gemstone photography, bright backgrounds, clean compositions. NO dark overlays."
+  },
+  "motion": {
+    "policy": "Restrained. Keep existing subtle hover color transitions only. Do NOT add new animations or grain textures (per locked direction)."
   },
   "instructions_to_main_agent": [
-    "Install and configure fonts in index.css: Cormorant Garamond (headings) and Outfit (body).",
-    "Update tailwind.config.js with the provided color scheme, utilizing HSL variables for dark/light mode toggling.",
-    "Implement the landing page with absolute luxury focus: extreme whitespace, large serif typography, and glassmorphic cards.",
-    "Build the Verification Portal with a technical, high-contrast UI layout mimicking physical secure documents.",
-    "Build a bilingual toggle (Indonesian / English) in the navigation.",
-    "Admin Dashboard must remain functional but inherit the dark/light premium aesthetic (sharp borders, Outfit font).",
-    "Do NOT use pure #000 or #FFF anywhere except where explicit contrast requires it. Use the tinted themes.",
-    "Ensure all interactive elements have data-testid attributes for testing."
-  ],
-  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
-    "Do not use centered generic text alignment.",
-    "Create depth through layered design elements with z-index hierarchy and glassmorphism.",
-    "Do not apply `transition: all` globally.",
-    "Never use generic AI emojis for icons.",
-    "Add micro-animations for hover states and entrances.",
-    "Do not use generic border-radii; align with the luxury brand (sharp or pill).",
-    "Prioritize Shadcn/UI for dashboard functionality but use pure HTML/Tailwind for marketing asymmetry."
+    "Light theme only — never apply a `dark` class or theme switching.",
+    "Tokens live in src/index.css (:root) and tailwind.config.js. All pages inherit automatically.",
+    "Use emerald for primary actions/accents; gold strictly as a sparing secondary accent.",
+    "Keep layouts, routing, and pages unchanged unless a sprint explicitly adds them.",
+    "Ensure all interactive elements retain data-testid attributes."
   ]
 }
