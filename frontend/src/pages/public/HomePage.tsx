@@ -36,8 +36,8 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-secondary">
         <div className="absolute inset-0">
-          <img src={HERO_IMAGE} alt="Blue sapphire" className="h-full w-full object-cover object-right" />
-          <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/85 to-secondary/10" />
+          <img src={HERO_IMAGE} alt="Blue sapphire" className="h-full w-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/70 to-secondary/5" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-6 pb-40 pt-24 md:px-10 md:pb-48 md:pt-32">
