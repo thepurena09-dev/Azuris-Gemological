@@ -31,8 +31,8 @@ export default function PlaceholderPage({
           {t("breadcrumbHome")}
         </Link>
         {breadcrumbs.map((crumb) => (
-          <span key={crumb.label} className="flex items-center gap-2">
-            <CaretRight size={12} weight="thin" />
+          <span key={crumb.label} className="flex items-center">
+            <CaretRight size={12} weight="bold" className="mx-3 text-primary/60" />
             {crumb.to ? (
               <Link to={crumb.to} className="transition-colors hover:text-foreground">
                 {crumb.label}
