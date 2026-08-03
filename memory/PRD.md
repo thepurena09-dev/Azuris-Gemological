@@ -28,11 +28,27 @@ Permanent identity: **Light theme only** (no dark mode / no theme switch). White
 surfaces, #111 text / #666 secondary, #E5E5E5 borders. **Deep Emerald #0F3D3E** primary accent;
 **Champagne Gold #C9A227** secondary accent (sparing). Fonts: **Playfair Display** (headings) + **Inter** (body).
 Max content width 1280px, editorial spacing. Tokens live in `frontend/src/index.css` (:root) + `tailwind.config.js`.
-Full spec: `/app/design_guidelines.json`.
+Full spec: `/app/design_guidelines.json`. **Refinement v3 (2026-06):** bright emerald-on-white
+photography, larger Playfair headings, champagne-gold hairline accents, premium squared buttons,
+cleaner white navigation, warmer ivory secondary, editorial whitespace. (User-referenced image was
+not attached to the job; refinement executed from the written visual direction.)
 
 ---
 
 ## Progress Log
+
+### Sprint 3 — MongoDB Connection & DB Layer ✅ (2026-06, verified 100% backend + frontend)
+- `db/mongodb.py`: async **Motor** connection manager (connect/disconnect/ping, `mongodb` singleton, `get_database`).
+- `db/indexes.py`: **index bootstrap** for all 14 locked collections (dual-id unique `uuid`, unique
+  `certificate_number`, unique `verification_tokens.token`, media entity link, append-only log time order).
+- `db/init.py` + `scripts/init_db.py`: idempotent Mongo initialization (connect + ensure indexes).
+- `repositories/base.py`: **repository foundation** — generic async `BaseRepository`
+  (find/count/insert/update/soft-delete); not wired to any endpoint (Sprint 5 extends).
+- `server.py`: connects DB + runs index bootstrap on startup, disconnects on shutdown (boot never blocked on DB).
+- `/api/health` now integrates **DB status** → adds `database: connected|disconnected` (status degrades if ping fails).
+- **Visual refinement (Design v3):** brighter emerald-on-white hero photography (removed dark/purple feeling),
+  larger Playfair headings, champagne-gold hairline accents, premium squared emerald buttons, cleaner white nav,
+  warmer ivory secondary, more editorial whitespace. Routing/pages/components unchanged.
 
 ### Sprint 2 — Configuration & Environment Layer ✅ (2026-06, verified 100% backend + frontend)
 - Backend `core/config.py`: Pydantic **Settings** (env-driven; app metadata, environment, api_prefix,
@@ -58,8 +74,9 @@ Full spec: `/app/design_guidelines.json`.
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next:** Sprint 3 — MongoDB Connection & DB Layer (Motor connection manager, index bootstrap,
-  init script, DB status in healthcheck). Settings `mongo_url`/`db_name` already declared.
+- **P0 next:** Sprint 4 — Domain Models & Schemas (Pydantic models + DTO schemas for all locked entities
+  with dual-id ObjectId+UUID, audit envelope, versioning fields; media metadata; 3 log collections).
+  Indexes for all collections already bootstrapped in Sprint 3.
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
