@@ -37,6 +37,12 @@ not attached to the job; refinement executed from the written visual direction.)
 
 ## Progress Log
 
+### Sprint 4.5 — Business Rules Lock ✅ (2026-06, documentation only)
+- `/app/docs/BUSINESS_RULES_LOCK.md` — permanent business rules for all 10 domains (gemstones, jewelry,
+  certificates, warranties, ownership, verification, membership cards, media, public verification, admin ops):
+  lifecycle, status transitions, immutable/editable fields, versioning, security, validation, audit, constraints.
+- Enforced (not redefined) by implementation sprints 5+.
+
 ### Sprint 4 — Domain Models & Schemas ✅ (2026-06, validated via assertion script)
 - `models/base.py`: `PyObjectId` (ObjectId→str), `BaseDocument` (`_id`↔`id`, from_mongo/to_mongo),
   mixins — DualId (`uuid`), Audit, SoftDelete, Version.
