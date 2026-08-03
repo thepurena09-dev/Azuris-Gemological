@@ -70,6 +70,16 @@ INDEX_SPECS: dict[str, list[IndexModel]] = {
     "security_logs": [
         IndexModel([("created_at", DESCENDING)], name="ix_slog_created_at"),
     ],
+    # Atomic sequence source for certificate numbers (AZR-GEM-YYYY-000001).
+    # Unique (name, year) guarantees a single counter document per year so
+    # concurrent upserts increment atomically. Never exposed publicly.
+    "counters": [
+        IndexModel(
+            [("name", ASCENDING), ("year", ASCENDING)],
+            unique=True,
+            name="uq_counter_name_year",
+        ),
+    ],
 }
 
 

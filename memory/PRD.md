@@ -37,6 +37,16 @@ not attached to the job; refinement executed from the written visual direction.)
 
 ## Progress Log
 
+### Sprint 5 — Repository Layer Foundation ✅ (2026-06, validated against test DB)
+- `repositories/domain.py`: generic `DomainRepository[T]` (extends Sprint 3 `BaseRepository`) with model
+  translation (from_mongo/to_mongo), create/get_by_uuid/get_by_id, list (pagination+filter+sort),
+  update_by_uuid, soft_delete_by_uuid; `AppendOnlyRepository` for logs (update/delete raise).
+- Per-domain repositories for all 14 collections (catalog, people, documents, ownership, media, cms, logs).
+- `repositories/counter.py` + `counters` unique(name,year) index: **atomic** certificate numbers via
+  `find_one_and_update`+`$inc` → `AZR-GEM-YYYY-000001` (never counts docs, never reuses). Verified unique &
+  gap-free under 50 concurrent calls.
+- Repositories are the only layer touching Mongo. No endpoints/auth/business logic/UI.
+
 ### Sprint 4.5 — Business Rules Lock ✅ (2026-06, documentation only; updated to v1.1)
 - `/app/docs/BUSINESS_RULES_LOCK.md` — permanent business rules for all 10 domains (gemstones, jewelry,
   certificates, warranties, ownership, verification, membership cards, media, public verification, admin ops):
@@ -94,8 +104,8 @@ not attached to the job; refinement executed from the written visual direction.)
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next:** Sprint 5 — Repository Layer Foundation (extend `BaseRepository` into per-domain
-  repositories using the Sprint 4 models; CRUD + soft delete + pagination/filter/sort). Only layer touching Mongo.
+- **P0 next:** Sprint 6 — Authentication Foundation (JWT access/refresh, admin login, token rotation,
+  password hashing, `last_activity`, security_logs on auth events). Uses AdminRepository from Sprint 5.
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
