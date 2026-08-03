@@ -47,6 +47,27 @@ const en = {
     title: "Admin Panel",
     dashboard: "Dashboard",
   },
+  catalog: {
+    eyebrow: "Certified Gemstone Collection",
+    title: "Gemstone Catalog",
+    subtitle:
+      "A curated selection of fine gemstones, each accompanied by an official Azuris gemological report and a verification code. Contact us on WhatsApp for availability and details.",
+    sampleNotice: "Sample Catalog — for client review",
+    whatsapp: "Ask on WhatsApp",
+    filter: {
+      all: "All",
+      sapphire: "Sapphire",
+      ruby: "Ruby",
+      emerald: "Emerald",
+      diamond: "Diamond",
+    },
+    spec: {
+      carat: "Weight",
+      cut: "Cut",
+      color: "Color",
+      origin: "Origin",
+    },
+  },
   language: {
     label: "Language",
     id: "Indonesian",

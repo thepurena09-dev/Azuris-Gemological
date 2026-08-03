@@ -140,6 +140,15 @@ attached to the job; executed from the detailed written direction.)
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
 ## UI Refinements (RC1 — visual only, business logic FROZEN at Sprint 7)
+- 2026-06: Sharpened hero marble-vein texture (new Calacatta gold+charcoal image, opacity 90% +
+  contrast/saturate boost, softened white gradient) and turned "Preview" into a solid gold button.
+- 2026-06: Added DEMO sample gemstone catalog on `CatalogPage.tsx` (frontend only, for client review).
+  6 sample stones in `src/data/sampleGemstones.ts` (bilingual name/cut/color/origin, cert numbers
+  AZR-GEM-2026-000101..106, no prices). Type filter chips + WhatsApp CTA (wa.me) + per-card verify link.
+  Emerald image AI-generated for premium look. New i18n `catalog.*` keys (id/en); testids: catalog-filters,
+  catalog-grid, catalog-sample-notice, catalog-filter-<key>, catalog-card-<id>, catalog-whatsapp-<id>,
+  catalog-verify-<id>. NOTE: WhatsApp number is a placeholder (6281200000000) — replace before launch.
+
 - 2026-06: HomePage hero redesigned to a balanced two-column editorial layout (copy left, framed
   sapphire image right) — fixes empty/blank left space on ultra-wide screens.
 - 2026-06: Added a physical "Preview" button (CTA row + floating card on the image) that opens a

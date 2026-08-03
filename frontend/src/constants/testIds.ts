@@ -42,6 +42,11 @@ export const TEST_IDS = {
     previewModal: "certificate-preview-modal",
     previewImage: "certificate-preview-image",
   },
+  catalog: {
+    filters: "catalog-filters",
+    grid: "catalog-grid",
+    sampleNotice: "catalog-sample-notice",
+  },
   admin: {
     layout: "admin-layout",
     sidebar: "admin-sidebar",

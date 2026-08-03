@@ -48,6 +48,27 @@ const id = {
     title: "Panel Admin",
     dashboard: "Dasbor",
   },
+  catalog: {
+    eyebrow: "Koleksi Batu Mulia Bersertifikat",
+    title: "Katalog Batu Mulia",
+    subtitle:
+      "Pilihan batu mulia pilihan, masing-masing disertai laporan gemologi resmi Azuris dan kode verifikasi. Hubungi kami melalui WhatsApp untuk ketersediaan dan informasi lebih lanjut.",
+    sampleNotice: "Katalog Contoh — untuk peninjauan klien",
+    whatsapp: "Tanya via WhatsApp",
+    filter: {
+      all: "Semua",
+      sapphire: "Safir",
+      ruby: "Ruby",
+      emerald: "Zamrud",
+      diamond: "Berlian",
+    },
+    spec: {
+      carat: "Berat",
+      cut: "Potongan",
+      color: "Warna",
+      origin: "Asal",
+    },
+  },
   language: {
     label: "Bahasa",
     id: "Indonesia",
