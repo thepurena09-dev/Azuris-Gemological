@@ -34,10 +34,10 @@ export default function HomePage() {
   return (
     <div data-testid={TEST_IDS.page.home} className="bg-background">
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-secondary">
         <div className="absolute inset-0">
-          <img src={HERO_IMAGE} alt="Blue sapphire" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent" />
+          <img src={HERO_IMAGE} alt="Blue sapphire" className="h-full w-full object-cover object-right" />
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/85 to-secondary/10" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-6 pb-40 pt-24 md:px-10 md:pb-48 md:pt-32">
