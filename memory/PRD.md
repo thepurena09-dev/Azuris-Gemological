@@ -37,6 +37,18 @@ not attached to the job; refinement executed from the written visual direction.)
 
 ## Progress Log
 
+### Sprint 4 — Domain Models & Schemas ✅ (2026-06, validated via assertion script)
+- `models/base.py`: `PyObjectId` (ObjectId→str), `BaseDocument` (`_id`↔`id`, from_mongo/to_mongo),
+  mixins — DualId (`uuid`), Audit, SoftDelete, Version.
+- `models/enums.py`: locked enums (AdminRole ×4, statuses, media roles/types, verification method/result,
+  audit actions, security events).
+- Entity models for all 14 collections (`models/{people,catalog,documents,ownership,media,cms,logs}.py`)
+  + `COLLECTION_MODELS` map. Certificates/warranties/membership cards carry VersionMixin; logs are append-only.
+- `schemas/`: Create/Update/Response DTOs for every entity + pagination. Responses never expose secrets
+  (`password_hash`/`token`/`security_code`) or raw ObjectId; public projections mask PII.
+- Validation confirmed: dual-id defaults, to_mongo/from_mongo round-trip, versioning defaults, field
+  constraints (e.g. weight_carat>0), secret omission, media metadata. No endpoints/logic/UI (per scope).
+
 ### Sprint 3 — MongoDB Connection & DB Layer ✅ (2026-06, verified 100% backend + frontend)
 - `db/mongodb.py`: async **Motor** connection manager (connect/disconnect/ping, `mongodb` singleton, `get_database`).
 - `db/indexes.py`: **index bootstrap** for all 14 locked collections (dual-id unique `uuid`, unique
@@ -74,9 +86,8 @@ not attached to the job; refinement executed from the written visual direction.)
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next:** Sprint 4 — Domain Models & Schemas (Pydantic models + DTO schemas for all locked entities
-  with dual-id ObjectId+UUID, audit envelope, versioning fields; media metadata; 3 log collections).
-  Indexes for all collections already bootstrapped in Sprint 3.
+- **P0 next:** Sprint 5 — Repository Layer Foundation (extend `BaseRepository` into per-domain
+  repositories using the Sprint 4 models; CRUD + soft delete + pagination/filter/sort). Only layer touching Mongo.
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
