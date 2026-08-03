@@ -23,6 +23,22 @@ const id = {
     rights: "Seluruh hak cipta dilindungi.",
     established: "Institusi Gemologi Tepercaya",
   },
+  home: {
+    description:
+      "Standar internasional untuk hasil yang dapat dipercaya, didukung oleh teknologi modern dan ahli gemologi profesional.",
+    stats: {
+      accurate: { value: "100%", label: "Akurat & Terpercaya" },
+      global: { value: "Global", label: "Standar Internasional" },
+      professional: { value: "Profesional", label: "Ahli Gemologi Bersertifikat" },
+      recognized: { value: "Diakui Dunia", label: "Reputasi Global" },
+    },
+    features: {
+      trusted: { title: "Tepercaya", desc: "Standar internasional untuk hasil yang dapat dipercaya." },
+      accurate: { title: "Akurat", desc: "Teknologi modern dan tenaga ahli bersertifikat." },
+      professional: { title: "Profesional", desc: "Layanan gemologi profesional dan transparan." },
+      global: { title: "Global", desc: "Diakui secara global, menjadi pilihan utama." },
+    },
+  },
   admin: {
     title: "Panel Admin",
     dashboard: "Dasbor",

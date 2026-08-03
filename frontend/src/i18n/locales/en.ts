@@ -22,6 +22,22 @@ const en = {
     rights: "All rights reserved.",
     established: "A Trusted Gemological Institution",
   },
+  home: {
+    description:
+      "International standards for results you can trust, supported by modern technology and professional gemologists.",
+    stats: {
+      accurate: { value: "100%", label: "Accurate & Trusted" },
+      global: { value: "Global", label: "International Standard" },
+      professional: { value: "Professional", label: "Certified Gemologists" },
+      recognized: { value: "World-Recognized", label: "Global Reputation" },
+    },
+    features: {
+      trusted: { title: "Trusted", desc: "International standards for dependable results." },
+      accurate: { title: "Accurate", desc: "Modern technology and certified experts." },
+      professional: { title: "Professional", desc: "Transparent, professional gemological services." },
+      global: { title: "Global", desc: "Globally recognized, the preferred choice." },
+    },
+  },
   admin: {
     title: "Admin Panel",
     dashboard: "Dashboard",
