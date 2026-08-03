@@ -18,7 +18,7 @@ const HERO_IMAGE =
   "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/11e5956f874718e6db198dda556242a9e59a93fb2ea1cd0b3fe0d77cc5e02724.jpeg";
 
 const MARBLE_BG =
-  "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/471de241d9f547602cdb9e66015dfbbf750dd607ba86384b9931906a5173fa15.jpeg";
+  "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/df3161b0cd73f56ca5ed2325b394244a0bc533006164f0b288a0bd38c33fcfef.jpeg";
 
 const CERT_PREVIEW_IMAGE =
   "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/0d47639e6e497245d458ccc63d3dfef83fa6bcc954a41cf25e2143e94cbeec9d.jpeg";
@@ -45,13 +45,13 @@ export default function HomePage() {
     <div data-testid={TEST_IDS.page.home} className="bg-background">
       {/* Hero — balanced editorial two-column */}
       <section className="relative overflow-hidden bg-secondary">
-          {/* marble vein texture — fills the plain white background elegantly */}
+          {/* marble vein texture — sharp, premium veins over the white background */}
           <div className="pointer-events-none absolute inset-0">
             <div
-              className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-multiply"
+              className="absolute inset-0 bg-cover bg-center opacity-[0.65] mix-blend-multiply contrast-125 saturate-125"
               style={{ backgroundImage: `url(${MARBLE_BG})` }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary/85 via-secondary/45 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-secondary/70 via-secondary/25 to-transparent" />
             <div className="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-gold/10 blur-3xl" />
           </div>
 
