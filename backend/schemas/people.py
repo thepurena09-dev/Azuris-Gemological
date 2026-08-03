@@ -14,7 +14,7 @@ from schemas.common import AuditFields
 
 # ---------- Admin ----------
 class AdminCreate(BaseModel):
-    email: EmailStr
+    email: str = Field(min_length=3, max_length=254)
     password: str = Field(min_length=8, max_length=128)  # hashed by auth sprint
     full_name: str = Field(min_length=1, max_length=160)
     role: AdminRole = AdminRole.CUSTOMER_SERVICE
@@ -29,7 +29,7 @@ class AdminUpdate(BaseModel):
 class AdminResponse(AuditFields):
     id: Optional[str] = None
     uuid: str
-    email: EmailStr
+    email: str
     full_name: str
     role: AdminRole
     is_active: bool

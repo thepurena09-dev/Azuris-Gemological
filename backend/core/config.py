@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # --- Application metadata ---
     app_name: str = "Azuris Gemological Platform API"
     app_version: str = "0.1.0"
-    sprint: int = 3
+    sprint: int = 6
     environment: str = "development"  # development | staging | production
     api_prefix: str = "/api"
     log_level: str = "INFO"
@@ -35,6 +35,14 @@ class Settings(BaseSettings):
     # --- Database (connection layer implemented in Sprint 3) ---
     mongo_url: str
     db_name: str
+
+    # --- Auth / JWT (Sprint 6) ---
+    jwt_secret: str
+    jwt_algorithm: str = "HS256"
+    access_token_minutes: int = 15
+    refresh_token_days: int = 7
+    admin_email: str = "admin@azuris.local"
+    admin_password: str = "AzurisDev@2026!"
 
     # --- CORS ---
     cors_origins: str = "*"

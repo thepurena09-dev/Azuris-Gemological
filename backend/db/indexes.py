@@ -70,6 +70,11 @@ INDEX_SPECS: dict[str, list[IndexModel]] = {
     "security_logs": [
         IndexModel([("created_at", DESCENDING)], name="ix_slog_created_at"),
     ],
+    # Server-side refresh-token store for rotation + logout invalidation.
+    "refresh_tokens": [
+        IndexModel([("jti", ASCENDING)], unique=True, name="uq_refresh_jti"),
+        IndexModel([("admin_id", ASCENDING)], name="ix_refresh_admin"),
+    ],
     # Atomic sequence source for certificate numbers (AZR-GEM-YYYY-000001).
     # Unique (name, year) guarantees a single counter document per year so
     # concurrent upserts increment atomically. Never exposed publicly.

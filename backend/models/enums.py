@@ -107,6 +107,7 @@ class AuditAction(str, Enum):
 class SecurityEventType(str, Enum):
     LOGIN_SUCCESS = "login_success"
     LOGIN_FAIL = "login_fail"
+    LOGOUT = "logout"
     TOKEN_REFRESH = "token_refresh"
     TOKEN_ROTATION = "token_rotation"
     ROLE_CHANGE = "role_change"

@@ -15,7 +15,7 @@ from models.enums import AdminRole
 class Admin(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
     """Closed-access operator account (collection: `admins`)."""
 
-    email: EmailStr
+    email: str = Field(min_length=3, max_length=254)  # allows internal/.local domains
     password_hash: str
     full_name: str = Field(min_length=1, max_length=160)
     role: AdminRole = AdminRole.CUSTOMER_SERVICE
