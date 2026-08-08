@@ -40,6 +40,22 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### POST-BATCH D — CLIENT-APPROVED FINAL UI POLISH + CMS VISUAL CONTROL (2026-06)
+Not a new Sprint/Phase. Blueprint Sprint 1–30 + 23A stay COMPLETE. BUSINESS_RULES_LOCK.md UNCHANGED. Certificate format LOCKED `AZR-GEM-{SEQ6}-{YY}`, counter last_number=14 → next `AZR-GEM-000015-26`. Business collections baseline=0 held. Validated: testing_agent iteration_14 — new `tests/test_cms_visuals.py` 14/14 + FE 100%.
+
+**CMS Visual Controls (audited → EXTENDED minimally on existing Settings resource; no 2nd CMS/uploader):**
+- Backend: `BusinessSettings` (collection `site_settings`) extended with visual fields (login image url+alt id/en, process image url+alt id/en+show, homepage membership show/title/desc/cta id-en/link). `api/settings.py`: public `GET /api/settings/public` now returns visuals; admin `GET/PUT /api/admin/settings/visuals` guarded by permissions `CMS_READ`/`CMS_WRITE` (SUPER_ADMIN + CONTENT_MANAGER write; CUSTOMER_SERVICE read-only; ADMINISTRATOR read per locked matrix — RBAC matrix intentionally NOT modified). Mutations audited (entity_type `cms_visuals`). No secrets/PII exposed.
+- Frontend: new `pages/admin/VisualsPage.tsx` (`/admin/visuals`, nav item `admin-nav-visuals`) — 3 sections (Admin Login Image, Certification Process Image, Homepage Membership) with previews + MASKED membership card preview. `lib/settings.tsx` exposes `visuals`. LoginPage image now CMS-driven. HomePage: process image + NEW membership showcase (reuses Sprint 23A `MembershipCardVisual`, masked `Andi Pra****` / `AZR-MEM-••••••-26`, CTA → /membership). i18n `homeMembership.*` + `adminVisuals.*` (id/en).
+
+**4 design-system polish changes (NOT admin-editable):**
+1. Dashboard marble veining refined — subtle marble overlay added to admin `<main>` (opacity ~0.10, contrast 1.25, mix-blend-multiply); readability preserved.
+2. Admin sidebar logo reduced ~15% (40px → 34px), aspect/sharpness kept.
+3. Admin brand→nav breathing space (brand `mb-10` + nav hairline `border-t` + `pt-8`).
+4. Public navigation premium border — champagne-gold (#C7A247) 1px borders, transparent bg, subtle hover tint, warm active tint, compact radius; mobile menu gets simpler bordered version.
+
+**Visual proof (public desktop only via preview tool):** Homepage desktop, bordered nav, certification-process CMS image, homepage membership (masked), CMS login image, membership portal — all captured. Admin Dashboard (marble/logo/spacing) + CMS Visuals page are auth-gated: the preview screenshot tool captures only the unauthenticated `page_url` load, so these were verified functionally by testing_agent iteration_14 (real login + rendering + masked identity + data-testids), not directly screenshot-capturable. No business logic/DB rule changed.
+
+
 ### BATCH D — CMS / Public / Analytics / QA / Security / Performance / Production / Launch (Sprints 24–30) ✅ (2026-06, validated: testing_agent iteration_13 — new `tests/test_batch_d_analytics.py` 10/10; combined authoritative gate 84/84 = batch_d 10 + A 22 + B 32 + C 20; FE dashboard render + public smoke pass; DB baseline held)
 Fast-track, REUSE-FIRST, blueprint-first. No locked rule touched; BUSINESS_RULES_LOCK.md UNCHANGED. Certificate format LOCKED `AZR-GEM-{SEQ6}-{YY}`. DB baseline held (all business collections=0, counter.last_number=14 → next real cert `AZR-GEM-000015-26`). Full report: `/app/docs/PRODUCTION_READINESS.md`.
 
