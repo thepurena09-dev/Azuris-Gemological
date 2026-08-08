@@ -1,9 +1,10 @@
 """Counter repository — atomic certificate-number generation (Sprint 5).
 
-Certificate numbers follow the locked format `AZR-GEM-YYYY-000001`. The next
-number is produced by an atomic `find_one_and_update` upsert with `$inc` on the
-`counters` collection (unique on name+year) — never by counting documents and
-never reusing a number. The counter is internal and never exposed publicly.
+Certificate numbers follow the client-approved format `AZR-GEM-000001-YY`
+(FASE 3.4; sequence 6-digit, then 2-digit issue year). The next number is
+produced by an atomic `find_one_and_update` upsert with `$inc` on the `counters`
+collection (unique on name+year) — never by counting documents and never reusing
+a number. The counter is internal and never exposed publicly.
 """
 
 from datetime import datetime, timezone
@@ -38,4 +39,4 @@ class CounterRepository(BaseRepository):
     async def next_certificate_number(self, year: Optional[int] = None) -> str:
         year = year or datetime.now(timezone.utc).year
         seq = await self._next_sequence(CERTIFICATE_COUNTER, year)
-        return f"{CERTIFICATE_PREFIX}-{year}-{seq:06d}"
+        return f"{CERTIFICATE_PREFIX}-{seq:06d}-{year % 100:02d}"

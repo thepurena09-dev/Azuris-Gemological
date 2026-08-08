@@ -10,13 +10,23 @@ redefine — these rules.
 
 ## ADDENDUM v1.1 — Locked Business Decisions (authoritative)
 
-### A. Certificate Number Format (LOCKED)
-Permanent business identifier pattern: **`AZR-GEM-YYYY-000001`**
+### A. Certificate Number Format (CLIENT-REVISED — FASE 3.4)
+Permanent business identifier pattern: **`AZR-GEM-000001-YY`**
 - `AZR-GEM` — fixed brand/product prefix.
-- `YYYY` — 4-digit issuing year (UTC).
 - `000001` — zero-padded 6-digit sequence, monotonically increasing (per year).
+- `YY` — 2-digit issuing year (UTC), e.g. `26` for 2026.
 - Globally **unique, immutable, never reused**. Independent of `_id` and `uuid`.
-- Example: `AZR-GEM-2026-000042`.
+- Example: `AZR-GEM-000042-26`.
+
+> **REVISION NOTE (FASE 3.4 — Client Approved Certificate Number Format Revision):**
+> - **Old:** `AZR-GEM-YYYY-000001` (e.g. `AZR-GEM-2026-000015`)
+> - **New:** `AZR-GEM-000001-YY` (e.g. `AZR-GEM-000015-26`)
+> - **Reason:** Client Approved Certificate Number Format Revision — FASE 3.4.
+> - **Scope:** ONLY the number *format* changed. Atomic counter, per-year sequence,
+>   uniqueness, non-reuse, immutability of historical numbers, and all other rules
+>   below remain UNCHANGED. Historical certificates (if any) keep their original
+>   number immutably; at revision time the DB contained 0 issued certificates, so
+>   the new format applies from the next issuance (`AZR-GEM-000015-26`).
 
 ### B. Owner Name Masking (LOCKED)
 Public displays of an owner's name are masked. Length is preserved; revealed
@@ -105,7 +115,7 @@ a generic non-authentic result (internal precise `result` still logged).
 - **Immutable fields:** `uuid`, `certificate_number` (globally unique, never reused, never edited), `gemstone_id`, and — per version — the grading snapshot (`color_grade`, `clarity_grade`, `cut_grade`, `carat_weight`, `measurements`) and `version`, `created_version_at`, `created_version_by`. **Issued versions are immutable.**
 - **Editable fields:** only while `draft` — grading fields and bilingual `comments_id/en`. After issuance, changes require a new version.
 - **Versioning rules:** `version` starts at 1; each re-issue increments `version`, sets `is_current=true` on the new version and `false` on all others; **exactly one** current version per certificate at any time. Superseded versions are retained (immutable, never deleted).
-- **Security rules:** the verification link/QR references the stable public `verification_uuid`/token, not the certificate `_id`. `certificate_number` follows the locked format **`AZR-GEM-YYYY-000001`** (unique, immutable, never reused); unguessability is provided by the token, not the number.
+- **Security rules:** the verification link/QR references the stable public `verification_uuid`/token, not the certificate `_id`. `certificate_number` follows the client-approved format **`AZR-GEM-000001-YY`** (unique, immutable, never reused); unguessability is provided by the token, not the number.
 - **Version visibility (v1.1 lock):** only the **current** version is public; **previous versions stay archived** (retained, not public); **admins can access every version**.
 - **Validation:** `certificate_number` required & unique; `gemstone_id` must reference an existing (verified-or-later) stone; `carat_weight > 0` when set.
 - **Audit:** issue, re-issue (version_create), and revoke are all logged with before/after and version metadata.

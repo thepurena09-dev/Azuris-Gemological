@@ -5,7 +5,7 @@ import { TEST_IDS } from "@/constants/testIds";
 import { apiFetch } from "@/lib/api";
 import { appConfig } from "@/config";
 
-const CERT_RE = /^AZR-GEM-\d{4}-\d{6}$/;
+const CERT_RE = /^AZR-GEM-\d{6}-\d{2}$/;
 
 interface VerifyResult {
   status: string; // valid | archived | revoked | expired | not_found

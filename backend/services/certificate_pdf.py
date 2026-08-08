@@ -244,21 +244,21 @@ def _panel_front(c, x0, x1, number, year):
     c.setFont(HEAD, 8.5)
     c.drawCentredString(cx, PAGE_H - 65.5 * mm, "Sertifikat Gemologi")
 
-    # certificate number plate (ivory on navy)
-    plate_w, plate_h = 48 * mm, 12.5 * mm
-    px, py = cx - plate_w / 2, PAGE_H - 84 * mm
+    # certificate serial plate — compact luxury plaque (must NOT dominate AZURIS)
+    plate_w, plate_h = 38 * mm, 9.5 * mm
+    px, py = cx - plate_w / 2, PAGE_H - 82 * mm
     c.setFillColorRGB(*IVORY)
     c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.7)
+    c.setLineWidth(0.5)
     c.rect(px, py, plate_w, plate_h, fill=1, stroke=1)
-    _tracked(c, 0, py + plate_h - 4 * mm, "NOMOR SERTIFIKAT", BODY, 4.6, TAUPE, tracking=1.0, center=cx)
+    _tracked(c, 0, py + plate_h - 3.0 * mm, "NOMOR SERTIFIKAT", BODY, 3.4, TAUPE, tracking=0.8, center=cx)
     c.setFillColorRGB(*NAVY)
-    c.setFont(BODYB, 11.5)
-    c.drawCentredString(cx, py + 2.4 * mm, number)
+    c.setFont(BODYB, 8.5)
+    c.drawCentredString(cx, py + 1.8 * mm, number)
 
     c.setFillColorRGB(*BEIGE)
-    c.setFont(BODY, 6.5)
-    c.drawCentredString(cx, py - 5.5 * mm, f"Tahun Terbit {year}" if year else "")
+    c.setFont(BODY, 6.0)
+    c.drawCentredString(cx, py - 5.0 * mm, f"Tahun Terbit {year}" if year else "")
 
 
 def _panel_back(c, x0, x1, version, website, contact):

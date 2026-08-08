@@ -22,7 +22,7 @@ from services.verification import resolve_qr, verify_manual, verify_qr
 
 router = APIRouter(prefix="/verify", tags=["verification"])
 
-CERT_RE = re.compile(r"^AZR-GEM-\d{4}-\d{6}$")
+CERT_RE = re.compile(r"^AZR-GEM-\d{6}-\d{2}$")
 
 # --- minimal per-IP rate limiter (in-memory, per process) ---
 _WINDOW_SECONDS = 60

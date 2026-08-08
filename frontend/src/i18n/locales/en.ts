@@ -73,12 +73,12 @@ const en = {
     description:
       "Enter the certificate number and security code printed on your Azuris document to check its authenticity.",
     certLabel: "Certificate Number",
-    certPlaceholder: "AZR-GEM-YYYY-000001",
+    certPlaceholder: "AZR-GEM-000001-26",
     codeLabel: "Security Code",
     codePlaceholder: "Code on the certificate",
     submit: "Verify",
     submitting: "Checking…",
-    formatError: "Invalid certificate number format. Example: AZR-GEM-2026-000001",
+    formatError: "Invalid certificate number format. Example: AZR-GEM-000015-26",
     codeRequired: "Security code is required.",
     unavailableTitle: "Verification Service Is Being Prepared",
     unavailable:

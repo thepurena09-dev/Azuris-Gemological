@@ -268,7 +268,7 @@ export default function HomePage() {
             </p>
             <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card px-4 py-2 text-[0.64rem] uppercase tracking-[0.18em] text-foreground">
               <Certificate size={14} weight="fill" className="text-gold" />
-              AZR-GEM-YYYY-000001
+              AZR-GEM-000015-26
             </p>
           </div>
           <VerificationForm initialCert={qrCert} qrToken={qrToken} />

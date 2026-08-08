@@ -21,7 +21,7 @@ CM = ("cm@azuris.local", "CmDev@2026!")
 MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
 
-CERT_RE = re.compile(r"^AZR-GEM-\d{4}-\d{6}$")
+CERT_RE = re.compile(r"^AZR-GEM-\d{6}-\d{2}$")
 
 
 def _login(email, password):

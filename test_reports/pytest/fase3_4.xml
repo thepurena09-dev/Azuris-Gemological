@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="16" time="8.007" timestamp="2026-08-08T16:32:56.057897+00:00" hostname="agent-env-b959a9f0-4595-4d4b-ac30-ae061f547636"><testcase classname="tests.test_fase3_4_number_format.TestCounterUnit" name="test_format_seq15_year_2026" time="0.482" /><testcase classname="tests.test_fase3_4_number_format.TestCounterUnit" name="test_atomic_no_duplicates_concurrent" time="0.033" /><testcase classname="tests.test_fase3_4_number_format.TestVerifyRegex" name="test_old_format_returns_not_found" time="0.571" /><testcase classname="tests.test_fase3_4_number_format.TestVerifyRegex" name="test_new_format_shape_not_found_when_absent" time="0.143" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_01_baseline_counter" time="0.002" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_02_create_gemstone_and_issue" time="0.535" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_03_admin_list_and_detail_show_new_format" time="0.218"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">self = &lt;test_fase3_4_number_format.TestIssuanceE2E object at 0x7974a862c250&gt;
+admin_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmM2Q3MzM3OS02MjdiLTQwOWQtYjJiNC1hMmU5Yjg1ODI...1JTiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODYyMDY3NzcsImV4cCI6MTc4NjIwNzY3N30.entd2PvihWHqEXwKGPgiZPCCG7vzscUQAr0phZNUi5o'}
+
+    def test_03_admin_list_and_detail_show_new_format(self, admin_headers):
+        r = requests.get(f"{API}/admin/certificates", headers=admin_headers, timeout=15)
+        assert r.status_code == 200
+        data = r.json()
+        items = data if isinstance(data, list) else (data.get("items") or [])
+        nums = [it.get("certificate_number") for it in items]
+        assert self.created["cert_number"] in nums, nums
+    
+        cu = self.created["cert_uuid"]
+        r = requests.get(f"{API}/admin/certificates/{cu}", headers=admin_headers, timeout=15)
+&gt;       assert r.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = &lt;Response [404]&gt;.status_code
+
+tests/test_fase3_4_number_format.py:212: AssertionError</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_04_db_stores_new_format" time="0.002" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_05_pdf_ok_two_pages" time="1.766" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_06_pdf_text_contains_new_number" time="1.750" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_07_manual_verify_new_format" time="0.196" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_08_preview_png_new_format" time="1.205" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_09_qr_verify_new_format" time="0.165" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_10_rbac_cm_blocked_and_unauth" time="0.538" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_11_reissue_same_number" time="0.113" /><testcase classname="tests.test_fase3_4_number_format.TestZZZCleanup" name="test_cleanup_and_restore" time="0.012" /></testsuite></testsuites>

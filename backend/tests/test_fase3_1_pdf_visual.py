@@ -14,7 +14,7 @@ Scope of this iteration:
     returns valid details, and security_code/qr_token never leak publicly.
   * MANDATORY CLEANUP: delete created certificate, gemstone, verification_token,
     photo (if any) and restore counters.certificate:{year=2026}.last_number
-    back to 14 so the next real cert becomes AZR-GEM-2026-000015.
+    back to 14 so the next real cert becomes AZR-GEM-000015-26.
 
 All artefacts are created & then removed within this single test module.
 
@@ -77,7 +77,7 @@ class TestReadOnlyRegressions:
     def test_verify_fake_number_returns_not_found(self):
         r = requests.post(
             f"{API}/verify",
-            json={"certificate_number": "AZR-GEM-2026-999999", "security_code": "ABCD1234"},
+            json={"certificate_number": "AZR-GEM-999999-26", "security_code": "ABCD1234"},
             timeout=10,
         )
         assert r.status_code == 200, r.text
@@ -163,7 +163,7 @@ class TestPdfE2E:
         r = requests.post(f"{API}/admin/certificates/issue", json=body, headers=admin_headers, timeout=20)
         assert r.status_code == 201, r.text
         d = r.json()
-        assert d["certificate_number"].startswith("AZR-GEM-2026-"), d
+        assert re.match(r"^AZR-GEM-\d{6}-\d{2}$", d["certificate_number"]), d
         assert d.get("security_code") and d.get("qr_token"), d
         self.__class__.created.update({
             "cert_uuid": d["certificate_uuid"],
@@ -309,5 +309,5 @@ class TestZZZCleanupAndCounterRestore:
         print(
             f"\nFINAL_COUNTER_LAST_NUMBER={counter_doc.get('last_number')} "
             f"certificates={certs_remaining} gemstones={gems_remaining} "
-            f"next_number_will_be=AZR-GEM-{COUNTER_YEAR}-{(counter_doc.get('last_number') + 1):06d}"
+            f"next_number_will_be=AZR-GEM-{(counter_doc.get('last_number') + 1):06d}-{COUNTER_YEAR % 100:02d}"
         )

@@ -74,7 +74,7 @@ class TestReadOnlyRegressions:
     def test_verify_fake_number_returns_not_found_no_preview(self):
         r = requests.post(
             f"{API}/verify",
-            json={"certificate_number": "AZR-GEM-2026-999999", "security_code": "ABCD1234"},
+            json={"certificate_number": "AZR-GEM-999999-26", "security_code": "ABCD1234"},
             timeout=10,
         )
         assert r.status_code == 200, r.text
@@ -376,5 +376,5 @@ class TestZZZCleanupAndCounterRestore:
         print(
             f"\nFINAL_COUNTER_LAST_NUMBER={cd.get('last_number')} "
             f"certificates={certs} gemstones={gems} "
-            f"next_number_will_be=AZR-GEM-{COUNTER_YEAR}-{(cd.get('last_number') + 1):06d}"
+            f"next_number_will_be=AZR-GEM-{(cd.get('last_number') + 1):06d}-{COUNTER_YEAR % 100:02d}"
         )

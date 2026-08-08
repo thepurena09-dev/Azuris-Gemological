@@ -1,0 +1,41 @@
+{
+  "summary": "FASE 3.4 certificate-number format revision (AZR-GEM-000001-YY) tested end-to-end. Created a new unit+E2E suite (test_fase3_4_number_format.py, 16 tests) and updated the OLD FASE 3.1 and 3.3 suites to the new format. All 44 backend tests pass. Frontend verification form uses new placeholder, rejects old format client-side, accepts new format. Counter atomicity verified with 20 concurrent calls (no duplicates); reissue does NOT re-increment the counter. PDF/preview/list/DB/manual+QR verify all show 'AZR-GEM-000015-26' with zero occurrences of the OLD 'AZR-GEM-2026-' anywhere in generated artefacts. Final state clean: certificates=0, gemstones=0, counters.certificate:{year=2026}.last_number=14, next real number will be AZR-GEM-000015-26.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Katalog (public catalog)", "issues": ["/app/frontend/src/data/sampleGemstones.ts still uses OLD-format certNumber values (AZR-GEM-2026-000101..106). Not consumed by any backend path (display-only sample gems on CatalogPage), but user-visible inconsistency vs. FASE 3.4. Recommend updating to new format like AZR-GEM-000101-26 for consistency."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_fase3_4_number_format.py",
+    "/app/backend/tests/test_fase3_1_pdf_visual.py",
+    "/app/backend/tests/test_fase3_3_preview.py",
+    "/app/test_reports/pytest/fase3_all.xml"
+  ],
+  "action_items": [
+    "Optional: update /app/frontend/src/data/sampleGemstones.ts certNumber fields to new AZR-GEM-000001-26 format so the public Katalog page shows the client-approved format everywhere."
+  ],
+  "critical_code_review_comments": [
+    "counter.py new format is clean, atomic ($inc + upsert + ReturnDocument.AFTER); year %100 is safe for 2-digit suffix.",
+    "verify.py CERT_RE tightened to ^AZR-GEM-\\d{6}-\\d{2}$ — old-format numbers correctly generic 'not_found' without record probing.",
+    "sampleGemstones.ts (frontend) still holds old-format literal strings; not a business bug but violates the 'no OLD format anywhere visible' rule (minor).",
+    "GET /api/admin/certificates/{uuid} detail endpoint does NOT exist (only list + pdf); this was a false assumption in my initial test — noted for future testers.",
+    "test_fase3_certificates.py had stale CERT_RE (r'^AZR-GEM-\\d{4}-\\d{6}$'); updated to new format for future regression."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_fase3_1_pdf_visual.py (updated old->new format assertions)",
+    "/app/backend/tests/test_fase3_3_preview.py (updated old->new format assertions + final-print label)",
+    "/app/backend/tests/test_fase3_certificates.py (CERT_RE updated to ^AZR-GEM-\\d{6}-\\d{2}$)",
+    "/app/backend/tests/test_fase3_4_number_format.py (NEW — 16 tests: counter unit + atomicity + E2E issuance/PDF/preview/verify/reissue/RBAC + cleanup)"
+  ],
+  "success_rate": {"backend": "100% (44/44)", "frontend": "100% (placeholder/regex/old-format rejection all pass)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN); cm@azuris.local / CmDev@2026! (CONTENT_MANAGER)",
+  "seed_data_creation": "During tests: 1 TEST_ gemstone + 1 certificate v1 (+ v2 via reissue) + verification_tokens per suite. ALL removed in cleanup. Counter restored to 14 after each suite. Final DB state verified: certificates=0, gemstones=0, counter.last_number=14.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Baseline DB state: certificates=0, gemstones=0, counter.certificate{year=2026}.last_number=14 -> next real number AZR-GEM-000015-26. Run FASE-3 suites with `-o addopts=` (sequential) to avoid xdist cleanup race. test_fase3_4_number_format.py::TestCounterUnit consumes counter but restores it at end of atomicity test. sampleGemstones.ts still has display-only OLD-format entries — flagged, not blocking.",
+  "final_counter_last_number": 14,
+  "final_next_number_will_be": "AZR-GEM-000015-26"
+}

@@ -74,12 +74,12 @@ const id = {
     description:
       "Masukkan nomor sertifikat dan kode keamanan yang tertera pada dokumen Azuris untuk memeriksa keasliannya.",
     certLabel: "Nomor Sertifikat",
-    certPlaceholder: "AZR-GEM-YYYY-000001",
+    certPlaceholder: "AZR-GEM-000001-26",
     codeLabel: "Kode Keamanan",
     codePlaceholder: "Kode pada sertifikat",
     submit: "Verifikasi",
     submitting: "Memeriksa…",
-    formatError: "Format nomor sertifikat tidak valid. Contoh: AZR-GEM-2026-000001",
+    formatError: "Format nomor sertifikat tidak valid. Contoh: AZR-GEM-000015-26",
     codeRequired: "Kode keamanan wajib diisi.",
     unavailableTitle: "Layanan Verifikasi Sedang Dipersiapkan",
     unavailable:
