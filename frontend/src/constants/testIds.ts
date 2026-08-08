@@ -99,5 +99,9 @@ export const TEST_IDS = {
     navOwnership: "admin-nav-ownership",
     navMembership: "admin-nav-membership",
     logout: "admin-logout",
+    dashboard: "admin-dashboard",
+    dashRefresh: "dash-refresh",
+    dashMetrics: "dash-metrics",
+    dashVerifyChart: "dash-verify-chart",
   },
 } as const;

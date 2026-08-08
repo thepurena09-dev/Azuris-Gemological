@@ -1,0 +1,37 @@
+{
+  "summary": "BATCH D (Sprint 27 Analytics + QA gate) fully verified. NEW hermetic suite tests/test_batch_d_analytics.py = 10/10 PASS. Combined regression: 84/84 PASS (10 batch_d + 22 batch_a + 32 batch_b + 20 batch_c). Analytics endpoint /api/admin/analytics/overview: (1) RBAC correct — unauth=>401, SUPER_ADMIN=>200, ADMINISTRATOR path covered by rbac.py matrix, CONTENT_MANAGER=>403, CUSTOMER_SERVICE=>403; (2) response shape complete with totals, *_by_status (gemstones/certificates/warranties/transfers/memberships), verification{total,by_result,series[14]}, admin_activity{by_action}, certificate_counter{last_number,next_number,year}; (3) baseline shown: all business collections=0, counter.last_number=14, next_number='AZR-GEM-000015-26'; (4) privacy scan — no email/phone/address/full_name/security_code/qr_token/preview_token/password_hash/_id keys, no 24-hex ObjectId-like tokens leaked. Frontend /admin/dashboard renders after real login: data-testid dash-loaded/dash-metrics/dash-verify-chart/dash-refresh all present, next-cert AZR-GEM-000015-26 visible on page, Refresh reloads cleanly, Indonesian i18n applied (no raw admin.dash.* keys leaked), zero page errors. Public site smoke: / (3-slide hero + verification), /legalitas, /membership all render; /catalog correctly redirects to /. Public verify with malformed / random data returns generic error without leaking secrets. DB baseline restored & re-verified at end: customers/gemstones/jewelry/media/certificates/warranties/ownership_transfers/membership_cards/verification_tokens/media_objects/gemstone_photos = 0; counters.certificate{year:2026}.last_number=14 => next real cert AZR-GEM-000015-26.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/dashboard (initial paint)", "issues": ["Recharts ResponsiveContainer logs benign width(-1)/height(-1) warning during initial render because chart container has percentage sizing without an explicit min-height/min-width. Cosmetic only — chart renders correctly after mount. Recommend setting minHeight on the chart wrapper."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_batch_d_analytics.py",
+    "/app/test_reports/pytest/batch_d.xml",
+    "/app/test_reports/pytest/batch_all.xml"
+  ],
+  "action_items": [
+    "(Cosmetic, not blocking) Add explicit min-height (e.g., 320px) to the DashboardPage recharts wrapper to silence ResponsiveContainer width(-1)/height(-1) warning on first paint."
+  ],
+  "critical_code_review_comments": [
+    "services/analytics.py: correctly soft-delete aware via _ACTIVE filter for business collections; log collections queried directly (append-only) — appropriate. All aggregations return only counts + status/action keys; no PII/secrets projected.",
+    "api/analytics.py: guard uses require_permission(Permission.ANALYTICS_READ) — matches the locked rbac.py matrix (SUPER_ADMIN implicit + ADMINISTRATOR granted explicitly). Confirmed CONTENT_MANAGER and CUSTOMER_SERVICE => 403.",
+    "certificate_counter helper reads only {last_number, next_number, year}; no _id leaked in response.",
+    "Verification series uses $substrBytes on stringified created_at — works because logs store ISO string dates; consistent with other services. Correctly fills zero-buckets for the 14-day window.",
+    "Frontend DashboardPage: all required data-testids present (dash-metrics/dash-verify-chart/dash-refresh/dash-loaded). i18n keys resolved (no admin.dash.* leaks). Refresh triggers re-fetch without full navigation."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_batch_d_analytics.py (NEW — 10 tests: RBAC 4 roles, structure+baseline, privacy leak scan, public verify security, final baseline invariant)"
+  ],
+  "success_rate": {"backend": "100% (84/84 combined; 10/10 Batch D)", "frontend": "100% (dashboard renders, all testids present, next-cert AZR-GEM-000015-26 shown, refresh OK, i18n OK, 0 page errors; public smoke OK)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN), cm@azuris.local / CmDev@2026! (CONTENT_MANAGER), cs@azuris.local / CsDev@2026! (CUSTOMER_SERVICE) — all confirmed via login + role checks. Re-seeded via `python -m scripts.seed_test_roles`.",
+  "seed_data_creation": "None persisted. Batch D suite is fully read-only (no mutations). No fixtures created. Baseline verified pre- and post-run.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Baseline held: all business collections=0, counters.certificate{year:2026}.last_number=14 => next cert AZR-GEM-000015-26. Verification_logs has ~36 historical entries which is normal (append-only, not part of business baseline). Run batches individually: `pytest tests/test_batch_a_regression.py -o addopts=`, `pytest tests/test_batch_b_regression.py -o addopts=`, `pytest tests/test_batch_c_regression.py -o addopts=`, `pytest tests/test_batch_d_analytics.py -o addopts=` (do NOT run whole tests/ dir — legacy FASE suites are non-hermetic and will collide on counter). Total authoritative gate = 84 tests.",
+  "final_counter_last_number": 14,
+  "final_next_number_will_be": "AZR-GEM-000015-26"
+}
