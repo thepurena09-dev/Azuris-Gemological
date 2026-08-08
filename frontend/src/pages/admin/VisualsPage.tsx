@@ -8,6 +8,8 @@ import {
   ImagesSquare,
   ArrowCounterClockwise,
   Gauge,
+  House,
+  Diamond,
   X,
 } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -29,6 +31,15 @@ const LOGIN_DEFAULT =
   "https://images.unsplash.com/photo-1783771686998-0af6c0efec6e?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400";
 const PROCESS_DEFAULT =
   "https://images.unsplash.com/photo-1628058494685-6c2f796ac24a?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200";
+const GEM_DEFAULT = {
+  diamond:
+    "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
+  ruby: "https://images.unsplash.com/photo-1705575490492-4e91fd97bbb4?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
+  sapphire:
+    "https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/11e5956f874718e6db198dda556242a9e59a93fb2ea1cd0b3fe0d77cc5e02724.jpeg",
+  emerald:
+    "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/8138fec9a0cfedc223c4896ebd58852071928246a1875cecdb3ce5aaebe929ad.jpeg",
+};
 const FALLBACK =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -495,6 +506,71 @@ export default function VisualsPage() {
               <ArrowCounterClockwise size={14} />
               {t("adminVisuals.resetLoginBg")}
             </button>
+          </SectionCard>
+
+          <SectionCard icon={<House size={18} />} title={t("adminVisuals.homeBgSection")}>
+            <p className="mb-4 text-sm text-muted-foreground">{t("adminVisuals.homeBgHint")}</p>
+            <label className="mb-4 flex items-center gap-2 text-sm text-foreground">
+              <input
+                data-testid="visuals-homebg-enabled"
+                type="checkbox"
+                checked={v.home_bg_enabled === true}
+                disabled={readOnly}
+                onChange={(e) => set("home_bg_enabled", e.target.checked)}
+              />
+              {t("adminVisuals.bgEnabled")}
+            </label>
+            <ImageControl
+              slug="homebg"
+              value={v.home_bg_url || ""}
+              defaultUrl=""
+              onChange={(x) => set("home_bg_url", x)}
+              onUpload={uploadFor("home_bg_url")}
+              onOpenPicker={() => openPicker("home_bg_url")}
+              disabled={readOnly || v.home_bg_enabled !== true}
+            />
+            <BgAppearance slug="homebg" prefix="home_bg" v={v} set={set} disabled={readOnly || v.home_bg_enabled !== true} />
+            <button
+              type="button"
+              data-testid="visuals-homebg-reset"
+              disabled={readOnly}
+              onClick={() => {
+                set("home_bg_enabled", false);
+                set("home_bg_url", "");
+                set("home_bg_opacity", 20);
+                set("home_bg_fit", "cover");
+                set("home_bg_blur", 0);
+              }}
+              className="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-gold disabled:opacity-60"
+            >
+              <ArrowCounterClockwise size={14} />
+              {t("adminVisuals.resetHomeBg")}
+            </button>
+          </SectionCard>
+
+          <SectionCard icon={<Diamond size={18} />} title={t("adminVisuals.homeGemsSection")}>
+            <p className="mb-5 text-sm text-muted-foreground">{t("adminVisuals.homeGemsHint")}</p>
+            <div className="space-y-8">
+              {([
+                ["diamond", "home_gem_diamond_url", GEM_DEFAULT.diamond, t("adminVisuals.gemDiamond")],
+                ["ruby", "home_gem_ruby_url", GEM_DEFAULT.ruby, t("adminVisuals.gemRuby")],
+                ["sapphire", "home_gem_sapphire_url", GEM_DEFAULT.sapphire, t("adminVisuals.gemSapphire")],
+                ["emerald", "home_gem_emerald_url", GEM_DEFAULT.emerald, t("adminVisuals.gemEmerald")],
+              ] as const).map(([slug, field, def, label]) => (
+                <div key={slug}>
+                  <p className="mb-3 text-[0.6rem] uppercase tracking-[0.22em] text-foreground">{label}</p>
+                  <ImageControl
+                    slug={`gem-${slug}`}
+                    value={v[field] || ""}
+                    defaultUrl={def}
+                    onChange={(x) => set(field, x)}
+                    onUpload={uploadFor(field)}
+                    onOpenPicker={() => openPicker(field)}
+                    disabled={readOnly}
+                  />
+                </div>
+              ))}
+            </div>
           </SectionCard>
 
           <div className="flex items-center gap-4">

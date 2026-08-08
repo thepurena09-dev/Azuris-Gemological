@@ -60,3 +60,28 @@ class BusinessSettings(BaseDocument, AuditMixin):
     login_bg_opacity: int = Field(default=10, ge=0, le=100)
     login_bg_fit: str = Field(default="cover", max_length=10)
     login_bg_blur: int = Field(default=0, ge=0, le=40)
+
+    # --- Homepage hero background (mirror of the dashboard control) ---
+    home_bg_enabled: bool = False
+    home_bg_url: str = Field(default="", max_length=1000)
+    home_bg_opacity: int = Field(default=20, ge=0, le=100)
+    home_bg_fit: str = Field(default="cover", max_length=10)
+    home_bg_blur: int = Field(default=0, ge=0, le=40)
+
+    # --- Homepage hero gemstone photos (defaults match the current design) ---
+    home_gem_diamond_url: str = Field(
+        default="https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
+        max_length=1000,
+    )
+    home_gem_ruby_url: str = Field(
+        default="https://images.unsplash.com/photo-1705575490492-4e91fd97bbb4?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
+        max_length=1000,
+    )
+    home_gem_sapphire_url: str = Field(
+        default="https://static.prod-images.emergentagent.com/jobs/0d8170c5-08d6-45ed-9937-114710780b07/images/11e5956f874718e6db198dda556242a9e59a93fb2ea1cd0b3fe0d77cc5e02724.jpeg",
+        max_length=1000,
+    )
+    home_gem_emerald_url: str = Field(
+        default="https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/8138fec9a0cfedc223c4896ebd58852071928246a1875cecdb3ce5aaebe929ad.jpeg",
+        max_length=1000,
+    )

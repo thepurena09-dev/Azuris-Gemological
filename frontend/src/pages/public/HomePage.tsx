@@ -85,6 +85,23 @@ export default function HomePage() {
     t("homeMembership.cta");
   const memberLink = visuals?.membership_link || "/membership";
 
+  // Homepage hero background (CMS) — marble default when custom disabled.
+  const useHomeBg = Boolean(visuals?.home_bg_enabled && visuals?.home_bg_url);
+  const homeBgImage = useHomeBg ? mediaUrl(visuals!.home_bg_url) : MARBLE_BG;
+  const homeBgOpacity = useHomeBg
+    ? Math.min(Math.max((visuals!.home_bg_opacity ?? 20) / 100, 0.04), 0.24)
+    : 0.2;
+  const homeBgSize = useHomeBg && visuals!.home_bg_fit === "center" ? "contain" : "cover";
+  const homeBgBlur = useHomeBg ? Math.min(Math.max(visuals!.home_bg_blur ?? 0, 0), 12) : 0;
+
+  // Homepage hero gemstone photos (CMS) — fall back to bundled defaults.
+  const gems = {
+    diamond: mediaUrl(visuals?.home_gem_diamond_url) || GEM.diamond,
+    ruby: mediaUrl(visuals?.home_gem_ruby_url) || GEM.ruby,
+    sapphire: mediaUrl(visuals?.home_gem_sapphire_url) || GEM.sapphire,
+    emerald: mediaUrl(visuals?.home_gem_emerald_url) || GEM.emerald,
+  };
+
   const [qrToken, setQrToken] = React.useState<string | undefined>(undefined);
   const [qrCert, setQrCert] = React.useState<string | undefined>(undefined);
 
@@ -118,10 +135,10 @@ export default function HomePage() {
   }, [hash]);
 
   const pillars = [
-    { img: GEM.diamond, key: "diamond" },
-    { img: GEM.ruby, key: "ruby" },
-    { img: GEM.sapphire, key: "sapphire" },
-    { img: GEM.emerald, key: "emerald" },
+    { img: gems.diamond, key: "diamond" },
+    { img: gems.ruby, key: "ruby" },
+    { img: gems.sapphire, key: "sapphire" },
+    { img: gems.emerald, key: "emerald" },
   ];
 
   const processSteps: { icon: Icon; k: string }[] = [
@@ -217,12 +234,12 @@ export default function HomePage() {
         </h2>
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           <StonePanel
-            img={GEM.diamond}
+            img={gems.diamond}
             name={t("home.slides.diamondRuby.diamond.name")}
             desc={t("home.slides.diamondRuby.diamond.desc")}
           />
           <StonePanel
-            img={GEM.ruby}
+            img={gems.ruby}
             name={t("home.slides.diamondRuby.ruby.name")}
             desc={t("home.slides.diamondRuby.ruby.desc")}
           />
@@ -241,12 +258,12 @@ export default function HomePage() {
         </h2>
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           <StonePanel
-            img={GEM.sapphire}
+            img={gems.sapphire}
             name={t("home.slides.sapphireEmerald.sapphire.name")}
             desc={t("home.slides.sapphireEmerald.sapphire.desc")}
           />
           <StonePanel
-            img={GEM.emerald}
+            img={gems.emerald}
             name={t("home.slides.sapphireEmerald.emerald.name")}
             desc={t("home.slides.sapphireEmerald.emerald.desc")}
           />
@@ -260,8 +277,14 @@ export default function HomePage() {
       {/* Hero carousel — exactly 3 slides */}
       <section className="relative overflow-hidden border-b border-border bg-secondary">
         <div
-          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20 mix-blend-multiply"
-          style={{ backgroundImage: `url(${MARBLE_BG})` }}
+          data-testid="home-bg-overlay"
+          className="pointer-events-none absolute inset-0 bg-center bg-no-repeat mix-blend-multiply"
+          style={{
+            backgroundImage: `url(${homeBgImage})`,
+            backgroundSize: homeBgSize,
+            opacity: homeBgOpacity,
+            filter: homeBgBlur ? `blur(${homeBgBlur}px)` : undefined,
+          }}
         />
         <div className="relative">
           <HeroCarousel

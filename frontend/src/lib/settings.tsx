@@ -29,6 +29,15 @@ export interface Visuals {
   login_bg_opacity: number;
   login_bg_fit: string;
   login_bg_blur: number;
+  home_bg_enabled: boolean;
+  home_bg_url: string;
+  home_bg_opacity: number;
+  home_bg_fit: string;
+  home_bg_blur: number;
+  home_gem_diamond_url: string;
+  home_gem_ruby_url: string;
+  home_gem_sapphire_url: string;
+  home_gem_emerald_url: string;
 }
 
 interface BusinessSettings extends Partial<Visuals> {

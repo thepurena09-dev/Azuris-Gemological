@@ -64,6 +64,15 @@ class VisualsUpdate(BaseModel):
     login_bg_opacity: int | None = None
     login_bg_fit: str | None = None
     login_bg_blur: int | None = None
+    home_bg_enabled: bool | None = None
+    home_bg_url: str | None = None
+    home_bg_opacity: int | None = None
+    home_bg_fit: str | None = None
+    home_bg_blur: int | None = None
+    home_gem_diamond_url: str | None = None
+    home_gem_ruby_url: str | None = None
+    home_gem_sapphire_url: str | None = None
+    home_gem_emerald_url: str | None = None
 
 
 def _contact(s) -> dict:
@@ -101,6 +110,15 @@ def _visuals(s) -> dict:
         "login_bg_opacity": s.login_bg_opacity,
         "login_bg_fit": s.login_bg_fit,
         "login_bg_blur": s.login_bg_blur,
+        "home_bg_enabled": s.home_bg_enabled,
+        "home_bg_url": s.home_bg_url,
+        "home_bg_opacity": s.home_bg_opacity,
+        "home_bg_fit": s.home_bg_fit,
+        "home_bg_blur": s.home_bg_blur,
+        "home_gem_diamond_url": s.home_gem_diamond_url,
+        "home_gem_ruby_url": s.home_gem_ruby_url,
+        "home_gem_sapphire_url": s.home_gem_sapphire_url,
+        "home_gem_emerald_url": s.home_gem_emerald_url,
     }
 
 
@@ -166,7 +184,7 @@ async def admin_update_visuals(
     before = await repo.get_or_create()
     changes = {k: v for k, v in body.model_dump(exclude_unset=True).items()}
     # Keep background appearance controls within readability-safe ranges.
-    for pre in ("dashboard_bg", "login_bg"):
+    for pre in ("dashboard_bg", "login_bg", "home_bg"):
         ok, bk, fk = f"{pre}_opacity", f"{pre}_blur", f"{pre}_fit"
         if changes.get(ok) is not None:
             changes[ok] = max(4, min(24, int(changes[ok])))

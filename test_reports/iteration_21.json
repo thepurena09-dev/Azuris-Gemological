@@ -1,0 +1,53 @@
+{
+  "summary": "Verified new Homepage Background + Homepage Gem Photos CMS controls at /admin/visuals reusing GET/PUT /api/admin/settings/visuals. Backend pytest 9/9 (public settings expose home_bg_* and 4 non-empty home_gem_*_url defaults; admin GET returns all; PUT persists enable/url/opacity/fit/blur + home_gem_diamond_url; opacity clamp 99->24 and 1->4; blur clamp 50->12 and -3->0; invalid fit 'weird' -> 'cover'; CONTENT_MANAGER PUT OK; CUSTOMER_SERVICE GET OK / PUT 403; unauth PUT 401; self-restored home_bg_* + gem URLs to defaults). Frontend Playwright: /admin/visuals shows all 11 homebg controls (enabled/preview/upload/pick/url/opacity+value/fit/blur+value/reset) and all 20 gem controls (diamond/ruby/sapphire/emerald x preview/upload/pick/url/reset). Enable+set homebg (url=https://example.com/homebg.jpg, opacity=18, fit=center, blur=6) and change diamond URL -> Save persists via PUT and public /api/settings/public reflects it; hero home-bg-overlay style=`background-image: url(...); background-size: contain; opacity: 0.18; filter: blur(6px)`; hero Diamond tile img.src updated to the new URL. Outer reset (Reset Beranda) restores home_bg to defaults (enabled=false, url='', opacity=20, fit=cover, blur=0). Diamond reset restores default Unsplash URL. Certificate counter unchanged (last_number=14); certificates/gemstones/customers = 0. Console errors: 0.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "VisualsPage — Home BG section + Login BG section", "issue": "Duplicate data-testid: both the inner ImageControl reset button (slug='homebg' -> 'visuals-homebg-reset') and the outer section-wide reset button share the same testid 'visuals-homebg-reset' (count=2). Same collision exists for 'visuals-loginbg-reset' (count=2). Any test/automation using [data-testid='visuals-homebg-reset'] hits the FIRST match (ImageControl) which only resets the URL field, NOT the enabled/opacity/fit/blur. This breaks the advertised reset flow via that selector.", "selector": "[data-testid='visuals-homebg-reset'], [data-testid='visuals-loginbg-reset']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_home_bg_and_gems.py",
+    "/app/test_reports/pytest/home_bg_v21.xml"
+  ],
+  "action_items": [
+    "Rename outer reset buttons to distinct testids to avoid duplicates with ImageControl's inner reset. Suggested: 'visuals-homebg-reset-all' / 'visuals-loginbg-reset-all' (or change ImageControl's reset id to 'visuals-<slug>-reset-image'). This aligns with the FROZEN spec that expects a single deterministic testid for the section-level reset.",
+    "Pre-existing baseline drift: /api/settings/public currently shows dashboard_bg_enabled=true (url=/api/media/d4746342-..., opacity=24, fit=cover, blur=0) and login_bg_enabled=true (url=/api/media/144b8edf-..., opacity=24, fit=cover, blur=0). These were NOT touched by this iteration but the spec's freeze requires them at defaults (enabled=false, url='', opacity=10, fit=cover, blur=0). Please decide: restore or accept as intentional CMS content."
+  ],
+  "critical_code_review_comments": [
+    "settings.py admin_update_visuals clamp loop now iterates ('dashboard_bg','login_bg','home_bg') — clean DRY reuse; opacity 4..24, blur 0..12, fit whitelist to cover/center verified end-to-end.",
+    "BusinessSettings.home_bg_opacity default is 20 (per spec), model gem URL defaults are non-empty so homepage always renders photos even before any admin edit — verified via GET /api/settings/public.",
+    "HomePage hero overlay maps home_bg_fit=='center' -> background-size:contain and clamps opacity 4..24 / blur 0..12 client-side too (defense-in-depth) — DOM style verified.",
+    "gems object in HomePage safely falls back to GEM constants when visuals value is falsy — good graceful fallback; but backend defaults are always non-empty so fallback is effectively unreachable (fine).",
+    "VisualsPage: DUPLICATE data-testid for 'visuals-homebg-reset' and 'visuals-loginbg-reset' (see frontend_issues.ui_bugs). Only 'visuals-dashboard-reset-marble' uses a distinct outer id — inconsistent with the two new sections.",
+    "VisualsPage set() is a functional updater (setV(s => ({...s, [k]:v}))) — sequential reset set() calls apply correctly; verified by end-to-end reset flow."
+  ],
+  "updated_files": ["/app/backend/tests/test_home_bg_and_gems.py"],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "95% (all flows OK; 1 duplicate-testid bug)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! ; cm@azuris.local / CmDev@2026! ; cs@azuris.local / CsDev@2026!",
+  "seed_data_creation": "None. site_settings home_bg_* and home_gem_*_url were mutated transiently and restored to model defaults via test_zzz_restore_home_defaults (opacity=20, fit=cover, blur=0, enabled=false, url='', and the 4 non-empty gem default URLs). Verified via GET /api/settings/public.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "verified": {
+    "public_settings_exposes_home_bg_and_gem_fields": true,
+    "gem_defaults_non_empty": true,
+    "home_bg_persist_clamp_opacity_and_blur": true,
+    "invalid_fit_coerced_to_cover": true,
+    "home_bg_overlay_reflects_saved_values_no_rebuild": true,
+    "diamond_tile_updates_on_save": true,
+    "outer_homebg_reset_restores_defaults_after_save": true,
+    "diamond_reset_restores_default_url": true,
+    "cm_can_put": true,
+    "cs_get_ok_put_403": true,
+    "unauth_put_401": true,
+    "console_errors_during_flow": 0,
+    "freeze_counter_last_number": 14,
+    "freeze_business_collections_zero": true,
+    "home_bg_and_gems_restored_after_tests": true,
+    "dashboard_bg_and_login_bg_at_defaults": false
+  },
+  "context_for_next_testing_agent": "New self-cleaning pytest at /app/backend/tests/test_home_bg_and_gems.py covers home_bg + gem RBAC/clamp/persistence and restores defaults in test_zzz_restore_home_defaults. NOTE selector collision: [data-testid='visuals-homebg-reset'] and [data-testid='visuals-loginbg-reset'] each match 2 elements — the first hit is the ImageControl reset (URL only), the section-level reset is the 2nd (.nth(1)). For UI reset tests use .nth(1) until main agent renames. dashboard_bg + login_bg fields are currently NOT at defaults on preview (both enabled=true with /api/media/* URLs) — was not modified by this iteration; flag for main agent.",
+  "rca of the issue": "Duplicate data-testid bug RCA: ImageControl (line 161 in VisualsPage.tsx) sets its reset button testid to `visuals-${slug}-reset`; when the parent BgAppearance/section uses the SAME slug ('homebg' or 'loginbg') for its section-level reset button (lines 495, 535), both buttons carry identical testids. Reproduction: on /admin/visuals, `document.querySelectorAll('[data-testid=\"visuals-homebg-reset\"]').length === 2`. Mitigation: change the section-level outer button testid to something distinct (e.g., 'visuals-homebg-reset-all') OR change ImageControl's reset id to 'visuals-<slug>-reset-image'. Confirmed both fields (home_bg_* / login_bg_*) affected; dashboard uses distinct 'visuals-dashboard-reset-marble' and is unaffected."
+}
