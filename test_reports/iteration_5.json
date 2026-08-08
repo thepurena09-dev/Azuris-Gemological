@@ -1,0 +1,45 @@
+{
+  "summary": "FASE 3 end-to-end testing (backend + frontend). 20/22 pytest cases passed. Two failures both stem from a single root-cause backend bug: reissue is broken because the MongoDB unique index uq_certificate_number conflicts with the multi-version design (v1 archived + v2 current share the same certificate_number). Reissue returns 500 (DuplicateKeyError) and leaves the record in a corrupted half-state (v1 flipped to is_current=false but v2 never inserted → public verify then returns not_found even after revoke). All other FASE 3 behaviors verified: atomic sequential AZR-GEM-YYYY-NNNNNN numbering, 409 duplicate issue, manual+QR verification with correct/wrong/malformed inputs, no leakage of security_code / qr_token / Mongo _id in public responses, QR resolve prefill-only, 2-page A6-landscape PDF (MediaBox 419.53x297.64 pts confirmed via pypdf), RBAC (CONTENT_MANAGER 403 on gemstones/issue/pdf, unauth 401), audit_logs written for gemstone+certificate, and FASE 2 regressions (settings whatsapp_number=6287812128884, legality {published:false}). Frontend E2E confirmed: login → /admin/legalitas redirect, /admin/certificates creation + issuance flow shows security_code exactly once (data-testid issue-security-code), PDF & Revoke controls present per cert, homepage #verification returns real gemstone identity for correct pair and 'Tidak Dapat Diverifikasi' for wrong code, unauth /admin/certificates → /login, hero carousel with 3 dots, wa.me href correct, catalog nav absent, /legalitas empty state rendered.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/admin/certificates/{uuid}/reissue",
+        "issue": "Returns 500 due to pymongo.errors.DuplicateKeyError on uq_certificate_number unique index. The design keeps history by inserting a NEW Certificate document per version with the SAME certificate_number, but /app/backend/db/indexes.py declares that field UNIQUE globally. Additionally, reissue is non-atomic: it first flips v1.is_current=false then attempts the v2 insert; when the insert fails the certificate is left with NO current version, so subsequent public verification of that certificate_number returns not_found (and revoke of the orphaned v1 cannot surface as 'revoked' either). Bug reproduced by tests test_reissue_creates_new_version and test_revoke_shows_revoked. Fix requires either (a) converting uq_certificate_number to a partial unique index {is_current: true} (recommended — matches design), or (b) making the index compound on (certificate_number, version), plus wrapping reissue in a real transaction / rollback of the is_current flip on failure.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_fase3_certificates.py",
+    "/app/test_reports/pytest/fase3_results.xml"
+  ],
+  "action_items": [
+    "Fix uq_certificate_number index in /app/backend/db/indexes.py — change to a partial unique index filtered by {is_current: true}, or make it compound (certificate_number, version). Re-run tests/test_fase3_certificates.py::TestVersioningRevoke to confirm.",
+    "Make reissue_certificate in /app/backend/services/issuance.py atomic: do NOT flip old.is_current=false until the new version has been inserted successfully; on any failure, rollback the flip (or use a Mongo session transaction).",
+    "Clean up TEST_ prefixed gemstones/certificates created during this run (fixture created 4-5 gemstones + associated certs; certificate counter advanced to ~AZR-GEM-2026-000010)."
+  ],
+  "critical_code_review_comments": [
+    "services/verification.py::_status_from_certificate treats 'revoked' via cert.status but relies on get_current_by_number(is_current=true) upstream; if reissue leaves is_current=false everywhere, a revoked cert is reported as not_found, hiding the revocation from the public. Consider making verify_manual fall back to (certificate_number, latest version) when no is_current row exists so revoked/archived states are still returned.",
+    "api/certificates.py::reissue accepts an IssueIn body containing gemstone_id that is intentionally ignored (documented via exclude={'gemstone_id'}); this is confusing — either require just optional extras or split the schema so callers don't need to pass a placeholder gemstone_id.",
+    "services/issuance.py: PUBLIC_BASE_URL hardcodes the preview domain as a default. In production this may leak the wrong hostname into QR URLs if the env var is missing. Fail-fast (no default) is safer.",
+    "api/certificates.py::upload_photo stores the image inside LegalityDocument collection via GemstonePhotoRepository — semantically fine, but naming is misleading and audit logging for photo upload is missing (only status_change / create audits exist). Consider audit for media upload.",
+    "certificates.py public /gemstone/photo/{doc_uuid} serves ANY doc in that collection without verifying it is actually referenced by an issued certificate; a leaked doc_uuid would leak the raw image. Consider gating by is_current cert reference to prevent enumeration of unlinked/private photos."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_fase3_certificates.py (new)",
+    "/app/test_reports/pytest/fase3_results.xml (new)"
+  ],
+  "success_rate": {"backend": "91% (20/22)", "frontend": "100% smoke (all critical flows verified)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN); cm@azuris.local / CmDev@2026! (CONTENT_MANAGER) — both from /app/memory/test_credentials.md.",
+  "seed_data_creation": "Test run created ~5 gemstones prefixed TEST_ and issued ~5 certificates advancing the counter to AZR-GEM-2026-000010. Also revoked one cert. Per main-agent note, these are TEST data and will be cleaned up.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Reusable regression suite: /app/backend/tests/test_fase3_certificates.py (22 tests, pypdf required — installed). File is written for sequential run and works under pytest-xdist LoadScope; if you re-run with the default parallel config, expect the same coverage. Do NOT reset the certificate counter — it must keep monotonically increasing. After the reissue/index fix, only TestVersioningRevoke needs re-running to confirm green. The two failures are chain-linked to a single root cause (unique index). PDF page-size assertion uses ±1.5 pt tolerance against A6 landscape 419.53x297.64 pts.",
+  "rca of the issue": "ROOT CAUSE: /app/backend/db/indexes.py line 35-39 declares certificates.certificate_number as a globally unique index (uq_certificate_number). The FASE 3 versioning design requires multiple Certificate documents sharing the same certificate_number but different version numbers (with is_current toggled). Reissue in services/issuance.py:167 inserts the new version and immediately hits DuplicateKeyError. Because the archive flip (repo.update_one is_current=false on old) happens BEFORE the failing insert, the record is left with no is_current row for that number, corrupting subsequent verification (returns not_found instead of revoked/archived). REPRODUCTION: (1) Login as admin@azuris.local. (2) Create gemstone POST /api/admin/gemstones. (3) Issue certificate POST /api/admin/certificates/issue → 201. (4) Reissue POST /api/admin/certificates/{cert_uuid}/reissue → 500 (backend log: pymongo.errors.DuplicateKeyError E11000 index: uq_certificate_number dup key). (5) Verify manual with correct code → status 'not_found' (because is_current was already flipped off on v1). MITIGATION: Change uq_certificate_number to a partial unique index — pymongo.IndexModel([('certificate_number', ASCENDING)], unique=True, partialFilterExpression={'is_current': True}, name='uq_certificate_number_current') — then drop the old index in Mongo (or rename it). Also wrap reissue's archive-flip + insert in a transaction or reorder to insert-first-then-flip so partial failure does not corrupt state."
+}

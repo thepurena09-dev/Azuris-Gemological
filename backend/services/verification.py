@@ -57,27 +57,29 @@ def _mask_cert_number(number: Optional[str]) -> Optional[str]:
 
 # ---------- resolution ----------
 async def _build_public_certificate(db, cert, token) -> dict[str, Any]:
-    gem = None
+    snap = cert.gemstone_snapshot or {}
+    gemstone = {
+        "object_type": snap.get("object_type"),
+        "name": snap.get("name"),
+        "species": snap.get("species"),
+        "variety": snap.get("variety"),
+        "carat": snap.get("carat"),
+        "dimensions": snap.get("dimensions"),
+        "shape": snap.get("shape"),
+        "cut": snap.get("cut"),
+        "color": snap.get("color"),
+        "transparency": snap.get("transparency"),
+        "clarity": snap.get("clarity"),
+        "treatment": snap.get("treatment"),
+        "origin": snap.get("origin"),
+        "photo_url": f"/api/gemstone/photo/{snap.get('photo_id')}" if snap.get("photo_id") else None,
+    }
+
+    # Owner reflects the CURRENT owner (locked masking); not part of the snapshot.
+    owner_masked = None
     if cert.gemstone_id:
         gem = await GemstoneRepository(db).get_by_uuid(cert.gemstone_id)
-
-    gemstone: dict[str, Any] = {}
-    owner_masked = None
-    if gem is not None:
-        gemstone = {
-            "name": gem.name_en or gem.name_id,
-            "species": gem.gemstone_type,
-            "variety": gem.category,
-            "carat": gem.weight_carat,
-            "dimensions": gem.dimensions_mm,
-            "shape": gem.shape,
-            "cut": gem.cut,
-            "color": gem.color,
-            "clarity": gem.clarity,
-            "treatment": gem.treatment,
-            "origin": gem.origin,
-        }
-        if gem.active_owner_id:
+        if gem is not None and gem.active_owner_id:
             owner = await CustomerRepositoryV2(db).get_by_uuid(gem.active_owner_id)
             if owner is not None:
                 owner_masked = mask_owner_name(owner.full_name)
@@ -85,15 +87,12 @@ async def _build_public_certificate(db, cert, token) -> dict[str, Any]:
     return {
         "certificate_number": cert.certificate_number,
         "version": cert.version,
-        "issue_date": cert.issued_at,
+        "issue_date": (cert.issued_at or "")[:10] or None,
         "gemstone": {k: v for k, v in gemstone.items() if v is not None},
         "owner_masked": owner_masked,
-        "color_grade": cert.color_grade,
-        "clarity_grade": cert.clarity_grade,
-        "cut_grade": cert.cut_grade,
-        "carat_weight": cert.carat_weight,
-        "measurements": cert.measurements,
-        "conclusion": cert.comments_en or cert.comments_id,
+        "examiner": snap.get("examiner"),
+        "conclusion": snap.get("conclusion"),
+        "notes": snap.get("notes"),
     }
 
 

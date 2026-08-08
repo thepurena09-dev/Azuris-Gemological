@@ -43,6 +43,11 @@ class Certificate(
     pdf_media_id: Optional[str] = None
     verification_uuid: Optional[str] = None
 
+    # Immutable snapshot of gemstone identity at issue time (FASE 3).
+    # Ensures regenerated historical PDFs / archived versions never change when
+    # the live gemstone record is later edited.
+    gemstone_snapshot: Optional[dict] = None
+
 
 class Warranty(
     BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin, VersionMixin

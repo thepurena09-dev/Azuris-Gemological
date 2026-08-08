@@ -30,6 +30,11 @@ class LegalityDocumentRepository(DomainRepository[LegalityDocument]):
     collection_name = "legality_documents"
 
 
+class GemstonePhotoRepository(DomainRepository[LegalityDocument]):
+    model = LegalityDocument
+    collection_name = "gemstone_photos"
+
+
 class SettingsRepository(DomainRepository[BusinessSettings]):
     model = BusinessSettings
     collection_name = "site_settings"

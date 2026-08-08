@@ -3,6 +3,7 @@ import { ShieldCheck, Certificate, Info, CircleNotch, SealCheck, WarningCircle }
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { apiFetch } from "@/lib/api";
+import { appConfig } from "@/config";
 
 const CERT_RE = /^AZR-GEM-\d{4}-\d{6}$/;
 
@@ -187,7 +188,15 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
             </div>
 
             {c && result.status === "valid" && (
-              <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-black/5 pt-5 text-sm">
+              <>
+                {c.gemstone?.photo_url && (
+                  <img
+                    src={`${appConfig.api.baseUrl}${c.gemstone.photo_url}`}
+                    alt={c.gemstone?.name || "Gemstone"}
+                    className="mt-5 h-40 w-full rounded-lg border border-black/5 object-cover"
+                  />
+                )}
+                <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-black/5 pt-5 text-sm">
                 <Field label={t("verifyResult.fields.number")} value={c.certificate_number} />
                 <Field label={t("verifyResult.fields.version")} value={c.version} />
                 <Field label={t("verifyResult.fields.issue")} value={c.issue_date} />
@@ -202,6 +211,7 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
                 <Field label={t("verifyResult.fields.treatment")} value={c.gemstone?.treatment} />
                 <Field label={t("verifyResult.fields.conclusion")} value={c.conclusion} full />
               </dl>
+              </>
             )}
           </div>
         ))}

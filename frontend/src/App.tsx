@@ -15,6 +15,7 @@ import LoginPage from "@/pages/auth/LoginPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
 import LegalityAdminPage from "@/pages/admin/LegalityAdminPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
+import CertificatesPage from "@/pages/admin/CertificatesPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -59,6 +60,7 @@ function App() {
                 <Route index element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="legalitas" element={<LegalityAdminPage />} />
+                <Route path="certificates" element={<CertificatesPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 

@@ -21,6 +21,8 @@ from api.legality import public_router as legality_public_router
 from api.legality import admin_router as legality_admin_router
 from api.settings import public_router as settings_public_router
 from api.settings import admin_router as settings_admin_router
+from api.certificates import admin_router as certificates_admin_router
+from api.certificates import public_router as gemstone_public_router
 from core.config import get_settings
 from db.init import init_database
 from db.mongodb import mongodb
@@ -47,6 +49,8 @@ app.include_router(legality_public_router, prefix=settings.api_prefix)
 app.include_router(legality_admin_router, prefix=settings.api_prefix)
 app.include_router(settings_public_router, prefix=settings.api_prefix)
 app.include_router(settings_admin_router, prefix=settings.api_prefix)
+app.include_router(certificates_admin_router, prefix=settings.api_prefix)
+app.include_router(gemstone_public_router, prefix=settings.api_prefix)
 
 app.add_middleware(
     CORSMiddleware,
