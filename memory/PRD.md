@@ -139,6 +139,30 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
+## Client Revision — FASE 3.1 (A6 Certificate Visual Refinement, 2026-06, validated 11/11 backend)
+Visual-only refinement of `services/certificate_pdf.py` (+ read-only WhatsApp fetch in the PDF endpoint of
+`api/certificates.py`). NO changes to issuance/verification/counter/numbering/versioning/RBAC/audit. BUSINESS_RULES_LOCK.md unchanged.
+- Original Azuris visual system: warm-white dominant, champagne-gold **section header bars**, navy typography,
+  royal-blue sparingly. New **faceted round-brilliant emblem** (vector, original — no GRA IP), **dotted-leader
+  field rows** (label · leader · right-aligned value), subtle **scallop/guilloché security pattern** (low-opacity,
+  print-safe), double gold frame, refined front cover (emblem + tracked AZURIS/GEMOLOGICAL + certificate-number
+  plate + issue year), refined back cover (light champagne block, authenticity statement, 3-step verification,
+  website + centralized WhatsApp from settings, doc version). Inside-left: SERTIFIKAT & VERIFIKASI bar, prominent
+  number, meta rows, signature line, disclaimer (moved into mid whitespace — inside safe area), large high-contrast
+  QR with quiet zone + instructions. Inside-right: IDENTITAS BATU MULIA bar, gemstone photo (aspect preserved,
+  gold frame) with fields wrapping around it, KESIMPULAN PEMERIKSAAN bar; optional fields collapse cleanly (full
+  width when no photo). Fonts: standard PDF-safe Times/Helvetica (no brand TTFs in env) — hierarchy via size/weight/
+  tracking/caps.
+- Structure LOCKED & re-verified: exactly 2 pages, 148×105 mm (419.53×297.64 pt), fold 74 mm, ≥5 mm safe areas,
+  outside spread (back-left/front-right), inside spread (info-left/gemstone-right).
+- Validation (testing_agent iteration_7, 11/11): PDF 200/application-pdf, 2 pages A6, QR decodes to
+  `<base>/?qr=<token>#verification` (pyzbar), manual + QR verify return valid, security_code/qr_token never in public
+  responses; regressions green (verify not_found, qr resolve invalid, settings public 6287812128884, legality empty).
+  MANDATORY cleanup ran: test cert/gemstone removed, counter restored to **last_number=14** → next real number
+  **AZR-GEM-2026-000015**. DB go-live-clean (certs=0, gems=0). PUBLIC_BASE_URL unset → QR uses preview host fallback;
+  **set PUBLIC_BASE_URL before first production certificate.**
+
+
 ## Client Revision — FASE 3 (Certificate Issuance + Gemstone + Security Code + QR + A6 PDF, 2026-06, validated 22/22)
 Incremental on FASE 1/2. Reused locked atomic counter, existing Certificate/Gemstone/VerificationToken models,
 RBAC, audit, base+domain repos. Added deps: `reportlab`, `qrcode[pil]` (PDF+QR; genuinely required). No auth/JWT/
