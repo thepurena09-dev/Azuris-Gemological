@@ -277,6 +277,11 @@ const en = {
     invalidType: "Unsupported format. Use JPG, PNG, or WebP.",
     uploadFailed: "Upload failed. Please try again.",
     close: "Close",
+    dashboardSection: "Dashboard Background",
+    dashboardHint: "Set the admin panel background. Disabled = uses the default Azuris marble.",
+    bgEnabled: "Enable custom background",
+    bgOpacity: "Intensity / Opacity",
+    resetMarble: "Reset to Default Marble Background",
   },
   adminCert: {
     navTitle: "Certificates",

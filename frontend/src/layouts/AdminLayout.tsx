@@ -3,6 +3,8 @@ import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Us
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
+import { useBusiness } from "@/lib/settings";
+import { mediaUrl } from "@/lib/api";
 
 const MARBLE_BG =
   "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/df3161b0cd73f56ca5ed2325b394244a0bc533006164f0b288a0bd38c33fcfef.jpeg";
@@ -15,6 +17,13 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 export default function AdminLayout() {
   const { t } = useLanguage();
   const { logout } = useAuth();
+  const { visuals } = useBusiness();
+
+  const useCustomBg = Boolean(visuals?.dashboard_bg_enabled && visuals?.dashboard_bg_url);
+  const bgImage = useCustomBg ? mediaUrl(visuals!.dashboard_bg_url) : MARBLE_BG;
+  const bgOpacity = useCustomBg
+    ? Math.min(Math.max((visuals!.dashboard_bg_opacity ?? 10) / 100, 0.04), 0.24)
+    : 0.1;
 
   return (
     <div
@@ -126,11 +135,16 @@ export default function AdminLayout() {
         </header>
 
         <main className="relative min-w-0 flex-1 bg-secondary">
-          {/* Refined marble veining — subtle, premium, readability preserved */}
+          {/* Dashboard background — CMS-controlled; approved marble is the default */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.10] mix-blend-multiply"
-            style={{ backgroundImage: `url(${MARBLE_BG})`, filter: "contrast(1.25) saturate(0.9)" }}
+            data-testid="admin-bg-overlay"
+            className={`pointer-events-none absolute inset-0 bg-cover bg-center ${useCustomBg ? "" : "mix-blend-multiply"}`}
+            style={{
+              backgroundImage: `url(${bgImage})`,
+              opacity: bgOpacity,
+              filter: useCustomBg ? undefined : "contrast(1.25) saturate(0.9)",
+            }}
           />
           <div className="relative">
             <Outlet />

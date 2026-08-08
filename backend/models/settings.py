@@ -45,3 +45,9 @@ class BusinessSettings(BaseDocument, AuditMixin):
     membership_cta_id: Optional[str] = Field(default=None, max_length=80)
     membership_cta_en: Optional[str] = Field(default=None, max_length=80)
     membership_link: str = Field(default="/membership", max_length=200)
+
+    # --- Dashboard background (CMS visual control) ---
+    # When custom is disabled, the admin dashboard keeps the approved marble default.
+    dashboard_bg_enabled: bool = False
+    dashboard_bg_url: str = Field(default="", max_length=1000)
+    dashboard_bg_opacity: int = Field(default=10, ge=0, le=100)

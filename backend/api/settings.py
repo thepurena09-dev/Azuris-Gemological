@@ -54,6 +54,9 @@ class VisualsUpdate(BaseModel):
     membership_cta_id: str | None = None
     membership_cta_en: str | None = None
     membership_link: str | None = None
+    dashboard_bg_enabled: bool | None = None
+    dashboard_bg_url: str | None = None
+    dashboard_bg_opacity: int | None = None
 
 
 def _contact(s) -> dict:
@@ -81,6 +84,9 @@ def _visuals(s) -> dict:
         "membership_cta_id": s.membership_cta_id,
         "membership_cta_en": s.membership_cta_en,
         "membership_link": s.membership_link,
+        "dashboard_bg_enabled": s.dashboard_bg_enabled,
+        "dashboard_bg_url": s.dashboard_bg_url,
+        "dashboard_bg_opacity": s.dashboard_bg_opacity,
     }
 
 
@@ -145,6 +151,9 @@ async def admin_update_visuals(
     repo = SettingsRepository(db)
     before = await repo.get_or_create()
     changes = {k: v for k, v in body.model_dump(exclude_unset=True).items()}
+    # Keep dashboard background opacity within a readability-safe range.
+    if changes.get("dashboard_bg_opacity") is not None:
+        changes["dashboard_bg_opacity"] = max(4, min(24, int(changes["dashboard_bg_opacity"])))
     if not changes:
         return _visuals(before)
     after = await repo.update_business(changes)

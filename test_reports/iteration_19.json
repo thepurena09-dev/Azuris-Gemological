@@ -1,0 +1,38 @@
+{
+  "summary": "Targeted verification of Dashboard Background CMS Control (dashboard_bg_enabled/url/opacity on /api/admin/settings/visuals). Backend 9/9 pytest passed; frontend Playwright flow (admin login -> /admin/visuals -> enable + set URL + save -> /admin/dashboard overlay reflects custom URL -> reset-to-marble -> save -> overlay returns to default marble) all passed with 0 console errors. Freeze preserved (counter last_number=14, business collections all 0, site_settings dashboard_bg_* restored to defaults).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_dashboard_bg.py",
+    "/app/test_reports/pytest/dashboard_bg.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AdminLayout: opacity math already clamps to 0.04..0.24 in the UI (defense-in-depth) matching backend clamp — good.",
+    "public /settings/public correctly exposes dashboard_bg_* (image URL only, no secrets) so BusinessSettingsProvider renders bg without rebuild."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_dashboard_bg.py (new)"
+  ],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "100% (all critical flows)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! ; cm@azuris.local / CmDev@2026! ; cs@azuris.local / CsDev@2026!",
+  "seed_data_creation": "None. Only mutated site_settings dashboard fields transiently; restored to defaults (enabled=false, url='', opacity=10) at test end via test_zzz_restore_defaults + Playwright reset flow. Verified via mongo query.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "verified": {
+    "public_settings_exposes_dashboard_bg": true,
+    "admin_put_persists": true,
+    "opacity_clamp_high_30_to_24": true,
+    "opacity_clamp_low_1_to_4": true,
+    "content_manager_can_write": true,
+    "customer_service_get_ok_put_403": true,
+    "unauthenticated_put_401": true,
+    "dashboard_overlay_uses_custom_url": true,
+    "reset_to_marble_restores_default": true,
+    "console_errors_during_flow": 0,
+    "freeze_counter_last_number": 14,
+    "freeze_business_collections_zero": true,
+    "defaults_restored_after_tests": true
+  },
+  "context_for_next_testing_agent": "test_dashboard_bg.py is idempotent and self-cleaning (last test restores defaults). Response envelope wrapper is {success, data, meta} — use _unwrap helper. Auth login returns access_token inside data. All specified data-testids exist on VisualsPage: visuals-dashboard-enabled/preview/upload/pick/url/opacity/opacity-value/reset-marble and admin-bg-overlay on AdminLayout main."
+}

@@ -19,6 +19,9 @@ export interface Visuals {
   membership_cta_id: string | null;
   membership_cta_en: string | null;
   membership_link: string;
+  dashboard_bg_enabled: boolean;
+  dashboard_bg_url: string;
+  dashboard_bg_opacity: number;
 }
 
 interface BusinessSettings extends Partial<Visuals> {

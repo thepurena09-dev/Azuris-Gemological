@@ -7,6 +7,7 @@ import {
   UploadSimple,
   ImagesSquare,
   ArrowCounterClockwise,
+  Gauge,
   X,
 } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -220,7 +221,7 @@ export default function VisualsPage() {
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<string | null>(null);
   const [readOnly, setReadOnly] = React.useState(false);
-  const [picker, setPicker] = React.useState<{ slot: "login" | "process" } | null>(null);
+  const [picker, setPicker] = React.useState<{ slot: "login" | "process" | "dashboard" } | null>(null);
   const [media, setMedia] = React.useState<MediaItem[]>([]);
 
   // Presentational gate — roles with CMS_WRITE per the locked RBAC matrix.
@@ -246,7 +247,7 @@ export default function VisualsPage() {
     set(key, res.url);
   };
 
-  const openPicker = async (slot: "login" | "process") => {
+  const openPicker = async (slot: "login" | "process" | "dashboard") => {
     try {
       const data = await apiJson<{ items: MediaItem[] }>("/api/admin/settings/visuals/media");
       setMedia(data.items || []);
@@ -258,7 +259,13 @@ export default function VisualsPage() {
 
   const applyPicked = (url: string) => {
     if (!picker) return;
-    set(picker.slot === "login" ? "login_image_url" : "process_image_url", url);
+    const field =
+      picker.slot === "login"
+        ? "login_image_url"
+        : picker.slot === "process"
+          ? "process_image_url"
+          : "dashboard_bg_url";
+    set(field, url);
     setPicker(null);
   };
 
@@ -355,6 +362,62 @@ export default function VisualsPage() {
                 <MembershipCardVisual side="front" cardNumber="AZR-MEM-••••••-26" memberName="Andi Pra****" memberSince="2026" status="active" />
               </div>
             </div>
+          </SectionCard>
+
+          <SectionCard icon={<Gauge size={18} />} title={t("adminVisuals.dashboardSection")}>
+            <p className="mb-4 text-sm text-muted-foreground">{t("adminVisuals.dashboardHint")}</p>
+            <label className="mb-4 flex items-center gap-2 text-sm text-foreground">
+              <input
+                data-testid="visuals-dashboard-enabled"
+                type="checkbox"
+                checked={v.dashboard_bg_enabled === true}
+                disabled={readOnly}
+                onChange={(e) => set("dashboard_bg_enabled", e.target.checked)}
+              />
+              {t("adminVisuals.bgEnabled")}
+            </label>
+            <ImageControl
+              slug="dashboard"
+              value={v.dashboard_bg_url || ""}
+              defaultUrl=""
+              onChange={(x) => set("dashboard_bg_url", x)}
+              onUpload={uploadFor("dashboard_bg_url")}
+              onOpenPicker={() => openPicker("dashboard")}
+              disabled={readOnly || v.dashboard_bg_enabled !== true}
+            />
+            <div className="mt-5 max-w-md">
+              <label className="mb-1.5 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+                <span>{t("adminVisuals.bgOpacity")}</span>
+                <span data-testid="visuals-dashboard-opacity-value" className="font-mono text-foreground">
+                  {v.dashboard_bg_opacity ?? 10}%
+                </span>
+              </label>
+              <input
+                data-testid="visuals-dashboard-opacity"
+                type="range"
+                min={4}
+                max={24}
+                step={1}
+                value={v.dashboard_bg_opacity ?? 10}
+                disabled={readOnly || v.dashboard_bg_enabled !== true}
+                onChange={(e) => set("dashboard_bg_opacity", parseInt(e.target.value, 10))}
+                className="w-full accent-gold disabled:opacity-50"
+              />
+            </div>
+            <button
+              type="button"
+              data-testid="visuals-dashboard-reset-marble"
+              disabled={readOnly}
+              onClick={() => {
+                set("dashboard_bg_enabled", false);
+                set("dashboard_bg_url", "");
+                set("dashboard_bg_opacity", 10);
+              }}
+              className="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-gold disabled:opacity-60"
+            >
+              <ArrowCounterClockwise size={14} />
+              {t("adminVisuals.resetMarble")}
+            </button>
           </SectionCard>
 
           <div className="flex items-center gap-4">

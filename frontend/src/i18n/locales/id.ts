@@ -278,6 +278,11 @@ const id = {
     invalidType: "Format tidak didukung. Gunakan JPG, PNG, atau WebP.",
     uploadFailed: "Upload gagal. Coba lagi.",
     close: "Tutup",
+    dashboardSection: "Background Dashboard",
+    dashboardHint: "Atur latar belakang panel admin. Nonaktif = memakai marble default Azuris.",
+    bgEnabled: "Aktifkan background kustom",
+    bgOpacity: "Intensitas / Opasitas",
+    resetMarble: "Reset ke Background Marble Default",
   },
   adminCert: {
     navTitle: "Sertifikat",
