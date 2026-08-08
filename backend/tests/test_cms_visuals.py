@@ -29,6 +29,7 @@ BASE = _load_backend_url()
 API = f"{BASE}/api"
 
 ADMIN = ("admin@azuris.local", "AzurisDev@2026!")
+ADMINR = ("adminr@azuris.local", "AdminrDev@2026!")
 CM = ("cm@azuris.local", "CmDev@2026!")
 CS = ("cs@azuris.local", "CsDev@2026!")
 
@@ -63,6 +64,11 @@ def admin_tok():
 @pytest.fixture(scope="module")
 def cm_tok():
     return _login(CM)
+
+
+@pytest.fixture(scope="module")
+def adminr_tok():
+    return _login(ADMINR)
 
 
 @pytest.fixture(scope="module")
@@ -202,3 +208,73 @@ def test_verify_malformed_safe():
     text = r.text.lower()
     for bad in ["password", "hash", "traceback", "mongo"]:
         assert bad not in text
+
+# ---- ADMINISTRATOR RBAC (fix under test) ----
+def test_visuals_get_administrator_200(adminr_tok):
+    r = requests.get(f"{API}/admin/settings/visuals", headers=_h(adminr_tok), timeout=15)
+    assert r.status_code == 200, r.text
+    d = _unwrap(r)
+    for k in VISUAL_FIELDS:
+        assert k in d
+
+
+def test_visuals_put_administrator_200(adminr_tok):
+    payload = {"membership_title_id": "TEST_ADMINR_ID", "membership_title_en": "TEST_ADMINR_EN"}
+    r = requests.put(f"{API}/admin/settings/visuals", headers=_h(adminr_tok), json=payload, timeout=15)
+    assert r.status_code == 200, r.text
+    d = _unwrap(r)
+    assert d["membership_title_id"] == "TEST_ADMINR_ID"
+    assert d["membership_title_en"] == "TEST_ADMINR_EN"
+
+
+def test_contact_put_administrator_200(adminr_tok):
+    """Regression guard: ADMINISTRATOR retains WhatsApp contact PUT access."""
+    r = requests.put(f"{API}/admin/settings", headers=_h(adminr_tok),
+                     json={"whatsapp_label": "TEST_ADMINR_LABEL"}, timeout=15)
+    assert r.status_code == 200, r.text
+
+
+def test_audit_log_cms_visuals_entry(adminr_tok):
+    """After ADMINISTRATOR PUT, audit_logs collection contains entity_type='cms_visuals'."""
+    import asyncio
+    from motor.motor_asyncio import AsyncIOMotorClient
+    # Trigger a PUT via ADMINISTRATOR
+    r = requests.put(
+        f"{API}/admin/settings/visuals",
+        headers=_h(adminr_tok),
+        json={"membership_title_id": "TEST_AUDIT_MARK"},
+        timeout=15,
+    )
+    assert r.status_code == 200
+
+    async def _check():
+        mongo_url = os.environ.get("MONGO_URL")
+        db_name = os.environ.get("DB_NAME")
+        client = AsyncIOMotorClient(mongo_url)
+        try:
+            db = client[db_name]
+            cnt = await db.audit_logs.count_documents({"entity_type": "cms_visuals"})
+            return cnt
+        finally:
+            client.close()
+
+    # load backend .env so MONGO_URL is available in test process
+    try:
+        from dotenv import load_dotenv
+        load_dotenv("/app/backend/.env")
+    except Exception:
+        pass
+    cnt = asyncio.run(_check())
+    assert cnt >= 1, f"expected >=1 audit_logs with entity_type='cms_visuals', got {cnt}"
+
+
+def test_baseline_business_collections_zero(admin_tok):
+    r = requests.get(f"{API}/admin/analytics/overview", headers=_h(admin_tok), timeout=15)
+    assert r.status_code == 200
+    d = _unwrap(r)
+    totals = d.get("totals") or d.get("counts") or {}
+    # only inspect the well-known business keys if present
+    for k in ("gemstones", "jewelry", "certificates", "warranties", "customers", "memberships"):
+        if k in totals:
+            assert totals[k] == 0, f"expected 0 for {k}, got {totals[k]}"
+

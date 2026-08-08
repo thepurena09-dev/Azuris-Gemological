@@ -79,7 +79,7 @@ ROLE_PERMISSIONS: dict[AdminRole, frozenset[Permission]] = {
             Permission.CUSTOMER_READ, Permission.CUSTOMER_WRITE, Permission.CUSTOMER_DELETE,
             Permission.MEMBERSHIP_READ, Permission.MEMBERSHIP_WRITE,
             Permission.MEDIA_READ, Permission.MEDIA_WRITE, Permission.MEDIA_DELETE,
-            Permission.CMS_READ,
+            Permission.CMS_READ, Permission.CMS_WRITE,
             Permission.LOGS_READ, Permission.ANALYTICS_READ,
             # No ADMIN_READ / ADMIN_MANAGE (no admin-account management).
         }

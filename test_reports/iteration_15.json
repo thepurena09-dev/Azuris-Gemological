@@ -1,0 +1,27 @@
+{
+  "summary": "Targeted backend-only RBAC verification of the CMS_WRITE permission fix for ADMINISTRATOR on GET/PUT /api/admin/settings/visuals. Extended /app/backend/tests/test_cms_visuals.py from 14 to 19 tests. All 19 PASS. Verified full RBAC matrix: SUPER_ADMIN GET+PUT=200, ADMINISTRATOR (adminr@azuris.local) GET=200 + PUT=200 [fix under test], CONTENT_MANAGER GET+PUT=200, CUSTOMER_SERVICE GET=200 + PUT=403, unauthenticated PUT=401. Audit trail verified via direct MongoDB query — audit_logs collection contains entries with entity_type='cms_visuals' after ADMINISTRATOR PUT. Regression guard: WhatsApp contact PUT /api/admin/settings — CONTENT_MANAGER=>403 and CUSTOMER_SERVICE=>403 remain unchanged, while ADMINISTRATOR still gets 200 (as required by require_roles(ADMINISTRATOR) guard). Baseline invariant confirmed: certificate_counter.last_number=14, next_number='AZR-GEM-000015-26'. Business collection totals in analytics.overview all 0.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_cms_visuals.py",
+    "/app/test_reports/pytest/cms_visuals_iter15.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "auth/rbac.py: ADMINISTRATOR frozenset now includes both CMS_READ and CMS_WRITE — matches the required matrix and uses the existing permission architecture (no hardcoded role check).",
+    "api/settings.py: GET /admin/settings/visuals uses require_permission(CMS_READ); PUT uses require_permission(CMS_WRITE). Contact PUT /admin/settings correctly retains require_roles(ADMINISTRATOR) — CM/CS still 403.",
+    "No admin-facing audit-log query endpoint exists (audit is verified via Mongo). Not a blocker for this scope; consider a read-only /api/admin/audit-logs endpoint (SUPER_ADMIN, LOGS_READ) in a future iteration.",
+    "scripts/seed_test_roles.py: idempotent upsert of all 4 role accounts including ADMINISTRATOR adminr@azuris.local — verified working."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_cms_visuals.py (added 5 tests: ADMINISTRATOR GET/PUT, ADMINISTRATOR contact PUT regression, Mongo-verified audit_logs entry, business-collections=0 baseline)"
+  ],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "not tested (backend-only scope)"},
+  "test_credentials": "SUPER_ADMIN admin@azuris.local / AzurisDev@2026!; ADMINISTRATOR adminr@azuris.local / AdminrDev@2026!; CONTENT_MANAGER cm@azuris.local / CmDev@2026!; CUSTOMER_SERVICE cs@azuris.local / CsDev@2026! — re-seeded via `cd /app/backend && python -m scripts.seed_test_roles`.",
+  "seed_data_creation": "Only re-seeded the 4 role accounts. No business fixtures. site_settings mutated by CMS PUT calls (expected). Certificate counter untouched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "CMS visuals RBAC matrix fully verified: SUPER_ADMIN + ADMINISTRATOR + CONTENT_MANAGER can PUT; CUSTOMER_SERVICE read-only. Contact settings PUT remains ADMINISTRATOR/SUPER_ADMIN only. Baseline held: last_number=14, next='AZR-GEM-000015-26', business totals=0. Test file grew to 19 tests: `pytest tests/test_cms_visuals.py -o addopts=`.",
+  "final_counter_last_number": 14,
+  "final_next_number_will_be": "AZR-GEM-000015-26"
+}

@@ -19,6 +19,7 @@ from repositories.people import AdminRepository
 _TEST_ROLES = [
     ("cm@azuris.local", "CmDev@2026!", "Azuris Content Manager", AdminRole.CONTENT_MANAGER),
     ("cs@azuris.local", "CsDev@2026!", "Azuris Customer Service", AdminRole.CUSTOMER_SERVICE),
+    ("adminr@azuris.local", "AdminrDev@2026!", "Azuris Administrator", AdminRole.ADMINISTRATOR),
 ]
 
 
