@@ -139,6 +139,73 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
+## Client Revision — FASE 3 (Certificate Issuance + Gemstone + Security Code + QR + A6 PDF, 2026-06, validated 22/22)
+Incremental on FASE 1/2. Reused locked atomic counter, existing Certificate/Gemstone/VerificationToken models,
+RBAC, audit, base+domain repos. Added deps: `reportlab`, `qrcode[pil]` (PDF+QR; genuinely required). No auth/JWT/
+RBAC/counter/numbering/masking changes. No destructive migration. No fake cert/gemstone/owner data left in DB.
+
+### Gemstone entry + certificate issuance (admin)
+- `api/certificates.py` (admin_router `/api/admin/...`, public_router `/api/gemstone/...`), `services/issuance.py`,
+  `services/security.py`. RBAC `require_roles(ADMINISTRATOR)` (SUPER_ADMIN implicit); CONTENT_MANAGER/unauth blocked.
+- Gemstone CRUD: `POST/GET/PUT /api/admin/gemstones`, `POST /api/admin/gemstones/{uuid}/photo` (image ≤8MB, base64 in
+  `gemstone_photos`; served publicly at `GET /api/gemstone/photo/{uuid}`; aspect ratio preserved in UI+PDF).
+- Issue: `POST /api/admin/certificates/issue {gemstone_id, examiner?, conclusion?, ...}` → atomic number via
+  `CounterRepository.next_certificate_number()` (locked `AZR-GEM-YYYY-000001`), creates Certificate(status ISSUED,
+  version 1, is_current), generates **security_code** (`gen_security_code`, unambiguous alphabet, NOT derived from
+  number) + **opaque QR token** (`secrets.token_urlsafe(32)`), creates VerificationToken, links gemstone
+  (status VERIFIED), writes immutable `gemstone_snapshot` on the certificate. Returns number + **security_code shown
+  ONCE** + qr_token + qr_url. Duplicate issuance for a gemstone that already has a cert → 409.
+- Reissue: `POST /api/admin/certificates/{uuid}/reissue` → version+1, same number, archives old (is_current=false),
+  QR token persists (repointed). Revoke: `POST /api/admin/certificates/{uuid}/revoke` → status revoked.
+
+### Certificate numbering / versioning
+- Server-side atomic, never computed on FE. Non-reusable (deletes/revokes/archives do NOT free numbers; counter kept
+  at 14 after test cleanup). Public verification exposes only the current (is_current) version; archived versions
+  restricted. **Index fix:** replaced global-unique `uq_certificate_number` with `uq_certificate_number_version`
+  (compound unique number+version) + `uq_certificate_number_current` (partial unique on `is_current:true`) so multi-
+  version + single-current is enforced. Reissue rolls back the is_current flip on insert failure (no corrupt state).
+
+### Security code + QR + verification (connected to FASE 2)
+- Manual: cert number + security code (exact match) required; wrong pair / malformed → generic `not_found`
+  (anti-enumeration + rate limit retained). QR: `GET /api/verify/qr/resolve?token=` → prefill number only (no
+  details); `POST /api/verify/qr` → full permitted details only after explicit user action. Security code, QR token,
+  and Mongo/internal IDs NEVER returned in public responses. Owner via locked masking (null now — no ownership flow).
+- `_build_public_certificate` reads the immutable `gemstone_snapshot` (species/variety/carat/dimensions/shape/cut/
+  color/transparency/clarity/treatment/origin/photo_url/conclusion) so historical PDFs/versions never change.
+
+### Digital certificate (frontend)
+- `VerificationForm.tsx` renders VALID result with gemstone photo + identity; other statuses show archived/revoked/
+  not_found safely. Admin UI `pages/admin/CertificatesPage.tsx` (+/admin/certificates, nav+route): gemstone form +
+  photo upload, issue (shows security code once + qr_url), certificate list with Download PDF + Revoke. i18n id/en
+  `adminCert.*` added. `lib/api.ts` streams the PDF with auth then opens as blob.
+
+### A6 booklet PDF (`services/certificate_pdf.py`)
+- Exactly 2 pages, true A6 landscape 148×105 mm (MediaBox 419.53×297.64 pt — verified via pypdf). Fold at 74 mm,
+  ≥5 mm safe margins. Page 1 outside spread (back cover LEFT, front cover RIGHT); Page 2 inside spread (certificate/
+  verification info LEFT with large high-contrast QR + number, gemstone identity RIGHT with photo). Snapshot-based.
+  Brand fonts unavailable in env → Times/Helvetica embedded (standard) as safe substitutes. QR encodes only the
+  opaque verification URL (`PUBLIC_BASE_URL` env, default = preview host).
+- **Printing:** A6 Landscape 148×105 mm, duplex, Actual Size / 100% (no Fit-to-Page), flip on SHORT edge for
+  landscape duplex, fold vertically at center; page1=outside, page2=inside. Verify back panel not upside-down.
+
+### RBAC / Audit
+- All issuance/gemstone/cert mutations server-side RBAC (CONTENT_MANAGER→403, unauth→401, verified). Audit entries
+  (append-only) written for gemstone create/update, certificate create/version_create/status_change, pdf generation.
+
+### Go-live status
+- **WhatsApp:** actual persisted `/api/settings/public` = **6287812128884** (confirmed against real setting, not the
+  prompt); admin-editable at `/admin/settings`; no old placeholder in frontend. **Legalitas CMS:** ready — `{published:
+  false}` empty state; real Azuris legal document to be uploaded MANUALLY by admin later (no fake data created).
+- **Testing:** testing_agent 22/22 backend green (iteration_6 after fix); frontend E2E verified (login→issue→
+  verify→PDF/revoke); `tsc --noEmit` clean. Reusable suite `/app/backend/tests/test_fase3_certificates.py`.
+
+### Known limitations
+- No ownership/customer assignment flow → owner_masked null (masking logic present & tested).
+- Public gemstone photo endpoint serves any photo doc by uuid (photos are meant to be public; low risk).
+- `PUBLIC_BASE_URL` defaults to preview host if env unset — set it for production QR URLs.
+- Brand fonts (Playfair/Inter) substituted by Times/Helvetica in PDF (no TTFs in env).
+- **BUSINESS_RULES_LOCK.md: UNCHANGED.**
+
 ## Client Revision — FASE 2 (Backend Verification + Legality CMS/Admin + WhatsApp Settings, 2026-06, validated)
 Incremental on FASE 1. Reused existing FastAPI/Mongo/Pydantic/JWT/RBAC/audit/base+domain repos. No new
 dependencies. **No auth/JWT/RBAC/certificate-counter/numbering/owner-masking/version-visibility changes.**
