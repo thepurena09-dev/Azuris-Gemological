@@ -3,7 +3,25 @@ import { apiJson } from "@/lib/api";
 
 const FALLBACK_WHATSAPP = "6287812128884";
 
-interface BusinessSettings {
+export interface Visuals {
+  login_image_url: string;
+  login_image_alt_id: string | null;
+  login_image_alt_en: string | null;
+  process_image_url: string;
+  process_image_alt_id: string | null;
+  process_image_alt_en: string | null;
+  process_image_show: boolean;
+  membership_show: boolean;
+  membership_title_id: string | null;
+  membership_title_en: string | null;
+  membership_desc_id: string | null;
+  membership_desc_en: string | null;
+  membership_cta_id: string | null;
+  membership_cta_en: string | null;
+  membership_link: string;
+}
+
+interface BusinessSettings extends Partial<Visuals> {
   whatsapp_number: string;
   whatsapp_label: string | null;
   whatsapp_enabled: boolean;
@@ -13,6 +31,7 @@ interface BusinessContextValue {
   whatsappNumber: string;
   whatsappEnabled: boolean;
   whatsappHref: (message?: string) => string;
+  visuals: Visuals | null;
   refresh: () => void;
 }
 
@@ -43,11 +62,14 @@ export const BusinessSettingsProvider: React.FC<{ children: React.ReactNode }> =
 
   const value = React.useMemo<BusinessContextValue>(() => {
     const number = settings.whatsapp_number || FALLBACK_WHATSAPP;
+    const visuals =
+      settings.login_image_url !== undefined ? (settings as Visuals) : null;
     return {
       whatsappNumber: number,
       whatsappEnabled: settings.whatsapp_enabled,
       whatsappHref: (message?: string) =>
         `https://wa.me/${number}${message ? `?text=${encodeURIComponent(message)}` : ""}`,
+      visuals,
       refresh: load,
     };
   }, [settings, load]);

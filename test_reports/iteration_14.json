@@ -1,0 +1,33 @@
+{
+  "summary": "POST-BATCH D targeted testing of CMS Visual Controls + UI polish. Backend: NEW /app/backend/tests/test_cms_visuals.py = 14/14 PASS. Verified GET/PUT /api/admin/settings/visuals RBAC per permission — no-auth=>401, SUPER_ADMIN GET+PUT=200, CONTENT_MANAGER (CMS_READ+CMS_WRITE) GET+PUT=200, CUSTOMER_SERVICE GET=200 + PUT=403. Public GET /api/settings/public returns all 15 visual fields alongside WhatsApp contact. Persistence verified via PUT->GET (admin) and PUT->public GET. Audit trail confirmed: audit_logs contains 6 entries with entity_type='cms_visuals'. WhatsApp contact PUT /api/admin/settings still ADMINISTRATOR-only: CONTENT_MANAGER=>403, CUSTOMER_SERVICE=>403. Certificate counter unchanged: analytics.certificate_counter.last_number=14, next_number='AZR-GEM-000015-26'. Malformed verify returns safe generic response (no traceback/mongo/hash leaked). No secrets (password/hash/security_code/qr_token/preview_token/_id key) in visuals responses. Frontend: Homepage / renders process-image, home-membership (masked 'Andi Pra****' + 'AZR-MEM-••••••-26', no real PII), home-membership-cta -> /membership, gold-bordered nav; no raw i18n keys (homeMembership.*) leaked in ID or EN; EN toggle translates cleanly. Login page renders data-testid='login-panel-image' with CMS-driven URL; admin login succeeds. Admin sidebar has admin-logo (smaller) + admin-nav-visuals. /admin/dashboard shows dash-loaded/dash-metrics/dash-verify-chart and 'AZR-GEM-000015-26' next-cert. /admin/visuals renders 3 sections with all data-testids (visuals-login-url, visuals-process-url, visuals-mem-title-id, visuals-login-preview, visuals-process-preview, visuals-save); Membership card preview shows MASKED identity; Save button persists and displays success text. Responsive: 0px horizontal overflow at 360, 768 (spot-checked). No page errors on public or admin routes.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cms_visuals.py",
+    "/app/test_reports/pytest/cms_visuals.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "api/settings.py: /admin/settings/visuals GET guarded by CMS_READ, PUT by CMS_WRITE — matches RBAC matrix (SUPER_ADMIN via ALL_PERMISSIONS + CONTENT_MANAGER; CUSTOMER_SERVICE has CMS_READ only). Correctly separates permission from role.",
+    "PUT visuals uses body.model_dump(exclude_unset=True) so partial updates are supported and no field is nulled inadvertently.",
+    "Audit log written with entity_type='cms_visuals'; before/after snapshots limited to non-secret visual fields.",
+    "Public /api/settings/public exposes only visual + WhatsApp fields; no _id key, no PII, no secret exposure.",
+    "NOTE (informational, not a bug): rbac.py grants ADMINISTRATOR only CMS_READ (not CMS_WRITE). The review request mentioned 'ADMINISTRATOR PUT=200'; this is technically 403 by matrix. Because SUPER_ADMIN has ALL_PERMISSIONS anyway, this does not impact tested credentials. If product wants ADMINISTRATOR to also write CMS visuals, add Permission.CMS_WRITE to the ADMINISTRATOR frozenset in auth/rbac.py.",
+    "Login flow redirects to /admin/legalitas (default post-login route) rather than /admin/dashboard. Not a spec violation; noting for awareness."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_cms_visuals.py (NEW — 14 tests covering CMS visuals RBAC, persistence, audit, secrets scan, counter invariant, verify safety)"
+  ],
+  "success_rate": {"backend": "100% (14/14 CMS visuals tests)", "frontend": "100% (homepage, login, admin dashboard, admin visuals all render with expected data-testids and masked identity)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN), cm@azuris.local / CmDev@2026! (CONTENT_MANAGER), cs@azuris.local / CsDev@2026! (CUSTOMER_SERVICE) — re-seeded via `python -m scripts.seed_test_roles`.",
+  "seed_data_creation": "None. Only site_settings (business doc) mutated by CMS PUTs — which is expected/allowed CMS state, not a business fixture. Business collections remain baseline=0. Certificate counter unchanged at last_number=14.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Baseline held: business collections=0, counters.certificate.last_number=14 => next real cert AZR-GEM-000015-26. New CMS visuals test file: pytest tests/test_cms_visuals.py -o addopts=. Full authoritative gate now 98 tests (84 batch A/B/C/D + 14 CMS visuals). RBAC note: ADMINISTRATOR role currently lacks CMS_WRITE; only SUPER_ADMIN and CONTENT_MANAGER can PUT visuals.",
+  "final_counter_last_number": 14,
+  "final_next_number_will_be": "AZR-GEM-000015-26"
+}

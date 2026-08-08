@@ -18,3 +18,30 @@ class BusinessSettings(BaseDocument, AuditMixin):
     whatsapp_number: str = Field(default="6287812128884", max_length=32)
     whatsapp_label: Optional[str] = Field(default=None, max_length=120)
     whatsapp_enabled: bool = True
+
+    # --- CMS visual controls (POST-BATCH D final UI polish) ---
+    # Image URLs may reference the Media Library (public `/api/media/{uuid}`) or an
+    # approved external asset URL. No binaries stored here (reuse Sprint 10/14 media).
+    login_image_url: str = Field(
+        default="https://images.unsplash.com/photo-1783771686998-0af6c0efec6e?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400",
+        max_length=1000,
+    )
+    login_image_alt_id: Optional[str] = Field(default="Batu safir premium", max_length=200)
+    login_image_alt_en: Optional[str] = Field(default="Premium sapphire gemstone", max_length=200)
+
+    process_image_url: str = Field(
+        default="https://images.unsplash.com/photo-1628058494685-6c2f796ac24a?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+        max_length=1000,
+    )
+    process_image_alt_id: Optional[str] = Field(default="Pemeriksaan gemologi profesional", max_length=200)
+    process_image_alt_en: Optional[str] = Field(default="Professional gemological examination", max_length=200)
+    process_image_show: bool = True
+
+    membership_show: bool = True
+    membership_title_id: Optional[str] = Field(default=None, max_length=160)
+    membership_title_en: Optional[str] = Field(default=None, max_length=160)
+    membership_desc_id: Optional[str] = Field(default=None, max_length=600)
+    membership_desc_en: Optional[str] = Field(default=None, max_length=600)
+    membership_cta_id: Optional[str] = Field(default=None, max_length=80)
+    membership_cta_en: Optional[str] = Field(default=None, max_length=80)
+    membership_link: str = Field(default="/membership", max_length=200)

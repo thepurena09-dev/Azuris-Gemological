@@ -5,14 +5,20 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
+import { useBusiness } from "@/lib/settings";
 
 const PANEL_IMAGE =
   "https://images.unsplash.com/photo-1600287648597-d81be16a5a16?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400";
 
 export default function LoginPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const { login, admin } = useAuth();
+  const { visuals } = useBusiness();
   const navigate = useNavigate();
+  const panelImage = visuals?.login_image_url || PANEL_IMAGE;
+  const panelAlt =
+    (locale === "en" ? visuals?.login_image_alt_en : visuals?.login_image_alt_id) ||
+    "Azuris gemstone";
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
@@ -39,7 +45,7 @@ export default function LoginPage() {
   return (
     <div data-testid={TEST_IDS.page.login} className="grid min-h-screen bg-background lg:grid-cols-2">
       <div className="relative hidden overflow-hidden bg-secondary lg:block">
-        <img src={PANEL_IMAGE} alt="Sapphire jewelry" className="h-full w-full object-cover" />
+        <img src={panelImage} alt={panelAlt} data-testid="login-panel-image" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-between p-14">
           <Link to="/" className="flex items-center gap-3">

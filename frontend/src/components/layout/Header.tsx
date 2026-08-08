@@ -47,40 +47,34 @@ export default function Header() {
           </Link>
 
           {/* Navigation center */}
-          <nav className="hidden items-center gap-9 lg:flex">
-            {navItems.map((item) =>
-              item.type === "route" ? (
+          <nav className="hidden items-center gap-2.5 lg:flex">
+            {navItems.map((item) => {
+              const base =
+                "rounded-lg border px-3.5 py-2 text-[0.66rem] uppercase tracking-[0.16em] transition-[color,background-color,border-color] duration-300";
+              const normal =
+                "border-gold/35 bg-transparent text-muted-foreground hover:border-gold/60 hover:bg-gold/5 hover:text-foreground";
+              const active = "border-gold/70 bg-gold/10 text-foreground";
+              return item.type === "route" ? (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   end={item.end}
                   data-testid={item.testId}
-                  className={({ isActive }) =>
-                    `relative py-2 text-[0.72rem] uppercase tracking-[0.2em] transition-colors duration-300 ${
-                      isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                    }`
-                  }
+                  className={({ isActive }) => `${base} ${isActive ? active : normal}`}
                 >
-                  {({ isActive }) => (
-                    <>
-                      {t(item.key)}
-                      {isActive && (
-                        <span className="absolute -bottom-0.5 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-gold" />
-                      )}
-                    </>
-                  )}
+                  {t(item.key)}
                 </NavLink>
               ) : (
                 <Link
                   key={item.to}
                   to={item.to}
                   data-testid={item.testId}
-                  className="py-2 text-[0.72rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors duration-300 hover:text-foreground"
+                  className={`${base} ${normal}`}
                 >
                   {t(item.key)}
                 </Link>
-              )
-            )}
+              );
+            })}
           </nav>
 
           {/* Actions right */}
@@ -108,14 +102,14 @@ export default function Header() {
 
         {open && (
           <div className="border-t border-border bg-background px-6 py-6 lg:hidden">
-            <nav className="flex flex-col gap-5">
+            <nav className="flex flex-col gap-3">
               {navItems.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
                   data-testid={`${item.testId}-mobile`}
                   onClick={() => setOpen(false)}
-                  className="text-sm uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground"
+                  className="rounded-lg border border-gold/30 px-4 py-3 text-sm uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-gold/55 hover:text-foreground"
                 >
                   {t(item.key)}
                 </Link>

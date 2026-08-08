@@ -174,6 +174,12 @@ const en = {
       "Reach the Azuris team for questions about gemstone examination, certification, and verification.",
     whatsapp: "Contact via WhatsApp",
   },
+  homeMembership: {
+    eyebrow: "Membership",
+    title: "Azuris Membership",
+    desc: "A digital membership identity linked to owner records and verifiable through the Azuris system.",
+    cta: "Verify Membership",
+  },
   legality: {
     title: "Azuris Gemological Legality",
     subtitle:
@@ -244,6 +250,22 @@ const en = {
     save: "Save Changes", saved: "Changes saved.",
     hint: "Example: 087812128884 or +62 878-1212-8884",
     invalid: "Invalid WhatsApp number.",
+  },
+  adminVisuals: {
+    navTitle: "Visuals & Content",
+    title: "CMS Visual Controls",
+    subtitle: "Manage public visuals: admin login image, certification process image, and the homepage membership section.",
+    loginSection: "Admin Login Image",
+    processSection: "Certification Process Image",
+    membershipSection: "Homepage Membership",
+    imageUrl: "Image URL (Media Library / asset)",
+    altId: "Alt text (ID)", altEn: "Alt text (EN)",
+    show: "Show section", preview: "Preview",
+    titleId: "Title (ID)", titleEn: "Title (EN)",
+    descId: "Description (ID)", descEn: "Description (EN)",
+    ctaId: "CTA text (ID)", ctaEn: "CTA text (EN)", link: "Target Link",
+    save: "Save Visuals", saved: "Visuals saved.",
+    readOnly: "You have read-only access to these controls.",
   },
   adminCert: {
     navTitle: "Certificates",

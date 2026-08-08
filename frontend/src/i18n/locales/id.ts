@@ -175,6 +175,12 @@ const id = {
       "Hubungi tim Azuris untuk pertanyaan seputar pemeriksaan, sertifikasi, dan verifikasi batu mulia.",
     whatsapp: "Hubungi via WhatsApp",
   },
+  homeMembership: {
+    eyebrow: "Keanggotaan",
+    title: "Keanggotaan Azuris",
+    desc: "Identitas keanggotaan digital yang terhubung dengan data pemilik dan dapat diverifikasi melalui sistem Azuris.",
+    cta: "Verifikasi Keanggotaan",
+  },
   legality: {
     title: "Legalitas Azuris Gemological",
     subtitle:
@@ -245,6 +251,22 @@ const id = {
     save: "Simpan Perubahan", saved: "Perubahan tersimpan.",
     hint: "Contoh: 087812128884 atau +62 878-1212-8884",
     invalid: "Nomor WhatsApp tidak valid.",
+  },
+  adminVisuals: {
+    navTitle: "Visual & Konten",
+    title: "Kontrol Visual CMS",
+    subtitle: "Kelola visual publik: gambar login admin, gambar proses sertifikasi, dan bagian keanggotaan pada beranda.",
+    loginSection: "Gambar Login Admin",
+    processSection: "Gambar Proses Sertifikasi",
+    membershipSection: "Keanggotaan Beranda",
+    imageUrl: "URL Gambar (Media Library / aset)",
+    altId: "Teks Alt (ID)", altEn: "Teks Alt (EN)",
+    show: "Tampilkan bagian", preview: "Pratinjau",
+    titleId: "Judul (ID)", titleEn: "Judul (EN)",
+    descId: "Deskripsi (ID)", descEn: "Deskripsi (EN)",
+    ctaId: "Teks CTA (ID)", ctaEn: "Teks CTA (EN)", link: "Tautan Tujuan",
+    save: "Simpan Visual", saved: "Visual tersimpan.",
+    readOnly: "Anda hanya memiliki akses baca untuk kontrol ini.",
   },
   adminCert: {
     navTitle: "Sertifikat",
