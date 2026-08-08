@@ -139,6 +139,43 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
+## Client Revision — Post RC1 (FASE 1: Public Repositioning, 2026-06, frontend-only, validated)
+Repositioned public site from gemstone catalog/shop → gemological certification & verification platform.
+Frontend-only; **no backend/API/DB changes**, no locked business rules changed, no destructive migration,
+no fake certificate/gemstone/legality data introduced.
+- **Homepage** (`HomePage.tsx` rewrite): hero **carousel with exactly 3 slides** (Empat Pilar Batu Mulia /
+  Berlian & Rubi / Safir & Zamrud) via new `components/home/HeroCarousel.tsx` (embla-carousel-react, already
+  installed — no new dep): autoplay 6s, prev/next arrows, dots, mobile swipe (embla drag), ArrowLeft/Right
+  keyboard, pause on hover/focus, `prefers-reduced-motion` disables autoplay, fixed slide min-height (no layout
+  shift). Section order after hero: `#verification` → Proses Sertifikasi (`#proses`) → Mengapa Memilih Azuris →
+  Standar Pemeriksaan → Legalitas & Kredibilitas teaser → Hubungi Azuris/WhatsApp (`#kontak`).
+- **Verification (primary focus)**: `components/home/VerificationForm.tsx` — No. Sertifikat + Kode Keamanan +
+  Verifikasi. Frontend format validation `^AZR-GEM-\d{4}-\d{6}$`. **No backend yet → neutral "Layanan Verifikasi
+  Sedang Dipersiapkan" state; NO fake VALID/INVALID.** Single integration point (setTimeout stub) marked for FASE 2.
+- **Public catalog removed**: catalog nav/links/product cards/price/WhatsApp-purchase CTA removed from public site.
+  Legacy routes redirect (no data/model deleted): `/catalog`, `/catalog/gemstones`, `/catalog/jewelry` → `/`;
+  `/verification` → `/#verification`. `CatalogPage.tsx`, `GemstonesPage.tsx`, `JewelryPage.tsx`,
+  `VerificationPage.tsx`, `data/sampleGemstones.ts` kept on disk but no longer routed publicly.
+- **New public nav** (`Header.tsx` + `Footer.tsx`): Beranda · Verifikasi Sertifikat (`/#verification`) ·
+  Proses Sertifikasi (`/#proses`) · Legalitas (`/legalitas`) · Tentang Azuris · Hubungi Kami · ID/EN.
+  Homepage hash-scroll effect (respects reduced-motion). Footer dev "Sprint" text replaced with positioning phrase.
+- **New page `/legalitas`** (`pages/public/LegalityPage.tsx`): premium certificate-focused layout, hero + CTA
+  "Verifikasi Sertifikat Batu" → `/#verification`, **premium empty/placeholder viewer** ("Dokumen Belum
+  Dipublikasikan" — no fake doc/number/issuer/status), commitment copy + disclaimer (exact requested copy).
+- **i18n**: added `home.slides`, `verify`, `process`, `why`, `standards`, `legalityTeaser`, `contact`, `legality`
+  keys + nav (process/legality) to existing ID(default)/EN system (`i18n/locales/id.ts`, `en.ts`). No 2nd i18n system.
+- **Copywriting**: certification/verification vocabulary; no price/sale/investment/marketplace claims.
+- **testids**: hero-carousel/prev/next/dots, verify.section/form/cert-input/code-input/submit/result,
+  legality.page/viewer/cta-verify, nav-process/nav-legality.
+- **Validated (screenshots)**: 3 slides + autoplay, EN/ID toggle, catalog+verification redirects, verification
+  format-error + neutral unavailable state, /legalitas placeholder, no horizontal overflow, `tsc --noEmit` clean.
+- **NOT done (FASE 2/3, awaiting instruction)**: backend verification API + QR opaque token, legality CMS +
+  admin `/admin/legalitas` + media/storage, certificate issuance + gemstone entry + A6 PDF booklet + QR.
+- **KNOWN LIMITATIONS**: verification & legality not wired to real data until FASE 2/3; WhatsApp contact number
+  is placeholder `6281200000000` (replace before launch); screenshot tool enforces 1920px viewport so 360px was
+  verified via responsive Tailwind classes + overflow check, not a true 360px render.
+- **BUSINESS_RULES_LOCK.md: UNCHANGED.**
+
 ## UI Refinements (RC1 — visual only, business logic FROZEN at Sprint 7)
 - 2026-06: Sharpened hero marble-vein texture (new Calacatta gold+charcoal image, opacity 90% +
   contrast/saturate boost, softened white gradient) and turned "Preview" into a solid gold button.

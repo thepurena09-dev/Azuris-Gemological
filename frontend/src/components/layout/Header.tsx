@@ -6,11 +6,12 @@ import { TEST_IDS } from "@/constants/testIds";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 const navItems = [
-  { to: "/", key: "nav.home", testId: TEST_IDS.header.navHome, end: true },
-  { to: "/catalog", key: "nav.catalog", testId: TEST_IDS.header.navCatalog, end: false },
-  { to: "/verification", key: "nav.verification", testId: TEST_IDS.header.navVerification, end: false },
-  { to: "/about", key: "nav.about", testId: TEST_IDS.header.navAbout, end: false },
-  { to: "/contact", key: "nav.contact", testId: TEST_IDS.header.navContact, end: false },
+  { to: "/", key: "nav.home", testId: TEST_IDS.header.navHome, type: "route" as const, end: true },
+  { to: "/#verification", key: "nav.verification", testId: TEST_IDS.header.navVerification, type: "hash" as const },
+  { to: "/#proses", key: "nav.process", testId: TEST_IDS.header.navProcess, type: "hash" as const },
+  { to: "/legalitas", key: "nav.legality", testId: TEST_IDS.header.navLegality, type: "route" as const },
+  { to: "/about", key: "nav.about", testId: TEST_IDS.header.navAbout, type: "route" as const },
+  { to: "/contact", key: "nav.contact", testId: TEST_IDS.header.navContact, type: "route" as const },
 ];
 
 export default function Header() {
@@ -53,29 +54,40 @@ export default function Header() {
           </Link>
 
           {/* Navigation center */}
-          <nav className="hidden items-center gap-11 lg:flex">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                data-testid={item.testId}
-                className={({ isActive }) =>
-                  `relative py-2 text-[0.72rem] uppercase tracking-[0.22em] transition-colors duration-300 ${
-                    isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {t(item.key)}
-                    {isActive && (
-                      <span className="absolute -bottom-0.5 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-gold" />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
+          <nav className="hidden items-center gap-9 lg:flex">
+            {navItems.map((item) =>
+              item.type === "route" ? (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  data-testid={item.testId}
+                  className={({ isActive }) =>
+                    `relative py-2 text-[0.72rem] uppercase tracking-[0.2em] transition-colors duration-300 ${
+                      isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {t(item.key)}
+                      {isActive && (
+                        <span className="absolute -bottom-0.5 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-gold" />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              ) : (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  data-testid={item.testId}
+                  className="py-2 text-[0.72rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors duration-300 hover:text-foreground"
+                >
+                  {t(item.key)}
+                </Link>
+              )
+            )}
           </nav>
 
           {/* Actions right */}
@@ -105,19 +117,15 @@ export default function Header() {
           <div className="border-t border-border bg-background px-6 py-6 lg:hidden">
             <nav className="flex flex-col gap-5">
               {navItems.map((item) => (
-                <NavLink
+                <Link
                   key={item.to}
                   to={item.to}
-                  end={item.end}
+                  data-testid={`${item.testId}-mobile`}
                   onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    `text-sm uppercase tracking-[0.22em] ${
-                      isActive ? "text-royal" : "text-muted-foreground"
-                    }`
-                  }
+                  className="text-sm uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {t(item.key)}
-                </NavLink>
+                </Link>
               ))}
               <Link
                 to="/login"

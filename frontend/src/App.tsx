@@ -6,11 +6,8 @@ import AdminLayout from "@/layouts/AdminLayout";
 
 import HomePage from "@/pages/public/HomePage";
 import AboutPage from "@/pages/public/AboutPage";
-import VerificationPage from "@/pages/public/VerificationPage";
-import CatalogPage from "@/pages/public/CatalogPage";
-import GemstonesPage from "@/pages/public/GemstonesPage";
-import JewelryPage from "@/pages/public/JewelryPage";
 import ContactPage from "@/pages/public/ContactPage";
+import LegalityPage from "@/pages/public/LegalityPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -24,11 +21,15 @@ function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/verification" element={<VerificationPage />} />
-            <Route path="/catalog" element={<CatalogPage />} />
-            <Route path="/catalog/gemstones" element={<GemstonesPage />} />
-            <Route path="/catalog/jewelry" element={<JewelryPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/legalitas" element={<LegalityPage />} />
+
+            {/* Certification repositioning — verification lives on the homepage */}
+            <Route path="/verification" element={<Navigate to="/#verification" replace />} />
+            {/* Public catalog removed — legacy routes redirect to homepage (no data deleted) */}
+            <Route path="/catalog" element={<Navigate to="/" replace />} />
+            <Route path="/catalog/gemstones" element={<Navigate to="/" replace />} />
+            <Route path="/catalog/jewelry" element={<Navigate to="/" replace />} />
           </Route>
 
           {/* Authentication */}

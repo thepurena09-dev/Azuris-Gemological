@@ -3,9 +3,9 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 
 const footerLinks = [
-  { to: "/catalog/gemstones", key: "nav.gemstones" },
-  { to: "/catalog/jewelry", key: "nav.jewelry" },
-  { to: "/verification", key: "nav.verification" },
+  { to: "/#verification", key: "nav.verification" },
+  { to: "/#proses", key: "nav.process" },
+  { to: "/legalitas", key: "nav.legality" },
   { to: "/about", key: "nav.about" },
   { to: "/contact", key: "nav.contact" },
 ];
@@ -53,7 +53,7 @@ export default function Footer() {
           <span>
             © {year} {t("brand")}. {t("footer.rights")}
           </span>
-          <span className="uppercase tracking-[0.2em]">{t("sprintNotice")}</span>
+          <span className="uppercase tracking-[0.2em]">{t("footer.tagline2")}</span>
         </div>
       </div>
     </footer>
