@@ -5,6 +5,7 @@ Never records secrets, tokens, passwords, or unmasked PII in before/after.
 
 from typing import Any, Optional
 
+from core.context import get_request_id
 from models.enums import AuditAction
 from models.logs import AuditLog
 from repositories.logs import AuditLogRepository
@@ -29,5 +30,6 @@ async def write_audit_log(
         entity_id=entity_id,
         before=before,
         after=after,
+        correlation_id=get_request_id(),
     )
     await AuditLogRepository(db).create(log)

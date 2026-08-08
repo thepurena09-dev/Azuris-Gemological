@@ -2,7 +2,7 @@ import * as React from "react";
 import { ShieldCheck, Certificate, Info, CircleNotch, SealCheck, WarningCircle, X, MagnifyingGlassPlus } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, unwrap } from "@/lib/api";
 import { appConfig } from "@/config";
 
 const CERT_RE = /^AZR-GEM-\d{6}-\d{2}$/;
@@ -61,7 +61,7 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
         body: JSON.stringify({ certificate_number: normalized, security_code: code.trim() }),
       });
       if (!res.ok) throw new Error("err");
-      setResult((await res.json()) as VerifyResult);
+      setResult((await unwrap(res)) as VerifyResult);
     } catch {
       setResult({ status: "error" });
     } finally {
@@ -79,7 +79,7 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
     try {
       const res = await apiFetch("/api/verify/qr", { method: "POST", body: JSON.stringify({ token: qrToken }) });
       if (!res.ok) throw new Error("err");
-      setResult((await res.json()) as VerifyResult);
+      setResult((await unwrap(res)) as VerifyResult);
     } catch {
       setResult({ status: "error" });
     } finally {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { apiFetch, apiJson, clearTokens, getToken, setTokens } from "@/lib/api";
+import { apiFetch, apiJson, unwrap, clearTokens, getToken, setTokens } from "@/lib/api";
 
 interface AdminInfo {
   uuid: string;
@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) throw new Error("login_failed");
-    const data = await res.json();
+    const data = await unwrap(res);
     setTokens(data.access_token, data.refresh_token);
     setAdmin(data.admin as AdminInfo);
   }, []);

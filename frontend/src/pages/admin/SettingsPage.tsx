@@ -2,7 +2,7 @@ import * as React from "react";
 import { CircleNotch, WhatsappLogo } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
-import { apiFetch, apiJson } from "@/lib/api";
+import { apiFetch, apiJson, unwrap } from "@/lib/api";
 import { useBusiness } from "@/lib/settings";
 
 export default function SettingsPage() {
@@ -37,7 +37,7 @@ export default function SettingsPage() {
         setErr(t("adminSettings.invalid"));
         return;
       }
-      const data = await res.json();
+      const data = await unwrap(res);
       setNumber(data.whatsapp_number);
       setMsg(t("adminSettings.saved"));
       refresh();

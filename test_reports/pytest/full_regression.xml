@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="29" failures="37" skipped="0" tests="108" time="15.171" timestamp="2026-08-08T17:12:23.196559+00:00" hostname="agent-env-7fb45264-10ec-4bea-992c-e1a3036a7c55"><testcase classname="tests.test_batch_a_regression.TestSprint8Envelope" name="test_settings_public_is_wrapped" time="0.360" /><testcase classname="tests.test_batch_a_regression.TestSprint8Envelope" name="test_health_is_not_wrapped" time="0.118" /><testcase classname="tests.test_batch_a_regression.TestSprint8Envelope" name="test_unauthorized_admin_settings_error_envelope" time="0.108" /><testcase classname="tests.test_batch_a_regression.TestSprint8Envelope" name="test_not_found_route_envelope" time="0.093" /><testcase classname="tests.test_batch_a_regression.TestSprint8Envelope" name="test_validation_error_envelope" time="0.132" /><testcase classname="tests.test_batch_a_regression.TestSprint8Envelope" name="test_x_request_id_echoed_from_client" time="0.127" /><testcase classname="tests.test_batch_a_regression.TestSprint9Logging" name="test_verify_writes_verification_log_with_correlation" time="0.121" /><testcase classname="tests.test_batch_a_regression.TestSprint9Logging" name="test_failed_login_writes_security_log_with_correlation" time="0.274" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_unauthorized_upload_401" time="0.117" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_cm_denied_media_mutation_403" time="0.408" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_upload_public_and_serve" time="0.544" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_upload_private_hidden_from_public_but_admin_raw_ok" time="0.353" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_list_media_by_entity" time="0.136" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_unsupported_content_type_400" time="0.101" /><testcase classname="tests.test_batch_a_regression.TestSprint10Media" name="test_delete_media_then_public_404" time="0.352" /><testcase classname="tests.test_batch_a_regression.TestFaseRegression" name="test_verify_valid_format_wrong_code" time="0.120" /><testcase classname="tests.test_batch_a_regression.TestFaseRegression" name="test_verify_malformed_number" time="0.228" /><testcase classname="tests.test_batch_a_regression.TestFaseRegression" name="test_qr_resolve_bad_token" time="0.101" /><testcase classname="tests.test_batch_a_regression.TestFaseRegression" name="test_auth_me_via_envelope" time="0.101" /><testcase classname="tests.test_batch_a_regression.TestFaseRegression" name="test_auth_refresh_and_logout" time="0.513" /><testcase classname="tests.test_batch_a_regression.TestFaseRegression" name="test_legality_public_unpublished" time="0.095" /><testcase classname="tests.test_batch_a_regression" name="test_zz_cleanup_and_invariants" time="0.245" /><testcase classname="tests.test_fase3_1_pdf_visual.TestReadOnlyRegressions" name="test_verify_fake_number_returns_not_found" time="0.143"><failure message="AssertionError: {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': '79b7487fe68f4ba3a983e71e9fb17fab'}}&#10;assert None == 'not_found'">tests/test_fase3_1_pdf_visual.py:87: in test_verify_fake_number_returns_not_found
+    assert outcome == "not_found", data
+E   AssertionError: {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': '79b7487fe68f4ba3a983e71e9fb17fab'}}
+E   assert None == 'not_found'</failure></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestReadOnlyRegressions" name="test_qr_resolve_invalid_token" time="0.126"><failure message="AssertionError: assert None is False&#10; +  where None = &lt;built-in method get of dict object at 0x7890b9eb8b40&gt;('token_valid')&#10; +    where &lt;built-in method get of dict object at 0x7890b9eb8b40&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '567db2d16f7c40dd885f1b5effef8427'}}.get">tests/test_fase3_1_pdf_visual.py:95: in test_qr_resolve_invalid_token
+    assert data.get("token_valid") is False
+E   AssertionError: assert None is False
+E    +  where None = &lt;built-in method get of dict object at 0x7890b9eb8b40&gt;('token_valid')
+E    +    where &lt;built-in method get of dict object at 0x7890b9eb8b40&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '567db2d16f7c40dd885f1b5effef8427'}}.get</failure></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestReadOnlyRegressions" name="test_settings_public_whatsapp" time="0.157"><failure message="AssertionError: {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': 'd18c373200d74f179ecb8fc4c1ac0f16'}}&#10;assert None == '6287812128884'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b9e72ac0&gt;('whatsapp_number')&#10; +    where &lt;built-in method get of dict object at 0x7890b9e72ac0&gt; = {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': 'd18c373200d74f179ecb8fc4c1ac0f16'}}.get">tests/test_fase3_1_pdf_visual.py:104: in test_settings_public_whatsapp
+    assert data.get("whatsapp_number") == "6287812128884", data
+E   AssertionError: {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': 'd18c373200d74f179ecb8fc4c1ac0f16'}}
+E   assert None == '6287812128884'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b9e72ac0&gt;('whatsapp_number')
+E    +    where &lt;built-in method get of dict object at 0x7890b9e72ac0&gt; = {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': 'd18c373200d74f179ecb8fc4c1ac0f16'}}.get</failure></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestReadOnlyRegressions" name="test_legality_unpublished_state" time="0.113" /><testcase classname="tests.test_fase3_1_pdf_visual.TestPdfE2E" name="test_01_create_gemstone" time="0.242"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_1_pdf_visual.py:60: in admin_headers
+    tok = r.json()["access_token"]
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestPdfE2E" name="test_02_issue_certificate" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_1_pdf_visual.py:60: in admin_headers
+    tok = r.json()["access_token"]
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestPdfE2E" name="test_03_pdf_binary_and_mediabox" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_1_pdf_visual.py:60: in admin_headers
+    tok = r.json()["access_token"]
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestPdfE2E" name="test_04_qr_on_page2_decodes_to_expected_url" time="0.001"><failure message="AssertionError: pdf missing&#10;assert None">tests/test_fase3_1_pdf_visual.py:203: in test_04_qr_on_page2_decodes_to_expected_url
+    assert pdf_bytes, "pdf missing"
+E   AssertionError: pdf missing
+E   assert None</failure></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestPdfE2E" name="test_05_manual_verify_returns_valid" time="0.102"><failure message="AssertionError: {&quot;success&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;VALIDATION_ERROR&quot;,&quot;message&quot;:&quot;One or more fields are invalid.&quot;,&quot;details&quot;:[{&quot;field&quot;:&quot;certificate_number&quot;,&quot;message&quot;:&quot;Input should be a valid string&quot;,&quot;type&quot;:&quot;string_type&quot;},{&quot;field&quot;:&quot;security_code&quot;,&quot;message&quot;:&quot;Input should be a valid string&quot;,&quot;type&quot;:&quot;string_type&quot;}]},&quot;meta&quot;:{&quot;request_id&quot;:&quot;e80438e23ec24136904df54f9e0c2ebf&quot;}}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">tests/test_fase3_1_pdf_visual.py:235: in test_05_manual_verify_returns_valid
+    assert r.status_code == 200, r.text
+E   AssertionError: {"success":false,"error":{"code":"VALIDATION_ERROR","message":"One or more fields are invalid.","details":[{"field":"certificate_number","message":"Input should be a valid string","type":"string_type"},{"field":"security_code","message":"Input should be a valid string","type":"string_type"}]},"meta":{"request_id":"e80438e23ec24136904df54f9e0c2ebf"}}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestPdfE2E" name="test_06_qr_verify_returns_valid_and_no_secret_leak" time="0.100"><failure message="AssertionError: {&quot;success&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;VALIDATION_ERROR&quot;,&quot;message&quot;:&quot;One or more fields are invalid.&quot;,&quot;details&quot;:[{&quot;field&quot;:&quot;token&quot;,&quot;message&quot;:&quot;Input should be a valid string&quot;,&quot;type&quot;:&quot;string_type&quot;}]},&quot;meta&quot;:{&quot;request_id&quot;:&quot;10142b32656a4d20b06a96f001424ac5&quot;}}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">tests/test_fase3_1_pdf_visual.py:246: in test_06_qr_verify_returns_valid_and_no_secret_leak
+    assert r.status_code == 200, r.text
+E   AssertionError: {"success":false,"error":{"code":"VALIDATION_ERROR","message":"One or more fields are invalid.","details":[{"field":"token","message":"Input should be a valid string","type":"string_type"}]},"meta":{"request_id":"10142b32656a4d20b06a96f001424ac5"}}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.test_fase3_1_pdf_visual.TestZZZCleanupAndCounterRestore" name="test_cleanup_and_verify_state" time="0.016" /><testcase classname="tests.test_fase3_3_preview.TestReadOnlyRegressions" name="test_verify_fake_number_returns_not_found_no_preview" time="0.163"><failure message="AssertionError: assert ((None or None)) == 'not_found'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b9f33a40&gt;('status')&#10; +    where &lt;built-in method get of dict object at 0x7890b9f33a40&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'dd447d1414874d4e80429635dd1862a6'}}.get&#10; +  and   None = &lt;built-in method get of dict object at 0x7890b9f33a40&gt;('result')&#10; +    where &lt;built-in method get of dict object at 0x7890b9f33a40&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'dd447d1414874d4e80429635dd1862a6'}}.get">tests/test_fase3_3_preview.py:82: in test_verify_fake_number_returns_not_found_no_preview
+    assert (d.get("status") or d.get("result")) == "not_found"
+E   AssertionError: assert ((None or None)) == 'not_found'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b9f33a40&gt;('status')
+E    +    where &lt;built-in method get of dict object at 0x7890b9f33a40&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'dd447d1414874d4e80429635dd1862a6'}}.get
+E    +  and   None = &lt;built-in method get of dict object at 0x7890b9f33a40&gt;('result')
+E    +    where &lt;built-in method get of dict object at 0x7890b9f33a40&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'dd447d1414874d4e80429635dd1862a6'}}.get</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestReadOnlyRegressions" name="test_qr_resolve_invalid_token" time="0.095"><failure message="AssertionError: assert None is False&#10; +  where None = &lt;built-in method get of dict object at 0x7890ba05f280&gt;('token_valid')&#10; +    where &lt;built-in method get of dict object at 0x7890ba05f280&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30215113442741c08cf73dbd8767b094'}}.get&#10; +      where {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30215113442741c08cf73dbd8767b094'}} = json()&#10; +        where json = &lt;Response [200]&gt;.json">tests/test_fase3_3_preview.py:91: in test_qr_resolve_invalid_token
+    assert r.json().get("token_valid") is False
+E   AssertionError: assert None is False
+E    +  where None = &lt;built-in method get of dict object at 0x7890ba05f280&gt;('token_valid')
+E    +    where &lt;built-in method get of dict object at 0x7890ba05f280&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30215113442741c08cf73dbd8767b094'}}.get
+E    +      where {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30215113442741c08cf73dbd8767b094'}} = json()
+E    +        where json = &lt;Response [200]&gt;.json</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestReadOnlyRegressions" name="test_settings_public_whatsapp" time="0.093"><failure message="AssertionError: assert None == '6287812128884'&#10; +  where None = &lt;built-in method get of dict object at 0x7890ba02d380&gt;('whatsapp_number')&#10; +    where &lt;built-in method get of dict object at 0x7890ba02d380&gt; = {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': 'ea9edd6414f14b6faff9c2b519d837d1'}}.get">tests/test_fase3_3_preview.py:97: in test_settings_public_whatsapp
+    assert d.get("whatsapp_number") == "6287812128884"
+E   AssertionError: assert None == '6287812128884'
+E    +  where None = &lt;built-in method get of dict object at 0x7890ba02d380&gt;('whatsapp_number')
+E    +    where &lt;built-in method get of dict object at 0x7890ba02d380&gt; = {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': 'ea9edd6414f14b6faff9c2b519d837d1'}}.get</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestReadOnlyRegressions" name="test_legality_empty" time="0.123" /><testcase classname="tests.test_fase3_3_preview.TestReadOnlyRegressions" name="test_preview_garbage_token_404" time="0.093" /><testcase classname="tests.test_fase3_3_preview.TestReadOnlyRegressions" name="test_preview_empty_and_unsigned_404" time="0.327" /><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_01_baseline_counter" time="0.008" /><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_02_create_gemstone" time="0.285"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_3_preview.py:59: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_03_issue_certificate" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_3_preview.py:59: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_04_verify_returns_preview_token" time="0.115"><failure message="AssertionError: {&quot;success&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;VALIDATION_ERROR&quot;,&quot;message&quot;:&quot;One or more fields are invalid.&quot;,&quot;details&quot;:[{&quot;field&quot;:&quot;certificate_number&quot;,&quot;message&quot;:&quot;Input should be a valid string&quot;,&quot;type&quot;:&quot;string_type&quot;},{&quot;field&quot;:&quot;security_code&quot;,&quot;message&quot;:&quot;Input should be a valid string&quot;,&quot;type&quot;:&quot;string_type&quot;}]},&quot;meta&quot;:{&quot;request_id&quot;:&quot;5f4f917d6f7948fab01054e8fdb24ce0&quot;}}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">tests/test_fase3_3_preview.py:200: in test_04_verify_returns_preview_token
+    assert r.status_code == 200, r.text
+E   AssertionError: {"success":false,"error":{"code":"VALIDATION_ERROR","message":"One or more fields are invalid.","details":[{"field":"certificate_number","message":"Input should be a valid string","type":"string_type"},{"field":"security_code","message":"Input should be a valid string","type":"string_type"}]},"meta":{"request_id":"5f4f917d6f7948fab01054e8fdb24ce0"}}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_05_preview_token_payload_minimal" time="0.001"><failure message="jwt.exceptions.DecodeError: Invalid token type. Token must be a &lt;class 'bytes'&gt;">tests/test_fase3_3_preview.py:219: in test_05_preview_token_payload_minimal
+    payload = jwt.decode(pt, JWT_SECRET, algorithms=[JWT_ALG])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/jwt/api_jwt.py:368: in decode
+    decoded = self.decode_complete(
+/root/.venv/lib/python3.11/site-packages/jwt/api_jwt.py:265: in decode_complete
+    decoded = self._jws.decode_complete(
+/root/.venv/lib/python3.11/site-packages/jwt/api_jws.py:249: in decode_complete
+    payload, signing_input, header, signature = self._load(jwt)
+                                                ^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/jwt/api_jws.py:323: in _load
+    raise DecodeError(f"Invalid token type. Token must be a {bytes}")
+E   jwt.exceptions.DecodeError: Invalid token type. Token must be a &lt;class 'bytes'&gt;</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_06_preview_endpoint_returns_png" time="0.102"><failure message="AssertionError: {&quot;success&quot;:false,&quot;error&quot;:{&quot;code&quot;:&quot;VALIDATION_ERROR&quot;,&quot;message&quot;:&quot;One or more fields are invalid.&quot;,&quot;details&quot;:[{&quot;field&quot;:&quot;query.t&quot;,&quot;message&quot;:&quot;Field required&quot;,&quot;type&quot;:&quot;missing&quot;}]},&quot;meta&quot;:{&quot;request_id&quot;:&quot;d7cddaea1d204837a0d20280d8afbcc5&quot;}}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">tests/test_fase3_3_preview.py:230: in test_06_preview_endpoint_returns_png
+    assert r.status_code == 200, r.text[:300]
+E   AssertionError: {"success":false,"error":{"code":"VALIDATION_ERROR","message":"One or more fields are invalid.","details":[{"field":"query.t","message":"Field required","type":"missing"}]},"meta":{"request_id":"d7cddaea1d204837a0d20280d8afbcc5"}}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_07_verify_qr_also_has_preview_token_no_leak" time="0.119"><failure message="assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">tests/test_fase3_3_preview.py:239: in test_07_verify_qr_also_has_preview_token_no_leak
+    assert r.status_code == 200
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_08_counter_unchanged_by_verification" time="0.003"><failure message="AssertionError: counter drift after verify: 14&#10;assert 14 == (14 + 1)">tests/test_fase3_3_preview.py:253: in test_08_counter_unchanged_by_verification
+    assert n == RESTORE_COUNTER_TO + 1, f"counter drift after verify: {n}"
+E   AssertionError: counter drift after verify: 14
+E   assert 14 == (14 + 1)</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_09_reissue_and_preview_current_version" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_3_preview.py:59: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_3_preview.TestPreviewE2E" name="test_10_archived_version_token_not_previewable" time="0.126"><failure message="AssertionError: archived cert leaked via preview: 422&#10;assert 422 == 404&#10; +  where 422 = &lt;Response [422]&gt;.status_code">tests/test_fase3_3_preview.py:320: in test_10_archived_version_token_not_previewable
+    assert r.status_code == 404, f"archived cert leaked via preview: {r.status_code}"
+E   AssertionError: archived cert leaked via preview: 422
+E   assert 422 == 404
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.test_fase3_3_preview.TestZZZCleanupAndCounterRestore" name="test_cleanup" time="0.007" /><testcase classname="tests.test_fase3_4_number_format.TestCounterUnit" name="test_format_seq15_year_2026" time="0.257"><failure message="RuntimeError: There is no current event loop in thread 'MainThread'.">tests/test_fase3_4_number_format.py:77: in test_format_seq15_year_2026
+    n1, n2 = asyncio.get_event_loop().run_until_complete(run())
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/events.py:681: in get_event_loop
+    raise RuntimeError('There is no current event loop in thread %r.'
+E   RuntimeError: There is no current event loop in thread 'MainThread'.</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestCounterUnit" name="test_atomic_no_duplicates_concurrent" time="0.002"><failure message="RuntimeError: There is no current event loop in thread 'MainThread'.">tests/test_fase3_4_number_format.py:116: in test_atomic_no_duplicates_concurrent
+    results = asyncio.get_event_loop().run_until_complete(run())
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/events.py:681: in get_event_loop
+    raise RuntimeError('There is no current event loop in thread %r.'
+E   RuntimeError: There is no current event loop in thread 'MainThread'.</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestVerifyRegex" name="test_old_format_returns_not_found" time="0.115"><failure message="AssertionError: assert ((None or None)) == 'not_found'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b921f440&gt;('status')&#10; +    where &lt;built-in method get of dict object at 0x7890b921f440&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': '54ce11c980694485820748e7ade70f80'}}.get&#10; +  and   None = &lt;built-in method get of dict object at 0x7890b921f440&gt;('result')&#10; +    where &lt;built-in method get of dict object at 0x7890b921f440&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': '54ce11c980694485820748e7ade70f80'}}.get">tests/test_fase3_4_number_format.py:138: in test_old_format_returns_not_found
+    assert (d.get("status") or d.get("result")) == "not_found"
+E   AssertionError: assert ((None or None)) == 'not_found'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b921f440&gt;('status')
+E    +    where &lt;built-in method get of dict object at 0x7890b921f440&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': '54ce11c980694485820748e7ade70f80'}}.get
+E    +  and   None = &lt;built-in method get of dict object at 0x7890b921f440&gt;('result')
+E    +    where &lt;built-in method get of dict object at 0x7890b921f440&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': '54ce11c980694485820748e7ade70f80'}}.get</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestVerifyRegex" name="test_new_format_shape_not_found_when_absent" time="0.117"><failure message="AssertionError: assert ((None or None)) == 'not_found'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b92038c0&gt;('status')&#10; +    where &lt;built-in method get of dict object at 0x7890b92038c0&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'ba20a78efc47400ca3621a239a416956'}}.get&#10; +  and   None = &lt;built-in method get of dict object at 0x7890b92038c0&gt;('result')&#10; +    where &lt;built-in method get of dict object at 0x7890b92038c0&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'ba20a78efc47400ca3621a239a416956'}}.get">tests/test_fase3_4_number_format.py:149: in test_new_format_shape_not_found_when_absent
+    assert (d.get("status") or d.get("result")) == "not_found"
+E   AssertionError: assert ((None or None)) == 'not_found'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b92038c0&gt;('status')
+E    +    where &lt;built-in method get of dict object at 0x7890b92038c0&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'ba20a78efc47400ca3621a239a416956'}}.get
+E    +  and   None = &lt;built-in method get of dict object at 0x7890b92038c0&gt;('result')
+E    +    where &lt;built-in method get of dict object at 0x7890b92038c0&gt; = {'success': True, 'data': {'status': 'not_found', 'certificate': None}, 'meta': {'request_id': 'ba20a78efc47400ca3621a239a416956'}}.get</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_01_baseline_counter" time="0.002" /><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_02_create_gemstone_and_issue" time="0.231"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_4_number_format.py:42: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_03_admin_list_and_detail_show_new_format" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_4_number_format.py:42: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_04_db_stores_new_format" time="0.001"><failure message="KeyError: 'cert_uuid'">tests/test_fase3_4_number_format.py:215: in test_04_db_stores_new_format
+    doc = mongo_db.certificates.find_one({"uuid": self.created["cert_uuid"]})
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'cert_uuid'</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_05_pdf_ok_two_pages" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_4_number_format.py:42: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_06_pdf_text_contains_new_number" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_4_number_format.py:42: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_07_manual_verify_new_format" time="0.001"><failure message="KeyError: 'cert_number'">tests/test_fase3_4_number_format.py:250: in test_07_manual_verify_new_format
+    json={"certificate_number": self.created["cert_number"], "security_code": self.created["security_code"]},
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'cert_number'</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_08_preview_png_new_format" time="0.001"><failure message="KeyError: 'preview_token'">tests/test_fase3_4_number_format.py:267: in test_08_preview_png_new_format
+    pt = self.created["preview_token"]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'preview_token'</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_09_qr_verify_new_format" time="0.001"><failure message="KeyError: 'qr_token'">tests/test_fase3_4_number_format.py:274: in test_09_qr_verify_new_format
+    r = requests.post(f"{API}/verify/qr", json={"token": self.created["qr_token"]}, timeout=10)
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'qr_token'</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_10_rbac_cm_blocked_and_unauth" time="0.239"><failure message="KeyError: 'access_token'">tests/test_fase3_4_number_format.py:284: in test_10_rbac_cm_blocked_and_unauth
+    tok = cr.json()["access_token"]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</failure></testcase><testcase classname="tests.test_fase3_4_number_format.TestIssuanceE2E" name="test_11_reissue_same_number" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_4_number_format.py:42: in admin_headers
+    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_4_number_format.TestZZZCleanup" name="test_cleanup_and_restore" time="0.016" /><testcase classname="tests.test_fase3_certificates.TestGemstone" name="test_create_gemstone_shape" time="0.238"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestGemstone" name="test_create_gemstone_validation" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestGemstone" name="test_upload_photo_and_public_get" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestIssuance" name="test_issue_shape" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestIssuance" name="test_duplicate_issue_409" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestIssuance" name="test_atomic_sequential_numbers" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVerification" name="test_valid_manual" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVerification" name="test_wrong_security_code_generic" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVerification" name="test_malformed_number" time="0.113"><failure message="KeyError: 'status'">tests/test_fase3_certificates.py:197: in test_malformed_number
+    assert r.json()["status"] == "not_found"
+           ^^^^^^^^^^^^^^^^^^
+E   KeyError: 'status'</failure></testcase><testcase classname="tests.test_fase3_certificates.TestVerification" name="test_qr_resolve_prefill_only" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVerification" name="test_qr_verify_full" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVerification" name="test_qr_invalid_token" time="0.119"><failure message="AssertionError: assert (None is False or None == 'not_found')&#10; +  where None = &lt;built-in method get of dict object at 0x7890b90581c0&gt;('token_valid')&#10; +    where &lt;built-in method get of dict object at 0x7890b90581c0&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30582d1391cb4d6a94b8fdee874c0e99'}}.get&#10; +  and   None = &lt;built-in method get of dict object at 0x7890b90581c0&gt;('status')&#10; +    where &lt;built-in method get of dict object at 0x7890b90581c0&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30582d1391cb4d6a94b8fdee874c0e99'}}.get">tests/test_fase3_certificates.py:221: in test_qr_invalid_token
+    assert data.get("token_valid") is False or data.get("status") == "not_found"
+E   AssertionError: assert (None is False or None == 'not_found')
+E    +  where None = &lt;built-in method get of dict object at 0x7890b90581c0&gt;('token_valid')
+E    +    where &lt;built-in method get of dict object at 0x7890b90581c0&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30582d1391cb4d6a94b8fdee874c0e99'}}.get
+E    +  and   None = &lt;built-in method get of dict object at 0x7890b90581c0&gt;('status')
+E    +    where &lt;built-in method get of dict object at 0x7890b90581c0&gt; = {'success': True, 'data': {'token_valid': False}, 'meta': {'request_id': '30582d1391cb4d6a94b8fdee874c0e99'}}.get</failure></testcase><testcase classname="tests.test_fase3_certificates.TestPDF" name="test_pdf_a6_landscape_two_pages" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVersioningRevoke" name="test_reissue_creates_new_version" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestVersioningRevoke" name="test_revoke_shows_revoked" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestRBAC" name="test_content_manager_forbidden_gemstone" time="0.263"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:40: in cm_token
+    return _login(*CM)
+           ^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestRBAC" name="test_content_manager_forbidden_issue" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:40: in cm_token
+    return _login(*CM)
+           ^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestRBAC" name="test_content_manager_forbidden_pdf" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:40: in cm_token
+    return _login(*CM)
+           ^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestRBAC" name="test_unauth_401" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestAudit" name="test_audit_entries" time="0.001"><error message="failed on setup with &quot;KeyError: 'access_token'&quot;">tests/test_fase3_certificates.py:35: in super_token
+    return _login(*SUPER)
+           ^^^^^^^^^^^^^^
+tests/test_fase3_certificates.py:30: in _login
+    return r.json()["access_token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</error></testcase><testcase classname="tests.test_fase3_certificates.TestFase2Regression" name="test_settings_public" time="0.138"><failure message="AssertionError: assert None == '6287812128884'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b9059780&gt;('whatsapp_number')&#10; +    where &lt;built-in method get of dict object at 0x7890b9059780&gt; = {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': '00746e52ccf049469c51fb90c859f49c'}}.get&#10; +      where {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': '00746e52ccf049469c51fb90c859f49c'}} = json()&#10; +        where json = &lt;Response [200]&gt;.json">tests/test_fase3_certificates.py:336: in test_settings_public
+    assert r.json().get("whatsapp_number") == "6287812128884"
+E   AssertionError: assert None == '6287812128884'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b9059780&gt;('whatsapp_number')
+E    +    where &lt;built-in method get of dict object at 0x7890b9059780&gt; = {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': '00746e52ccf049469c51fb90c859f49c'}}.get
+E    +      where {'success': True, 'data': {'whatsapp_number': '6287812128884', 'whatsapp_label': '', 'whatsapp_enabled': True}, 'meta': {'request_id': '00746e52ccf049469c51fb90c859f49c'}} = json()
+E    +        where json = &lt;Response [200]&gt;.json</failure></testcase><testcase classname="tests.test_fase3_certificates.TestFase2Regression" name="test_legality_empty" time="0.122"><failure message="AssertionError: assert None is False&#10; +  where None = &lt;built-in method get of dict object at 0x7890b9221b80&gt;('published')&#10; +    where &lt;built-in method get of dict object at 0x7890b9221b80&gt; = {'success': True, 'data': {'published': False}, 'meta': {'request_id': '0b549179ac974d289512b0262197d586'}}.get">tests/test_fase3_certificates.py:342: in test_legality_empty
+    assert data.get("published") is False
+E   AssertionError: assert None is False
+E    +  where None = &lt;built-in method get of dict object at 0x7890b9221b80&gt;('published')
+E    +    where &lt;built-in method get of dict object at 0x7890b9221b80&gt; = {'success': True, 'data': {'published': False}, 'meta': {'request_id': '0b549179ac974d289512b0262197d586'}}.get</failure></testcase><testcase classname="tests.test_health" name="test_health_endpoint_returns_expected_payload" time="0.097"><failure message="AssertionError: assert 8 == 3&#10; +  where 8 = &lt;built-in method get of dict object at 0x7890b9223580&gt;('sprint')&#10; +    where &lt;built-in method get of dict object at 0x7890b9223580&gt; = {'status': 'ok', 'service': 'azuris-platform', 'version': '0.1.0', 'sprint': 8, ...}.get">tests/test_health.py:15: in test_health_endpoint_returns_expected_payload
+    assert data.get("sprint") == 3
+E   AssertionError: assert 8 == 3
+E    +  where 8 = &lt;built-in method get of dict object at 0x7890b9223580&gt;('sprint')
+E    +    where &lt;built-in method get of dict object at 0x7890b9223580&gt; = {'status': 'ok', 'service': 'azuris-platform', 'version': '0.1.0', 'sprint': 8, ...}.get</failure></testcase><testcase classname="tests.test_health" name="test_unknown_api_route_returns_404" time="0.095" /><testcase classname="tests.test_health" name="test_cors_spec_safe_wildcard_no_credentials" time="0.103" /><testcase classname="tests.test_health" name="test_cors_preflight_options" time="0.078" /><testcase classname="tests.test_sprint3_db" name="test_health_reports_database_connected" time="0.112"><failure message="AssertionError: assert 8 == 3&#10; +  where 8 = &lt;built-in method get of dict object at 0x7890b9ed3a00&gt;('sprint')&#10; +    where &lt;built-in method get of dict object at 0x7890b9ed3a00&gt; = {'status': 'ok', 'service': 'azuris-platform', 'version': '0.1.0', 'sprint': 8, ...}.get">tests/test_sprint3_db.py:20: in test_health_reports_database_connected
+    assert data.get("sprint") == 3
+E   AssertionError: assert 8 == 3
+E    +  where 8 = &lt;built-in method get of dict object at 0x7890b9ed3a00&gt;('sprint')
+E    +    where &lt;built-in method get of dict object at 0x7890b9ed3a00&gt; = {'status': 'ok', 'service': 'azuris-platform', 'version': '0.1.0', 'sprint': 8, ...}.get</failure></testcase><testcase classname="tests.test_sprint3_db" name="test_base_repository_import_and_methods" time="0.001" /><testcase classname="tests.test_sprint3_db" name="test_init_db_script_is_idempotent[1]" time="1.155" /><testcase classname="tests.test_sprint3_db" name="test_init_db_script_is_idempotent[2]" time="1.153" /><testcase classname="tests.test_sprint6_auth.TestLogin" name="test_login_success_shape" time="0.261"><failure message="AssertionError: assert ('access_token' in {'success': True, 'data': {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmM2Q3MzM3OS02MjdiLTQwOWQtYjJiNC1hMmU5Yjg1ODIwODAiLCJlbWFpbCI6ImFkbWluQGF6dXJpcy5sb2NhbCIsInJvbGUiOiJTVVBFUl9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODYyMDkxNTcsImV4cCI6MTc4NjIxMDA1N30.8FSGWdT7LQXM_La9IIkcvzz1Q9ccJzaNWluZSxcnOY4', 'refresh_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmM2Q3MzM3OS02MjdiLTQwOWQtYjJiNC1hMmU5Yjg1ODIwODAiLCJqdGkiOiJkMDNhNTE0Yi1lNjlkLTRiNmUtYjkwMi0yYTk1NzcyYzk3NjciLCJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTc4NjIwOTE1NywiZXhwIjoxNzg2ODEzOTU3fQ.HdjfR_trpoxOC2HhwjrbFdu8TVT4-9vWwvVft4Z8-_w', 'token_type': 'bearer', 'admin': {'created_at': '2026-08-03T19:11:31.101111+00:00', 'updated_at': '2026-08-08T17:12:32.993082+00:00', 'created_by': 'seed', 'updated_by': 'seed', ...}}, 'meta': {'request_id': 'a8da2576c1ec45bdbc611432c7cdc1f8'}})">tests/test_sprint6_auth.py:40: in test_login_success_shape
+    assert "access_token" in data and isinstance(data["access_token"], str) and len(data["access_token"]) &gt; 20
+E   AssertionError: assert ('access_token' in {'success': True, 'data': {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmM2Q3MzM3OS02MjdiLTQwOWQtYjJiNC1hMmU5Yjg1ODIwODAiLCJlbWFpbCI6ImFkbWluQGF6dXJpcy5sb2NhbCIsInJvbGUiOiJTVVBFUl9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODYyMDkxNTcsImV4cCI6MTc4NjIxMDA1N30.8FSGWdT7LQXM_La9IIkcvzz1Q9ccJzaNWluZSxcnOY4', 'refresh_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmM2Q3MzM3OS02MjdiLTQwOWQtYjJiNC1hMmU5Yjg1ODIwODAiLCJqdGkiOiJkMDNhNTE0Yi1lNjlkLTRiNmUtYjkwMi0yYTk1NzcyYzk3NjciLCJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTc4NjIwOTE1NywiZXhwIjoxNzg2ODEzOTU3fQ.HdjfR_trpoxOC2HhwjrbFdu8TVT4-9vWwvVft4Z8-_w', 'token_type': 'bearer', 'admin': {'created_at': '2026-08-03T19:11:31.101111+00:00', 'updated_at': '2026-08-08T17:12:32.993082+00:00', 'created_by': 'seed', 'updated_by': 'seed', ...}}, 'meta': {'request_id': 'a8da2576c1ec45bdbc611432c7cdc1f8'}})</failure></testcase><testcase classname="tests.test_sprint6_auth.TestLogin" name="test_login_wrong_password" time="0.189"><failure message="AssertionError: assert None == 'Invalid credentials'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b920d040&gt;('detail')&#10; +    where &lt;built-in method get of dict object at 0x7890b920d040&gt; = {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '43f4711d53e34503af0271b2f37e4c8a'}}.get&#10; +      where {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '43f4711d53e34503af0271b2f37e4c8a'}} = json()&#10; +        where json = &lt;Response [401]&gt;.json">tests/test_sprint6_auth.py:55: in test_login_wrong_password
+    assert r.json().get("detail") == "Invalid credentials"
+E   AssertionError: assert None == 'Invalid credentials'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b920d040&gt;('detail')
+E    +    where &lt;built-in method get of dict object at 0x7890b920d040&gt; = {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '43f4711d53e34503af0271b2f37e4c8a'}}.get
+E    +      where {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '43f4711d53e34503af0271b2f37e4c8a'}} = json()
+E    +        where json = &lt;Response [401]&gt;.json</failure></testcase><testcase classname="tests.test_sprint6_auth.TestLogin" name="test_login_unknown_email_same_generic" time="0.034"><failure message="AssertionError: assert None == 'Invalid credentials'&#10; +  where None = &lt;built-in method get of dict object at 0x7890b903d6c0&gt;('detail')&#10; +    where &lt;built-in method get of dict object at 0x7890b903d6c0&gt; = {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '79eeaf82e5d845c2b3b9953d4effb24b'}}.get&#10; +      where {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '79eeaf82e5d845c2b3b9953d4effb24b'}} = json()&#10; +        where json = &lt;Response [401]&gt;.json">tests/test_sprint6_auth.py:60: in test_login_unknown_email_same_generic
+    assert r.json().get("detail") == "Invalid credentials"
+E   AssertionError: assert None == 'Invalid credentials'
+E    +  where None = &lt;built-in method get of dict object at 0x7890b903d6c0&gt;('detail')
+E    +    where &lt;built-in method get of dict object at 0x7890b903d6c0&gt; = {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '79eeaf82e5d845c2b3b9953d4effb24b'}}.get
+E    +      where {'success': False, 'error': {'code': 'UNAUTHORIZED', 'message': 'Invalid credentials'}, 'meta': {'request_id': '79eeaf82e5d845c2b3b9953d4effb24b'}} = json()
+E    +        where json = &lt;Response [401]&gt;.json</failure></testcase><testcase classname="tests.test_sprint6_auth.TestMe" name="test_me_ok" time="0.001"><failure message="KeyError: 'access_token'">tests/test_sprint6_auth.py:66: in test_me_ok
+    r = s.get(f"{API}/auth/me", headers={"Authorization": f"Bearer {logged_in['access_token']}"})
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</failure></testcase><testcase classname="tests.test_sprint6_auth.TestMe" name="test_me_no_token" time="0.038" /><testcase classname="tests.test_sprint6_auth.TestMe" name="test_me_invalid_token" time="0.032" /><testcase classname="tests.test_sprint6_auth.TestRefreshRotation" name="test_refresh_rotates_and_old_invalidated" time="0.001"><failure message="KeyError: 'refresh_token'">tests/test_sprint6_auth.py:85: in test_refresh_rotates_and_old_invalidated
+    old_refresh = logged_in["refresh_token"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'refresh_token'</failure></testcase><testcase classname="tests.test_sprint6_auth.TestRefreshRotation" name="test_refresh_invalid_token" time="0.072" /><testcase classname="tests.test_sprint6_auth.TestLogout" name="test_logout_requires_auth" time="0.028" /><testcase classname="tests.test_sprint6_auth.TestLogout" name="test_logout_success_then_refresh_dead" time="0.184"><failure message="KeyError: 'access_token'">tests/test_sprint6_auth.py:117: in test_logout_success_then_refresh_dead
+    access = login["access_token"]
+             ^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'access_token'</failure></testcase><testcase classname="tests.test_sprint6_auth.TestDataLayer" name="test_password_hash_is_argon2id" time="0.008" /><testcase classname="tests.test_sprint6_auth.TestDataLayer" name="test_security_logs_written_and_no_secrets" time="0.454"><failure message="KeyError: 'refresh_token'">tests/test_sprint6_auth.py:153: in test_security_logs_written_and_no_secrets
+    ref = s.post(f"{API}/auth/refresh", json={"refresh_token": login["refresh_token"]}).json()
+                                                               ^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'refresh_token'</failure></testcase></testsuite></testsuites>

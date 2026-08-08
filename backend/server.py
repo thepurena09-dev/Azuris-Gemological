@@ -23,7 +23,10 @@ from api.settings import public_router as settings_public_router
 from api.settings import admin_router as settings_admin_router
 from api.certificates import admin_router as certificates_admin_router
 from api.certificates import public_router as gemstone_public_router
+from api.media import admin_router as media_admin_router
+from api.media import public_router as media_public_router
 from core.config import get_settings
+from core.envelope import install_envelope
 from db.init import init_database
 from db.mongodb import mongodb
 
@@ -51,6 +54,13 @@ app.include_router(settings_public_router, prefix=settings.api_prefix)
 app.include_router(settings_admin_router, prefix=settings.api_prefix)
 app.include_router(certificates_admin_router, prefix=settings.api_prefix)
 app.include_router(gemstone_public_router, prefix=settings.api_prefix)
+app.include_router(media_admin_router, prefix=settings.api_prefix)
+app.include_router(media_public_router, prefix=settings.api_prefix)
+
+# Sprint 8 — standardized response envelope + global exception handling.
+# Added before CORS so the CORS middleware stays outer-most (headers applied to
+# every response, including wrapped success + standardized error envelopes).
+install_envelope(app, api_prefix=settings.api_prefix)
 
 app.add_middleware(
     CORSMiddleware,

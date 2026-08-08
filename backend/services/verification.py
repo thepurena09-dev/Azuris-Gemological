@@ -11,6 +11,7 @@ verification legitimately returns a generic "not found" result — no fake data.
 import hashlib
 from typing import Any, Optional
 
+from core.context import get_request_id
 from models.enums import VerificationMethod, VerificationResult
 from models.logs import VerificationLog
 from repositories.legality import (
@@ -124,6 +125,7 @@ async def _log(db, method, result, gemstone_id, cert_number, ip):
         gemstone_id=gemstone_id,
         certificate_number_masked=_mask_cert_number(cert_number),
         ip_hash=hashlib.sha256(ip.encode()).hexdigest() if ip else None,
+        correlation_id=get_request_id(),
     )
     await VerificationLogRepository(db).create(log)
 

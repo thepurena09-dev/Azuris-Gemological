@@ -1,0 +1,42 @@
+{
+  "summary": "Batch A full regression (Sprints 8/9/10 + FASE 2/3 through the envelope) PASSED. Created /app/backend/tests/test_batch_a_regression.py (22 tests) — all 22 green. Verified: success envelope shape on GET /api/settings/public with X-Request-ID header + meta.request_id; health endpoint intentionally NOT wrapped (raw {status,...}); error envelopes for 401 (UNAUTHORIZED), 404 (NOT_FOUND), 422 (VALIDATION_ERROR with details[{field,message,type}]); client-provided X-Request-ID is honored + echoed back; correlation_id propagates into verification_logs (POST /api/verify) and security_logs (failed login) with no secret/PII leakage and hashed IPs; Sprint 10 media adapter — public upload/serve, private hidden-from-public but admin-raw OK, list by entity, unsupported type -> 400, delete -> public 404, unauthorized -> 401, CONTENT_MANAGER -> 403; FASE 2/3 regressions (verify wrong code -> data.status=not_found, malformed number -> not_found, qr resolve bad token -> token_valid=false, auth login/refresh/logout/me, legality unpublished, settings public number=6287812128884) all pass through the envelope. Frontend regression: homepage verification renders result via unwrap() with ZERO console errors; admin login (admin@azuris.local) reads data.access_token from envelope and lands on /admin/legalitas; /admin/settings loads current WhatsApp 6287812128884. Final DB invariants (verified): certificates=0, gemstones=0, media=0, media_objects=0, counters.certificate{year:2026}.last_number=14. All test artefacts (4 media docs + storage_key objects + verification/security/audit log rows with our test correlation ids) were cleaned up.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "n/a — legacy tests only", "issue": "Pre-existing FASE test suites (test_fase3_*.py, test_sprint6_auth.py, test_health.py, test_sprint3_db.py) were written pre-envelope and read r.json()['access_token'] / r.json()['status'] directly. After Sprint 8 they all fail (KeyError). Production endpoints are correct — this is TEST-CODE regression only. Suites need to be updated to unwrap the envelope (r.json()['data']['...']) except for /api/health which stays raw. 37 failed + 29 errors in the legacy suites."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_batch_a_regression.py",
+    "/app/test_reports/pytest/batch_a.xml",
+    "/app/test_reports/pytest/full_regression.xml"
+  ],
+  "action_items": [
+    "Update legacy backend test suites (test_fase3_certificates.py, test_fase3_1_pdf_visual.py, test_fase3_3_preview.py, test_fase3_4_number_format.py, test_sprint6_auth.py, test_health.py, test_sprint3_db.py) to consume the Sprint 8 response envelope: replace `r.json()['x']` with `r.json()['data']['x']` for /api endpoints; keep /api/health raw. Non-blocking for Batch A shipping but the CI would fail without it."
+  ],
+  "critical_code_review_comments": [
+    "core/envelope.py: ResponseEnvelopeMiddleware correctly excludes health, non-JSON content-types, and >=400 responses — binary PDF/image serves stay raw. Good.",
+    "core/envelope.py:44 fallback `_request_id` calls new_request_id() which mints a fresh id ONLY inside exception handlers when middleware didn't run — safe.",
+    "auth/security_logs.py + services/verification.py + auth/audit.py all stamp correlation_id = get_request_id() consistently. Verified via DB read that no security_code/qr_token/password/plain-IP is persisted; IPs are sha256-hashed (64-hex).",
+    "services/media.py enforces MAX_MEDIA_BYTES=15MB + ALLOWED_TYPES whitelist before writing to the storage adapter; storage_key is built with build_object_key(entity_type, entity_id, role, uuid, ext). Delete flow correctly soft-deletes the metadata row and removes the object from the adapter.",
+    "api/media.py public GET returns generic 404 for private/missing/deleted — no visibility leak. Admin raw endpoint works with SUPER_ADMIN. RBAC verified: CONTENT_MANAGER receives 403.",
+    "frontend/src/lib/api.ts unwrap() correctly handles both success (returns data) and error (throws ApiError with backend code) envelopes; and passes through non-enveloped JSON (/api/health) untouched — well designed.",
+    "Legacy backend tests break silently against the envelope — recommend adding an unwrap() test helper in tests/conftest.py to standardize."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_batch_a_regression.py (NEW — 22 tests: envelope shapes + correlation logging + media CRUD + FASE regression + cleanup)"
+  ],
+  "success_rate": {"backend": "100% (22/22 Batch A regression)", "frontend": "100% (verify + login + settings, 0 console errors)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN); cm@azuris.local / CmDev@2026! (CONTENT_MANAGER)",
+  "seed_data_creation": "4 media uploads (entity_id=TEST-BATCHA: 2 public + 1 private + 1 delete-flow) + verification_logs/security_logs/audit_logs rows tagged with TEST-* correlation ids. ALL removed in test_zz_cleanup_and_invariants. Final DB verified clean: certificates=0, gemstones=0, media=0, media_objects=0, counter.last_number=14.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Baseline unchanged: certificates=0, gemstones=0, counters.certificate{year:2026}.last_number=14 -> next real number AZR-GEM-000015-26. Run the new suite with `pytest tests/test_batch_a_regression.py -o addopts=` (sequential). Legacy suites (test_fase3_*, test_sprint6_auth, test_health, test_sprint3_db) currently fail against the envelope — they need to unwrap `r.json()['data']` before they can be added back to the green regression gate. counters doc shape is `{name:'certificate', year:2026, last_number:14}` (NOT `_id='certificate'`).",
+  "final_counter_last_number": 14,
+  "final_next_number_will_be": "AZR-GEM-000015-26"
+}

@@ -10,7 +10,7 @@ from typing import Optional
 from pydantic import Field
 
 from models.base import AuditMixin, BaseDocument, DualIdMixin, SoftDeleteMixin
-from models.enums import MediaEntityType, MediaRole
+from models.enums import MediaEntityType, MediaRole, MediaVisibility
 
 
 class Media(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
@@ -19,7 +19,9 @@ class Media(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
     entity_type: MediaEntityType
     entity_id: str                      # owning entity uuid
     role: MediaRole = MediaRole.GALLERY
+    visibility: MediaVisibility = MediaVisibility.PUBLIC
 
+    storage_key: Optional[str] = None   # opaque key in the object store
     original_url: str                   # source upload
     optimized_url: Optional[str] = None  # web-optimized (webp)
     thumbnail_url: Optional[str] = None  # small preview

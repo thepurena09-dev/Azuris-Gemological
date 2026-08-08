@@ -76,6 +76,11 @@ class MediaRole(str, Enum):
     THUMBNAIL = "thumbnail"
 
 
+class MediaVisibility(str, Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+
 class SiteContentType(str, Enum):
     TEXT = "text"
     HTML = "html"

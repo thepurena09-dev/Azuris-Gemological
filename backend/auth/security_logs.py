@@ -9,6 +9,7 @@ from typing import Any, Optional
 
 from fastapi import Request
 
+from core.context import get_request_id
 from models.enums import SecurityEventType
 from models.logs import SecurityLog
 from repositories.logs import SecurityLogRepository
@@ -43,5 +44,6 @@ async def write_security_log(
         ip_hash=ip_hash,
         user_agent=user_agent,
         detail=detail,
+        correlation_id=get_request_id(),
     )
     await SecurityLogRepository(db).create(log)

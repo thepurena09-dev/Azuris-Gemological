@@ -27,8 +27,38 @@ export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Re
   return fetch(`${API_BASE}${path}`, { ...opts, headers });
 }
 
+/** Standardized API error carrying the backend's stable error code (Sprint 8). */
+export class ApiError extends Error {
+  code: string;
+  status: number;
+  details?: any[];
+  constructor(code: string, message: string, status: number, details?: any[]) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
+  }
+}
+
+/**
+ * Read + unwrap the Sprint 8 response envelope from a fetch Response.
+ * - Success envelope `{success:true,data}`  -> returns `data`.
+ * - Error envelope   `{success:false,error}` -> throws `ApiError`.
+ * - Legacy/non-enveloped JSON (e.g. /api/health) -> returned as-is.
+ */
+export async function unwrap<T = any>(res: Response): Promise<T> {
+  const json = await res.json().catch(() => null);
+  if (json && typeof json === "object" && "success" in json) {
+    if (json.success) return json.data as T;
+    const err = json.error || {};
+    throw new ApiError(err.code || "ERROR", err.message || "Request failed", res.status, err.details);
+  }
+  if (!res.ok) throw new ApiError("ERROR", String(res.status), res.status);
+  return json as T;
+}
+
 export async function apiJson<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
   const res = await apiFetch(path, opts);
-  if (!res.ok) throw new Error(String(res.status));
-  return (await res.json()) as T;
+  return unwrap<T>(res);
 }
