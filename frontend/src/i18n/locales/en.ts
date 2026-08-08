@@ -225,7 +225,7 @@ const en = {
     signIn: "Sign In", signingIn: "Signing in…",
     error: "Invalid email or password.", logout: "Sign Out",
   },
-  adminNav: { legality: "Legality", settings: "Settings" },
+  adminNav: { legality: "Legality", settings: "Settings", customers: "Customers", gemstones: "Gemstones", jewelry: "Jewelry" },
   adminLegality: {
     title: "Manage Legality",
     subtitle: "Manage the official Azuris legality document shown publicly.",
@@ -260,6 +260,28 @@ const en = {
     qrNote: "QR URL:", gemstones: "Registered Gemstones", certificates: "Certificates",
     pdf: "Download PDF", revoke: "Revoke", revoked: "Revoked.",
     noGem: "No gemstones yet.", issuedBadge: "Certified",
+  },
+  adminCustomers: {
+    title: "Customers", subtitle: "Manage gemstone owner records. Contact data is never shown publicly.",
+    search: "Search name, email, phone…", add: "Add Customer", edit: "Edit", save: "Save", cancel: "Cancel", delete: "Delete",
+    fullName: "Full Name", email: "Email", phone: "Phone", address: "Address", notes: "Notes",
+    consent: "Privacy consent recorded", consentAt: "Consent at", empty: "No customers yet.",
+    confirmDelete: "Delete this customer?",
+  },
+  adminGemstones: {
+    title: "Gemstones", subtitle: "Manage the gemstone catalog — status, media and search.",
+    search: "Search name, type, origin…", add: "Add Gemstone", edit: "Edit", save: "Save", cancel: "Cancel", delete: "Delete",
+    nameId: "Name (ID)", nameEn: "Name (EN)", category: "Category", type: "Species / Type", carat: "Weight (ct)",
+    color: "Color", clarity: "Clarity", cut: "Cut", shape: "Shape", dimensions: "Dimensions (mm)", origin: "Origin", treatment: "Treatment",
+    status: "Status", allStatus: "All statuses", media: "Media", uploadMedia: "Upload Media", setMain: "Set Main",
+    empty: "No gemstones yet.", confirmDelete: "Delete this gemstone?", hasCert: "Certified — cannot delete", updateStatus: "Update Status",
+  },
+  adminJewelry: {
+    title: "Jewelry", subtitle: "Manage jewelry pieces composed of one or more gemstones.",
+    search: "Search name, type, material…", add: "Add Jewelry", edit: "Edit", save: "Save", cancel: "Cancel", delete: "Delete",
+    nameId: "Name (ID)", nameEn: "Name (EN)", type: "Jewelry Type", material: "Material", weight: "Weight (g)",
+    dimensions: "Dimensions (mm)", gemstones: "Linked Gemstones", status: "Status", allStatus: "All statuses",
+    empty: "No jewelry yet.", confirmDelete: "Delete this jewelry?", noGems: "No gemstones to select.", updateStatus: "Update Status",
   },
   admin: {
     title: "Admin Panel",

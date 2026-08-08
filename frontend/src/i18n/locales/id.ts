@@ -226,7 +226,7 @@ const id = {
     signIn: "Masuk", signingIn: "Memproses…",
     error: "Email atau kata sandi salah.", logout: "Keluar",
   },
-  adminNav: { legality: "Legalitas", settings: "Pengaturan" },
+  adminNav: { legality: "Legalitas", settings: "Pengaturan", customers: "Pelanggan", gemstones: "Batu Mulia", jewelry: "Perhiasan" },
   adminLegality: {
     title: "Kelola Legalitas",
     subtitle: "Kelola dokumen legalitas resmi Azuris yang ditampilkan publik.",
@@ -261,6 +261,28 @@ const id = {
     qrNote: "URL QR:", gemstones: "Batu Terdaftar", certificates: "Sertifikat",
     pdf: "Unduh PDF", revoke: "Cabut", revoked: "Dicabut.",
     noGem: "Belum ada batu.", issuedBadge: "Bersertifikat",
+  },
+  adminCustomers: {
+    title: "Pelanggan", subtitle: "Kelola data pemilik batu mulia. Data kontak tidak pernah ditampilkan publik.",
+    search: "Cari nama, email, telepon…", add: "Tambah Pelanggan", edit: "Ubah", save: "Simpan", cancel: "Batal", delete: "Hapus",
+    fullName: "Nama Lengkap", email: "Email", phone: "Telepon", address: "Alamat", notes: "Catatan",
+    consent: "Persetujuan privasi tercatat", consentAt: "Persetujuan pada", empty: "Belum ada pelanggan.",
+    confirmDelete: "Hapus pelanggan ini?",
+  },
+  adminGemstones: {
+    title: "Batu Mulia", subtitle: "Kelola katalog batu mulia — status, media, dan pencarian.",
+    search: "Cari nama, jenis, asal…", add: "Tambah Batu", edit: "Ubah", save: "Simpan", cancel: "Batal", delete: "Hapus",
+    nameId: "Nama (ID)", nameEn: "Nama (EN)", category: "Kategori", type: "Spesies / Jenis", carat: "Berat (ct)",
+    color: "Warna", clarity: "Kejernihan", cut: "Potongan", shape: "Bentuk", dimensions: "Dimensi (mm)", origin: "Asal", treatment: "Perlakuan",
+    status: "Status", allStatus: "Semua status", media: "Media", uploadMedia: "Unggah Media", setMain: "Jadikan Utama",
+    empty: "Belum ada batu.", confirmDelete: "Hapus batu ini?", hasCert: "Bersertifikat — tidak dapat dihapus", updateStatus: "Ubah Status",
+  },
+  adminJewelry: {
+    title: "Perhiasan", subtitle: "Kelola perhiasan yang tersusun dari satu atau lebih batu mulia.",
+    search: "Cari nama, jenis, bahan…", add: "Tambah Perhiasan", edit: "Ubah", save: "Simpan", cancel: "Batal", delete: "Hapus",
+    nameId: "Nama (ID)", nameEn: "Nama (EN)", type: "Jenis Perhiasan", material: "Bahan", weight: "Berat (gram)",
+    dimensions: "Dimensi (mm)", gemstones: "Batu Terkait", status: "Status", allStatus: "Semua status",
+    empty: "Belum ada perhiasan.", confirmDelete: "Hapus perhiasan ini?", noGems: "Belum ada batu untuk dipilih.", updateStatus: "Ubah Status",
   },
   admin: {
     title: "Panel Admin",

@@ -16,6 +16,9 @@ import DashboardPage from "@/pages/admin/DashboardPage";
 import LegalityAdminPage from "@/pages/admin/LegalityAdminPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
 import CertificatesPage from "@/pages/admin/CertificatesPage";
+import CustomersPage from "@/pages/admin/CustomersPage";
+import GemstonesPage from "@/pages/admin/GemstonesPage";
+import JewelryPage from "@/pages/admin/JewelryPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -61,6 +64,9 @@ function App() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="legalitas" element={<LegalityAdminPage />} />
                 <Route path="certificates" element={<CertificatesPage />} />
+                <Route path="customers" element={<CustomersPage />} />
+                <Route path="gemstones" element={<GemstonesPage />} />
+                <Route path="jewelry" element={<JewelryPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 

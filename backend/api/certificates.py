@@ -12,11 +12,12 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from auth.audit import write_audit_log
-from auth.rbac import require_roles
+from auth.rbac import Permission, require_permission, require_roles
 from db.mongodb import get_database
+from errors import ApiError, ErrorCode
 from models.base import utcnow_iso
 from models.catalog import Gemstone
-from models.enums import AdminRole, AuditAction
+from models.enums import AdminRole, AuditAction, GemstoneStatus
 from models.legality import LegalityDocument
 from models.people import Admin
 from repositories.legality import (
@@ -32,6 +33,18 @@ from services.issuance import issue_certificate, qr_url, reissue_certificate, re
 admin_router = APIRouter(prefix="/admin", tags=["certificates-admin"])
 public_router = APIRouter(prefix="/gemstone", tags=["gemstone-public"])
 _ADMIN = require_roles(AdminRole.ADMINISTRATOR)
+_GEM_READ = require_permission(Permission.GEMSTONE_READ)
+_GEM_WRITE = require_permission(Permission.GEMSTONE_WRITE)
+_GEM_DELETE = require_permission(Permission.GEMSTONE_DELETE)
+
+# Locked gemstone lifecycle (BUSINESS_RULES_LOCK §1).
+_GEM_TRANSITIONS: dict[str, set[str]] = {
+    GemstoneStatus.DRAFT.value: {GemstoneStatus.VERIFIED.value, GemstoneStatus.ARCHIVED.value},
+    GemstoneStatus.VERIFIED.value: {GemstoneStatus.PUBLISHED.value, GemstoneStatus.ARCHIVED.value},
+    GemstoneStatus.PUBLISHED.value: {GemstoneStatus.TRANSFERRED.value, GemstoneStatus.ARCHIVED.value},
+    GemstoneStatus.TRANSFERRED.value: {GemstoneStatus.PUBLISHED.value, GemstoneStatus.ARCHIVED.value},
+    GemstoneStatus.ARCHIVED.value: {GemstoneStatus.PUBLISHED.value},
+}
 
 MAX_IMG = 8 * 1024 * 1024
 IMG_TYPES = {"image/jpeg", "image/png", "image/webp"}
@@ -84,15 +97,44 @@ def _gem_view(g: Gemstone) -> dict:
         "treatment": g.treatment,
         "status": g.status,
         "certificate_id": g.certificate_id,
+        "media_ids": g.media_ids,
         "photo_id": g.media_ids[0] if g.media_ids else None,
     }
 
 
 # ---------- GEMSTONES ----------
+class GemStatusIn(BaseModel):
+    status: GemstoneStatus
+
+
 @admin_router.get("/gemstones")
-async def list_gemstones(admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
-    items, _ = await GemstoneRepository(db).list(page=1, page_size=100)
-    return {"items": [_gem_view(g) for g in items]}
+async def list_gemstones(
+    page: int = 1,
+    page_size: int = 100,
+    status: str | None = None,
+    q: str | None = None,
+    admin: Admin = Depends(_GEM_READ),
+    db=Depends(get_database),
+):
+    filters: dict = {}
+    if status:
+        filters["status"] = status
+    if q:
+        rx = {"$regex": q.strip(), "$options": "i"}
+        filters["$or"] = [
+            {"name_id": rx}, {"name_en": rx},
+            {"gemstone_type": rx}, {"category": rx}, {"origin": rx},
+        ]
+    items, total = await GemstoneRepository(db).list(filters or None, page=page, page_size=page_size)
+    return {"items": [_gem_view(g) for g in items], "total": total, "page": page, "page_size": page_size}
+
+
+@admin_router.get("/gemstones/{uuid}")
+async def get_gemstone(uuid: str, admin: Admin = Depends(_GEM_READ), db=Depends(get_database)):
+    g = await GemstoneRepository(db).get_by_uuid(uuid)
+    if g is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    return _gem_view(g)
 
 
 @admin_router.post("/gemstones", status_code=status.HTTP_201_CREATED)
@@ -121,6 +163,41 @@ async def update_gemstone(uuid: str, body: GemstoneIn, admin: Admin = Depends(_A
     return _gem_view(after)
 
 
+@admin_router.post("/gemstones/{uuid}/status")
+async def set_gemstone_status(
+    uuid: str, body: GemStatusIn, admin: Admin = Depends(_GEM_WRITE), db=Depends(get_database)
+):
+    repo = GemstoneRepository(db)
+    gem = await repo.get_by_uuid(uuid)
+    if gem is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    target = body.status.value if hasattr(body.status, "value") else str(body.status)
+    if target != gem.status and target not in _GEM_TRANSITIONS.get(gem.status, set()):
+        raise ApiError(409, ErrorCode.CONFLICT, f"Invalid status transition: {gem.status} → {target}.")
+    await repo.update_one({"uuid": uuid}, {"status": target, "updated_by": admin.uuid, "updated_at": utcnow_iso()})
+    await write_audit_log(
+        db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.STATUS_CHANGE,
+        entity_type="gemstone", entity_id=uuid, before={"status": gem.status}, after={"status": target},
+    )
+    return _gem_view(await repo.get_by_uuid(uuid))
+
+
+@admin_router.delete("/gemstones/{uuid}")
+async def delete_gemstone(uuid: str, admin: Admin = Depends(_GEM_DELETE), db=Depends(get_database)):
+    repo = GemstoneRepository(db)
+    gem = await repo.get_by_uuid(uuid)
+    if gem is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    if gem.certificate_id:
+        raise ApiError(409, ErrorCode.CONFLICT, "Gemstone has an issued certificate and cannot be deleted.")
+    await repo.soft_delete_by_uuid(uuid)
+    await write_audit_log(
+        db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.DELETE,
+        entity_type="gemstone", entity_id=uuid, before={"name": gem.name_en},
+    )
+    return {"deleted": True}
+
+
 @admin_router.post("/gemstones/{uuid}/photo")
 async def upload_photo(uuid: str, file: UploadFile = File(...), admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
     if file.content_type not in IMG_TYPES:
@@ -137,7 +214,10 @@ async def upload_photo(uuid: str, file: UploadFile = File(...), admin: Admin = D
         size=len(raw), data_b64=base64.b64encode(raw).decode("ascii"),
     )
     saved = await GemstonePhotoRepository(db).create(doc)
-    await repo.update_one({"uuid": uuid}, {"media_ids": [saved.uuid], "updated_by": admin.uuid})
+    # Keep the examination photo at index 0 (the certificate snapshot reads
+    # media_ids[0]) while preserving any Sprint-10 media-library links.
+    existing = [x for x in (gem.media_ids or []) if x != saved.uuid]
+    await repo.update_one({"uuid": uuid}, {"media_ids": [saved.uuid] + existing, "updated_by": admin.uuid})
     return {"photo_id": saved.uuid, "photo_url": f"/api/gemstone/photo/{saved.uuid}"}
 
 

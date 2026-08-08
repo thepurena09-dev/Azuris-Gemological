@@ -18,6 +18,7 @@ from models.enums import AdminRole, AuditAction, MediaEntityType, MediaRole, Med
 from models.media import Media
 from models.people import Admin
 from repositories.media import MediaRepository
+from repositories.catalog import GemstoneRepository, JewelryRepository
 from services.media import (
     ALLOWED_TYPES,
     MAX_MEDIA_BYTES,
@@ -29,6 +30,56 @@ from services.media import (
 admin_router = APIRouter(prefix="/admin/media", tags=["media-admin"])
 public_router = APIRouter(prefix="/media", tags=["media-public"])
 _ADMIN = require_roles(AdminRole.ADMINISTRATOR)
+
+# Sprint 14 — entities whose `media_ids` cache is kept in sync with the media
+# library. The authoritative link always lives on the media doc itself
+# (entity_type + entity_id); `media_ids` is a denormalized convenience list.
+_ENTITY_REPOS = {
+    MediaEntityType.GEMSTONE.value: GemstoneRepository,
+    MediaEntityType.JEWELRY.value: JewelryRepository,
+}
+
+
+def _entity_repo(db, entity_type: str):
+    repo_cls = _ENTITY_REPOS.get(entity_type)
+    return repo_cls(db) if repo_cls else None
+
+
+async def _demote_existing_main(db, entity_type: str, entity_id: str, keep_uuid: str) -> None:
+    """Enforce at most one `main` media per entity (BUSINESS_RULES_LOCK §8)."""
+    existing, _ = await MediaRepository(db).list(
+        {"entity_type": entity_type, "entity_id": entity_id, "role": MediaRole.MAIN.value},
+        page=1, page_size=200,
+    )
+    for m in existing:
+        if m.uuid != keep_uuid:
+            await MediaRepository(db).update_one({"uuid": m.uuid}, {"role": MediaRole.GALLERY.value})
+
+
+async def _link_media(db, media: Media) -> None:
+    """Append the media uuid to the owning entity's media_ids cache (dedup)."""
+    repo = _entity_repo(db, media.entity_type)
+    if repo is None:
+        return
+    entity = await repo.get_by_uuid(media.entity_id)
+    if entity is None:
+        return
+    ids = list(entity.media_ids or [])
+    if media.uuid not in ids:
+        ids.append(media.uuid)
+        await repo.update_one({"uuid": media.entity_id}, {"media_ids": ids})
+
+
+async def _unlink_media(db, media: Media) -> None:
+    repo = _entity_repo(db, media.entity_type)
+    if repo is None:
+        return
+    entity = await repo.get_by_uuid(media.entity_id)
+    if entity is None:
+        return
+    ids = [x for x in (entity.media_ids or []) if x != media.uuid]
+    if len(ids) != len(entity.media_ids or []):
+        await repo.update_one({"uuid": media.entity_id}, {"media_ids": ids})
 
 
 def _media_view(m: Media) -> dict:
@@ -101,6 +152,10 @@ async def upload_media(
         entity_type="media", entity_id=media.uuid,
         after={"entity_type": et.value, "entity_id": entity_id, "role": ro.value, "visibility": vis.value},
     )
+    # Sprint 14 — domain wiring: single-main enforcement + media_ids cache sync.
+    if ro == MediaRole.MAIN:
+        await _demote_existing_main(db, et.value, entity_id, media.uuid)
+    await _link_media(db, media)
     return _media_view(media)
 
 
@@ -132,11 +187,30 @@ async def serve_media_admin(uuid: str, admin: Admin = Depends(_ADMIN), db=Depend
     return Response(content=data, media_type=content_type)
 
 
+@admin_router.post("/{uuid}/main")
+async def set_main_media(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
+    """Promote a media asset to `main` for its entity (demotes any other main)."""
+    repo = MediaRepository(db)
+    media = await repo.get_by_uuid(uuid)
+    if media is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    await _demote_existing_main(db, media.entity_type, media.entity_id, media.uuid)
+    await repo.update_one({"uuid": uuid}, {"role": MediaRole.MAIN.value})
+    await _link_media(db, media)
+    await write_audit_log(
+        db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.UPDATE,
+        entity_type="media", entity_id=uuid, after={"role": MediaRole.MAIN.value},
+    )
+    updated = await repo.get_by_uuid(uuid)
+    return _media_view(updated)
+
+
 @admin_router.delete("/{uuid}")
 async def remove_media(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
     media = await MediaRepository(db).get_by_uuid(uuid)
     if media is None:
         raise HTTPException(status_code=404, detail="Not found")
+    await _unlink_media(db, media)
     await delete_media(db, media)
     await write_audit_log(
         db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.DELETE,

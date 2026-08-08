@@ -1,0 +1,30 @@
+{
+  "summary": "Batch B (Sprints 11–14) authoritative regression PASSED. Created /app/backend/tests/test_batch_b_regression.py — 32/32 tests green. Coverage: Sprint 11 Customers CRUD + consent_at stamping (create + first-time PUT) + RBAC matrix (admin OK, cm write=>403, cs write=>201/200, cs delete=>403, unauth=>401); Sprint 12 Gemstones extended list (page/page_size/status/q), single GET, locked transitions (draft->transferred=>409, verified->transferred=>409, draft->verified->published OK), delete no-cert=>200, delete with cert=>409; Sprint 13 Jewelry CRUD, gemstone_ids validation on POST=>400 and PUT=>400, transitions (draft->published OK, published->draft=>409), RBAC (cm write=>403, cs read=>200 write=>403); Sprint 14 Media wiring — upload appends to gemstone.media_ids, single-main enforced (second main demotes first to gallery), POST /admin/media/{uuid}/main promotes gallery -> main, DELETE unlinks from media_ids, public serve OK; Certificate regression — issued cert has number AZR-GEM-000015-26 (correct next), PDF is application/pdf and starts with %PDF, examination photo path unbroken. Frontend smoke: login (admin@azuris.local) succeeds; Customers page renders + create + delete via UI works; Gemstones page renders; Jewelry page renders (Perhiasan/Belum ada perhiasan). Zero console errors. Final DB baseline restored: certificates=0, gemstones=0, jewelry=0, customers=0, media=0, media_objects=0, counters.certificate{year:2026}.last_number=14 => next real cert AZR-GEM-000015-26.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_batch_b_regression.py",
+    "/app/test_reports/pytest/batch_b.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "api/customers.py: consent_at stamping is one-shot (only when transitioning from falsy consent_at to privacy_consent=True). Correct per business rule.",
+    "api/catalog.py _validate_gemstones: iterates gemstone_ids sequentially; OK for small lists but O(N) DB round trips — consider a single $in query if lists get large.",
+    "api/media.py _demote_existing_main + _link_media + _unlink_media: single-main invariant is enforced both on upload-with-role=main AND on POST /main endpoint. Delete unlink path exercised and confirmed.",
+    "api/certificates.py delete_gemstone correctly blocks (409) when certificate_id is set; soft-delete otherwise. list_gemstones now returns {items,total,page,page_size} envelope-consistent shape.",
+    "Response never includes Mongo _id in any tested projection (Customer, Gemstone, Jewelry, Media views all whitelist fields).",
+    "Frontend TESTID coverage matches the spec (page-admin-{customers|gemstones|jewelry}, customer-add-btn/save/delete-{uuid}, jewelry-add-btn/save/gem-{uuid}, media-*). Add-customer, delete-customer confirm() dialog works.",
+    "Minor DX: previous test iteration left one soft-deleted customer after FE UI delete (soft-delete via API). Not a bug — expected behavior; explicitly hard-purged during cleanup."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_batch_b_regression.py (NEW — 32 tests: customers/gemstones/jewelry/media wiring + certificate regression + baseline cleanup)"
+  ],
+  "success_rate": {"backend": "100% (32/32 Batch B)", "frontend": "100% (login + 3 admin pages + create/delete customer, 0 console errors)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN); cm@azuris.local / CmDev@2026! (CONTENT_MANAGER); cs@azuris.local / CsDev@2026! (CUSTOMER_SERVICE) — all seeded and confirmed working.",
+  "seed_data_creation": "Test fixtures create in-run: N customers (incl. cs-created), 3 gemstones + 1 dedicated cert-gemstone, 1 jewelry piece, 4 media (gallery+2×main+delete-flow) + 1 legacy gemstone_photo + 1 certificate. All hard-cleaned in test_zz_cleanup_and_invariants (also rolls counter back to 14). Verified final DB clean.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Baseline unchanged: certificates=0, gemstones=0, jewelry=0, customers=0, media=0, media_objects=0, counters.certificate{year:2026}.last_number=14 -> next real cert AZR-GEM-000015-26. Run `pytest tests/test_batch_b_regression.py -o addopts=` sequentially (NOT the whole tests/ dir — legacy FASE suites still fail pre-envelope). Batch A (test_batch_a_regression.py, 22 tests) + Batch B (test_batch_b_regression.py, 32 tests) form the authoritative regression gate = 54 tests total. Test runner hard-cleans state at teardown; if a test fails mid-run leaving artefacts, hard-purge via mongo shell before retrying (delete_many on customers/gemstones/jewelry/certificates/media/media_objects/verification_tokens/gemstone_photos, then $set counters.last_number:14).",
+  "final_counter_last_number": 14,
+  "final_next_number_will_be": "AZR-GEM-000015-26"
+}
