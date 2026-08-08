@@ -139,6 +139,35 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
+## Client Revision — FASE 3.3 (Public Verification Certificate Front-Cover Preview, 2026-06, validated 17/17 BE + FE full)
+Adds a real "Pratinjau Sertifikat" (front cover) to public verification results. Rendered from the SAME generator as the
+booklet (single source of truth). NO changes to issuance/verification logic/QR/opaque token/security code/numbering/
+counter/versioning/RBAC/audit/BUSINESS_RULES_LOCK.
+- **Single source of truth:** `services/certificate_pdf.py` gains `build_front_cover_pdf()` (1-page 74×105mm reusing the
+  exact `_panel_front()` renderer) + `render_front_cover_png()` (rasterized via **PyMuPDF** — self-contained wheel, no
+  system poppler). Any future front-cover design change propagates to both PDF and preview automatically.
+- **Capability token:** `services/preview.py` `create/decode_preview_token` — signed JWT (HS256, JWT_SECRET), `type=cert_preview`,
+  20-min TTL, payload ONLY `{sub=cert.uuid, ver, type, iat, exp}` (no security_code / qr_token / owner / ObjectId). Minted
+  inside `_build_public_certificate` (try/except → never breaks verification) and returned as `certificate.preview_token`.
+- **Public endpoint:** `GET /api/verify/preview?t=<token>` → `image/png` + `Cache-Control: public, max-age=900, immutable`.
+  Gated by the token (no enumeration; sequential numbers can't be probed). 404 on bad/expired token OR non-current/revoked
+  cert (current-version visibility enforced — archived tokens 404 after reissue). 503 on render failure. Reuses per-IP
+  rate limiter (20/60s). No new secrets, no ObjectId, no bypass of manual/QR verification.
+- **Frontend (`VerificationForm.tsx`):** premium **2-column** valid result (desktop) — left `PreviewCard` (ivory + gold
+  border, aspect 74/105, skeleton, zoom cursor, `object-contain`) using `/api/verify/preview?t=`; right = Basic Info /
+  Gemstone / Result / Owner + gemstone photo + **"Lihat Sertifikat Digital"** opening a fullscreen viewer modal. **Mobile**
+  stacks status→preview→info→details→button, no overflow. **Graceful fallback** (`verify-preview-fallback`) when image fails,
+  details still render. i18n id/en keys added (certificatePreview/verifiedCertificate/viewDigitalCertificate/previewUnavailable
+  + section labels). test-ids: verify-preview, verify-preview-image, verify-preview-fallback, verify-view-digital,
+  verify-viewer-modal, verify-viewer-close.
+- **Validation (testing_agent iteration_9):** BE 17/17 (preview 200 image/png + cache header; JWT payload minimal; reissue →
+  v2 previewable, v1 archived token 404; bad token 404; fake verify → no preview_token; secrets/ObjectId never leaked;
+  verify independent of preview failures; counter untouched by verification). FE: desktop 2-col + mobile stacked (no
+  overflow) + viewer modal + fallback + ID/EN, 0 console errors. MANDATORY cleanup → counter restored **last_number=14**
+  (next real number **AZR-GEM-2026-000015**), DB clean (certs=0, gems=0, vtokens=0). `pymupdf` added to requirements.
+  `BUSINESS_RULES_LOCK.md` UNCHANGED.
+
+
 ## Client Revision — FASE 3.2 (Azuris Logo Integration + Premium Certificate Redesign, 2026-06, validated 11/11 BE + 5/5 FE)
 Visual/branding only. NO changes to issuance/verification/counter/numbering/versioning/RBAC/audit/BUSINESS_RULES_LOCK.
 - **Logo asset:** official Azuris emblem (transparent gold faceted-gem monogram) autocropped → `frontend/public/azuris-logo.png` + `backend/assets/azuris-logo.png` + faint `backend/assets/azuris-watermark.png` (alpha ~9%). Reusable `frontend/src/components/common/Logo.tsx`.
