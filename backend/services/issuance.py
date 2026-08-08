@@ -25,7 +25,7 @@ from repositories.legality import (
 from services.security import gen_qr_token, gen_security_code
 
 PUBLIC_BASE_URL = os.environ.get(
-    "PUBLIC_BASE_URL", "https://cert-validation-hub.preview.emergentagent.com"
+    "PUBLIC_BASE_URL", "https://luxury-gem-vault.preview.emergentagent.com"
 ).rstrip("/")
 
 
