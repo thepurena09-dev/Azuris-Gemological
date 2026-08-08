@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
-
 const footerLinks = [
   { to: "/#verification", key: "nav.verification" },
   { to: "/#proses", key: "nav.process" },
@@ -22,6 +21,14 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-10">
         <div className="grid gap-12 md:grid-cols-[1.5fr_1fr]">
           <div>
+            <img
+              src="/azuris-logo.png"
+              alt="Azuris Gemological"
+              width={56}
+              height={56}
+              className="mb-5 h-14 w-14 object-contain"
+              data-testid="footer-logo"
+            />
             <p className="font-serif text-3xl font-light tracking-tighter">
               AZURIS
             </p>

@@ -4,6 +4,7 @@ import { List, X, Diamond, UserCircle } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { Logo } from "@/components/common/Logo";
 
 const navItems = [
   { to: "/", key: "nav.home", testId: TEST_IDS.header.navHome, type: "route" as const, end: true },
@@ -40,17 +41,9 @@ export default function Header() {
           <Link
             to="/"
             data-testid={TEST_IDS.header.brand}
-            className="group flex w-fit items-center gap-3"
+            className="group flex w-fit items-center"
           >
-            <Diamond size={30} weight="fill" className="text-gold" />
-            <span className="flex flex-col leading-none">
-              <span className="font-serif text-[1.6rem] font-semibold tracking-tight text-foreground transition-colors duration-300 group-hover:text-royal">
-                AZURIS
-              </span>
-              <span className="mt-1 text-[0.5rem] uppercase tracking-[0.5em] text-muted-foreground">
-                Gemological
-              </span>
-            </span>
+            <Logo size={46} />
           </Link>
 
           {/* Navigation center */}

@@ -23,12 +23,22 @@ export default function AdminLayout() {
         data-testid={TEST_IDS.admin.sidebar}
         className="hidden w-72 shrink-0 flex-col bg-primary p-7 text-primary-foreground md:flex"
       >
-        <Link to="/" className="mb-14 block">
-          <span className="font-serif text-2xl font-semibold tracking-tight">
-            AZURIS
-          </span>
-          <span className="mt-1.5 block text-[0.55rem] uppercase tracking-[0.4em] text-primary-foreground/50">
-            {t("admin.title")}
+        <Link to="/" className="mb-14 flex items-center gap-3">
+          <img
+            src="/azuris-logo.png"
+            alt="Azuris Gemological"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+            data-testid="admin-logo"
+          />
+          <span className="flex flex-col leading-none">
+            <span className="font-serif text-2xl font-semibold tracking-tight">
+              AZURIS
+            </span>
+            <span className="mt-1.5 block text-[0.55rem] uppercase tracking-[0.4em] text-primary-foreground/50">
+              {t("admin.title")}
+            </span>
           </span>
         </Link>
 
@@ -72,8 +82,14 @@ export default function AdminLayout() {
           </div>
           <div className="flex items-center gap-5">
             <Bell size={20} weight="regular" className="text-muted-foreground" />
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-semibold tracking-wide text-primary-foreground">
-              AZ
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 bg-secondary">
+              <img
+                src="/azuris-logo.png"
+                alt="Azuris"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+              />
             </span>
           </div>
         </header>

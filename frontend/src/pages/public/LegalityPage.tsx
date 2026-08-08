@@ -60,6 +60,15 @@ export default function LegalityPage() {
       {/* Hero */}
       <section className="border-b border-border bg-secondary">
         <div className="mx-auto max-w-5xl px-6 py-24 text-center md:px-10 md:py-28">
+          <img
+            src="/azuris-logo.png"
+            alt="Azuris Gemological"
+            width={72}
+            height={72}
+            className="mx-auto mb-7 h-18 w-18 object-contain"
+            style={{ height: 72, width: 72 }}
+            data-testid="legality-logo"
+          />
           <div className="mb-6 flex items-center justify-center gap-4">
             <span className="h-px w-10 bg-gold" />
             <span className="text-[0.68rem] uppercase tracking-[0.4em] text-gold">{t("legalityTeaser.eyebrow")}</span>

@@ -131,6 +131,14 @@ export default function HomePage() {
     <div className="flex min-h-[600px] items-center px-6 py-16 md:px-10">
       <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1fr_1fr]">
         <div className="max-w-xl">
+          <img
+            src="/azuris-logo.png"
+            alt="Azuris Gemological"
+            width={64}
+            height={64}
+            className="mb-6 h-16 w-16 object-contain"
+            data-testid="hero-logo"
+          />
           <Eyebrow label={t("home.slides.pillars.eyebrow")} />
           <h1 className="mt-6 font-serif text-5xl font-normal leading-[1.02] tracking-tight text-foreground md:text-7xl">
             {t("home.slides.pillars.title")}

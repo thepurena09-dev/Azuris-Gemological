@@ -42,10 +42,20 @@ export default function LoginPage() {
         <img src={PANEL_IMAGE} alt="Sapphire jewelry" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-between p-14">
-          <Link to="/" className="flex flex-col leading-none">
-            <span className="font-serif text-2xl font-medium tracking-tight text-foreground">AZURIS</span>
-            <span className="mt-1.5 text-[0.55rem] uppercase tracking-[0.45em] text-muted-foreground">
-              Gemological
+          <Link to="/" className="flex items-center gap-3">
+            <img
+              src="/azuris-logo.png"
+              alt="Azuris Gemological"
+              width={48}
+              height={48}
+              className="h-12 w-12 object-contain"
+              data-testid="login-logo"
+            />
+            <span className="flex flex-col leading-none">
+              <span className="font-serif text-2xl font-medium tracking-tight text-foreground">AZURIS</span>
+              <span className="mt-1.5 text-[0.55rem] uppercase tracking-[0.45em] text-muted-foreground">
+                Gemological
+              </span>
             </span>
           </Link>
           <p className="max-w-sm font-serif text-4xl font-normal leading-tight tracking-tight text-foreground">
