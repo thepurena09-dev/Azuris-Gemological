@@ -40,6 +40,13 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### POST-FREEZE — DASHBOARD BACKGROUND CMS CONTROL (targeted visual control, 2026-06)
+Client-usability addition. No new Sprint/Phase. Production Candidate stays FROZEN. Validated: testing_agent iteration_19 — new `tests/test_dashboard_bg.py` 9/9 BE + FE 100%, 0 console errors. Freeze preserved (counter last_number=14, business collections 0, site_settings dashboard_bg_* restored to defaults).
+- **Reuses existing BusinessSettings + media/storage + visual CMS + the SAME `GET/PUT /api/admin/settings/visuals` endpoint** (no new CMS/uploader/storage/settings endpoint). `models/settings.BusinessSettings` gains `dashboard_bg_enabled` (bool=False), `dashboard_bg_url` (str=''), `dashboard_bg_opacity` (int=10). `api/settings.py`: added to `VisualsUpdate` + `_visuals()` (so also in public `/api/settings/public`); PUT clamps opacity to safe **4–24**. RBAC unchanged (CMS_READ/CMS_WRITE → SUPER_ADMIN/ADMINISTRATOR/CONTENT_MANAGER write, CUSTOMER_SERVICE read-only 403; unauth 401).
+- **Frontend `AdminLayout.tsx`**: admin `<main>` overlay (`data-testid=admin-bg-overlay`) reads `useBusiness().visuals`; when `dashboard_bg_enabled && dashboard_bg_url` → custom image via `mediaUrl()` at clamped opacity (0.04–0.24), else the approved **MARBLE default** (mix-blend-multiply, opacity 0.10). Live after Save (no rebuild/redeploy) via BusinessSettingsProvider public-settings load.
+- **Frontend `VisualsPage.tsx`**: new 'Background Dashboard' section — enable toggle, reused `ImageControl` (preview/Upload/Choose-from-Media/URL), opacity slider (4–24 with live %), and **Reset ke Background Marble Default**. Picker slot extended to `dashboard`. i18n `adminVisuals.dashboardSection/dashboardHint/bgEnabled/bgOpacity/resetMarble` (id/en). testids: `visuals-dashboard-{enabled,preview,upload,pick,url,reset,opacity}`, `visuals-dashboard-opacity-value`, `visuals-dashboard-reset-marble`.
+- No change to analytics/certificate/QR/verification/membership/warranty/ownership/numbering logic. BUSINESS_RULES_LOCK.md UNCHANGED.
+
 ### AZURIS PRODUCTION CANDIDATE v2 — PRE-HOSTINGER MIGRATION (Re-Freeze, 2026-06)
 Documentation/status only. NO new feature / Sprint / Phase / schema / business-logic change. The current source (including the Certificate Demo Preview added after the v1 freeze) is now the OFFICIAL frozen baseline.
 - **Baseline scope (all COMPLETE & retained):** Sprints 1–30 + 23A · FASE 3.1–3.4 · Final UI Polish + CMS Visual Control · CMS Visual RBAC fix (ADMINISTRATOR CMS_WRITE) · CMS Visual Image Picker/Upload UX · **Certificate Demo Preview (UI-only, stateless)** · current Visual & Content implementation.
