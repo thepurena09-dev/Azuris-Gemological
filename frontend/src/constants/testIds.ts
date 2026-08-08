@@ -66,6 +66,12 @@ export const TEST_IDS = {
     codeInput: "verify-code-input",
     submit: "verify-submit",
     result: "verify-result",
+    preview: "verify-preview",
+    previewImage: "verify-preview-image",
+    previewFallback: "verify-preview-fallback",
+    viewDigital: "verify-view-digital",
+    viewerModal: "verify-viewer-modal",
+    viewerClose: "verify-viewer-close",
   },
   legality: {
     page: "page-legality",

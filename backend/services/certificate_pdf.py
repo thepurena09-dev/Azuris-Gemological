@@ -505,3 +505,35 @@ def decode_photo(data_b64: Optional[str]) -> Optional[bytes]:
         return base64.b64decode(data_b64)
     except Exception:
         return None
+
+
+# ---------------------------------------------------------------- front-cover preview
+# Single source of truth: the preview reuses the SAME _panel_front() renderer as
+# the booklet, so the certificate design can never drift between PDF and preview.
+def build_front_cover_pdf(cert: dict) -> bytes:
+    """One-page PDF (74 x 105 mm) containing ONLY the certificate front cover."""
+    number = cert["certificate_number"]
+    year = (cert.get("issued_at") or "")[:4] or ""
+    buf = BytesIO()
+    c = canvas.Canvas(buf, pagesize=(FOLD_X, PAGE_H))
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, FOLD_X, PAGE_H, fill=1, stroke=0)
+    _panel_front(c, 0, FOLD_X, number, year)
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return buf.read()
+
+
+def render_front_cover_png(cert: dict, zoom: float = 3.0) -> bytes:
+    """Rasterize the shared front-cover to a crisp PNG (PyMuPDF; no system poppler)."""
+    import pymupdf  # self-contained wheel
+
+    pdf = build_front_cover_pdf(cert)
+    doc = pymupdf.open(stream=pdf, filetype="pdf")
+    try:
+        page = doc[0]
+        pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
+        return pix.tobytes("png")
+    finally:
+        doc.close()

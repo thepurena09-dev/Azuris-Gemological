@@ -9,11 +9,15 @@ import re
 import time
 from collections import defaultdict, deque
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
+
 from pydantic import BaseModel, Field
 
 from db.mongodb import get_database
 from errors import forbidden
+from repositories.legality import CertificateRepository
+from services.certificate_pdf import render_front_cover_png
+from services.preview import decode_preview_token
 from services.verification import resolve_qr, verify_manual, verify_qr
 
 router = APIRouter(prefix="/verify", tags=["verification"])
@@ -68,3 +72,37 @@ async def qr_verify(body: QrVerifyRequest, request: Request, db=Depends(get_data
     _rate_limit(request)
     ip = request.client.host if request.client else None
     return await verify_qr(db, body.token.strip(), ip)
+
+
+@router.get("/preview")
+async def certificate_preview(t: str, request: Request, db=Depends(get_database)):
+    """Public certificate front-cover preview (FASE 3.3).
+
+    Gated by a short-lived, unforgeable preview token minted during a successful
+    verification (no enumeration). Follows current-version visibility: only the
+    current certificate is previewed. Rendered from the SAME front-cover generator
+    as the booklet PDF. Never exposes secrets / IDs.
+    """
+    _rate_limit(request)
+    data = decode_preview_token(t.strip())
+    if data is None:
+        return Response(status_code=404)
+    cert = await CertificateRepository(db).get_by_uuid(data["sub"])
+    # Current-version visibility: archived/non-current never override the preview.
+    if cert is None or not cert.is_current or cert.status == "revoked":
+        return Response(status_code=404)
+    try:
+        png = render_front_cover_png(
+            {
+                "certificate_number": cert.certificate_number,
+                "issued_at": cert.issued_at,
+                "version": cert.version,
+            }
+        )
+    except Exception:
+        return Response(status_code=503)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=900, immutable"},
+    )

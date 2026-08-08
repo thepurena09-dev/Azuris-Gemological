@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ShieldCheck, Certificate, Info, CircleNotch, SealCheck, WarningCircle } from "@phosphor-icons/react";
+import { ShieldCheck, Certificate, Info, CircleNotch, SealCheck, WarningCircle, X, MagnifyingGlassPlus } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { apiFetch } from "@/lib/api";
@@ -32,6 +32,8 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<VerifyResult | null>(null);
+  const [previewError, setPreviewError] = React.useState(false);
+  const [viewerOpen, setViewerOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (initialCert) setCert(initialCert);
@@ -41,6 +43,8 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
     e.preventDefault();
     setError(null);
     setResult(null);
+    setPreviewError(false);
+    setViewerOpen(false);
     const normalized = cert.trim().toUpperCase();
     if (!CERT_RE.test(normalized)) {
       setError(t("verify.formatError"));
@@ -69,6 +73,8 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
     if (!qrToken) return;
     setError(null);
     setResult(null);
+    setPreviewError(false);
+    setViewerOpen(false);
     setLoading(true);
     try {
       const res = await apiFetch("/api/verify/qr", { method: "POST", body: JSON.stringify({ token: qrToken }) });
@@ -90,6 +96,10 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
       : "border-red-200 bg-red-50";
 
   const c = result?.certificate;
+  const previewUrl =
+    c?.preview_token
+      ? `${appConfig.api.baseUrl}/api/verify/preview?t=${encodeURIComponent(c.preview_token)}`
+      : null;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-7 shadow-[0_30px_70px_-45px_rgba(13,27,42,0.4)] md:p-9">
@@ -188,34 +198,183 @@ export default function VerificationForm({ initialCert, qrToken }: Props) {
             </div>
 
             {c && result.status === "valid" && (
-              <>
-                {c.gemstone?.photo_url && (
-                  <img
-                    src={`${appConfig.api.baseUrl}${c.gemstone.photo_url}`}
-                    alt={c.gemstone?.name || "Gemstone"}
-                    className="mt-5 h-40 w-full rounded-lg border border-black/5 object-cover"
+              <div className="mt-6 grid gap-6 border-t border-black/5 pt-6 lg:grid-cols-5">
+                {/* Certificate front-cover preview — left column (~42%) */}
+                <div className="lg:col-span-2">
+                  <PreviewCard
+                    url={previewUrl}
+                    error={previewError}
+                    onError={() => setPreviewError(true)}
+                    onView={() => previewUrl && !previewError && setViewerOpen(true)}
+                    label={t("verifyResult.certificatePreview")}
+                    unavailable={t("verifyResult.previewUnavailable")}
                   />
-                )}
-                <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-black/5 pt-5 text-sm">
-                <Field label={t("verifyResult.fields.number")} value={c.certificate_number} />
-                <Field label={t("verifyResult.fields.version")} value={c.version} />
-                <Field label={t("verifyResult.fields.issue")} value={c.issue_date} />
-                <Field label={t("verifyResult.fields.owner")} value={c.owner_masked} />
-                <Field label={t("verifyResult.fields.species")} value={c.gemstone?.species} />
-                <Field label={t("verifyResult.fields.carat")} value={c.gemstone?.carat} />
-                <Field label={t("verifyResult.fields.color")} value={c.gemstone?.color} />
-                <Field label={t("verifyResult.fields.clarity")} value={c.gemstone?.clarity} />
-                <Field label={t("verifyResult.fields.cut")} value={c.gemstone?.cut} />
-                <Field label={t("verifyResult.fields.shape")} value={c.gemstone?.shape} />
-                <Field label={t("verifyResult.fields.origin")} value={c.gemstone?.origin} />
-                <Field label={t("verifyResult.fields.treatment")} value={c.gemstone?.treatment} />
-                <Field label={t("verifyResult.fields.conclusion")} value={c.conclusion} full />
-              </dl>
-              </>
+                </div>
+
+                {/* Certificate information — right column (~58%) */}
+                <div className="space-y-5 lg:col-span-3">
+                  <div>
+                    <SectionLabel>{t("verifyResult.sectionBasic")}</SectionLabel>
+                    <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                      <Field label={t("verifyResult.fields.number")} value={c.certificate_number} />
+                      <Field label={t("verifyResult.fields.issue")} value={c.issue_date} />
+                      <Field label={t("verifyResult.fields.version")} value={c.version} />
+                      <Field label={t("verifyResult.validTitle")} value={t("verifyResult.verifiedCertificate")} />
+                    </dl>
+                  </div>
+
+                  <div>
+                    <SectionLabel>{t("verifyResult.sectionGemstone")}</SectionLabel>
+                    <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                      <Field label={t("verifyResult.fields.species")} value={c.gemstone?.species} />
+                      <Field label={t("verifyResult.fields.carat")} value={c.gemstone?.carat} />
+                      <Field label={t("verifyResult.fields.color")} value={c.gemstone?.color} />
+                      <Field label={t("verifyResult.fields.clarity")} value={c.gemstone?.clarity} />
+                      <Field label={t("verifyResult.fields.cut")} value={c.gemstone?.cut} />
+                      <Field label={t("verifyResult.fields.shape")} value={c.gemstone?.shape} />
+                      <Field label={t("verifyResult.fields.origin")} value={c.gemstone?.origin} />
+                      <Field label={t("verifyResult.fields.treatment")} value={c.gemstone?.treatment} />
+                    </dl>
+                  </div>
+
+                  {c.conclusion && (
+                    <div>
+                      <SectionLabel>{t("verifyResult.sectionResult")}</SectionLabel>
+                      <p className="text-sm leading-relaxed text-foreground">{c.conclusion}</p>
+                    </div>
+                  )}
+
+                  {c.owner_masked && (
+                    <div>
+                      <SectionLabel>{t("verifyResult.sectionOwner")}</SectionLabel>
+                      <p className="text-sm text-foreground">{c.owner_masked}</p>
+                    </div>
+                  )}
+
+                  {c.gemstone?.photo_url && (
+                    <img
+                      src={`${appConfig.api.baseUrl}${c.gemstone.photo_url}`}
+                      alt={c.gemstone?.name || "Gemstone"}
+                      loading="lazy"
+                      className="h-44 w-full rounded-lg border border-black/5 object-cover"
+                    />
+                  )}
+
+                  {previewUrl && !previewError && (
+                    <button
+                      type="button"
+                      data-testid={TEST_IDS.verify.viewDigital}
+                      onClick={() => setViewerOpen(true)}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gold bg-primary px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.2em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl"
+                    >
+                      <SealCheck size={16} weight="fill" className="text-gold" />
+                      {t("verifyResult.viewDigitalCertificate")}
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         ))}
       </div>
+
+      {viewerOpen && previewUrl && !previewError && (
+        <div
+          data-testid={TEST_IDS.verify.viewerModal}
+          onClick={() => setViewerOpen(false)}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-primary/85 p-6 backdrop-blur-sm"
+        >
+          <div className="relative max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={previewUrl}
+              alt={t("verifyResult.certificatePreview")}
+              className="max-h-[90vh] w-auto rounded-xl object-contain shadow-2xl ring-1 ring-gold/40"
+            />
+            <button
+              type="button"
+              data-testid={TEST_IDS.verify.viewerClose}
+              onClick={() => setViewerOpen(false)}
+              aria-label="Close"
+              className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground shadow-lg transition-transform hover:scale-105"
+            >
+              <X size={18} weight="bold" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PreviewCard({
+  url,
+  error,
+  onError,
+  onView,
+  label,
+  unavailable,
+}: {
+  url: string | null;
+  error: boolean;
+  onError: () => void;
+  onView: () => void;
+  label: string;
+  unavailable: string;
+}) {
+  const [loaded, setLoaded] = React.useState(false);
+  React.useEffect(() => {
+    setLoaded(false);
+  }, [url]);
+
+  return (
+    <div
+      data-testid={TEST_IDS.verify.preview}
+      className="rounded-xl border border-gold/40 bg-secondary/60 p-3 shadow-[0_20px_50px_-35px_rgba(13,27,42,0.6)]"
+    >
+      <p className="mb-2.5 text-center text-[0.56rem] uppercase tracking-[0.28em] text-gold">
+        {label}
+      </p>
+      <div
+        className="relative overflow-hidden rounded-lg bg-primary/5"
+        style={{ aspectRatio: "74 / 105" }}
+      >
+        {url && !error ? (
+          <>
+            {!loaded && <div className="absolute inset-0 animate-pulse bg-black/5" />}
+            <img
+              src={url}
+              alt={label}
+              data-testid={TEST_IDS.verify.previewImage}
+              loading="lazy"
+              onLoad={() => setLoaded(true)}
+              onError={onError}
+              onClick={onView}
+              className="h-full w-full cursor-zoom-in object-contain"
+            />
+            {loaded && (
+              <span className="pointer-events-none absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-primary/70 text-primary-foreground">
+                <MagnifyingGlassPlus size={14} weight="bold" />
+              </span>
+            )}
+          </>
+        ) : (
+          <div
+            data-testid={TEST_IDS.verify.previewFallback}
+            className="flex h-full items-center justify-center p-6 text-center text-xs text-muted-foreground"
+          >
+            {unavailable}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-3 flex items-center gap-3">
+      <span className="h-px w-6 bg-gold" />
+      <span className="text-[0.6rem] uppercase tracking-[0.24em] text-gold">{children}</span>
     </div>
   );
 }

@@ -84,6 +84,16 @@ async def _build_public_certificate(db, cert, token) -> dict[str, Any]:
             if owner is not None:
                 owner_masked = mask_owner_name(owner.full_name)
 
+    # Short-lived, unforgeable preview capability (FASE 3.3). Never leaks secrets;
+    # failure to mint must not break verification.
+    preview_token = None
+    try:
+        from services.preview import create_preview_token
+
+        preview_token = create_preview_token(cert.uuid, cert.version)
+    except Exception:
+        preview_token = None
+
     return {
         "certificate_number": cert.certificate_number,
         "version": cert.version,
@@ -93,6 +103,7 @@ async def _build_public_certificate(db, cert, token) -> dict[str, Any]:
         "examiner": snap.get("examiner"),
         "conclusion": snap.get("conclusion"),
         "notes": snap.get("notes"),
+        "preview_token": preview_token,
     }
 
 
