@@ -13,6 +13,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { apiJson, mediaUrl } from "@/lib/api";
 import { useBusiness } from "@/lib/settings";
+import { useAuth } from "@/lib/auth";
 import { MembershipCardVisual } from "@/components/membership/MembershipCardVisual";
 
 type Visuals = Record<string, any>;
@@ -214,12 +215,20 @@ function MediaPicker({
 export default function VisualsPage() {
   const { t } = useLanguage();
   const { refresh } = useBusiness();
+  const { admin } = useAuth();
   const [v, setV] = React.useState<Visuals | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<string | null>(null);
   const [readOnly, setReadOnly] = React.useState(false);
   const [picker, setPicker] = React.useState<{ slot: "login" | "process" } | null>(null);
   const [media, setMedia] = React.useState<MediaItem[]>([]);
+
+  // Presentational gate — roles with CMS_WRITE per the locked RBAC matrix.
+  // Backend remains the source of truth (403 on any unauthorized mutation).
+  const canWrite = ["SUPER_ADMIN", "ADMINISTRATOR", "CONTENT_MANAGER"].includes(admin?.role || "");
+  React.useEffect(() => {
+    if (admin && !canWrite) setReadOnly(true);
+  }, [admin, canWrite]);
 
   React.useEffect(() => {
     apiJson<Visuals>("/api/admin/settings/visuals").then(setV).catch(() => setReadOnly(true));

@@ -40,6 +40,13 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### POST-BATCH D — CMS VISUAL IMAGE PICKER / UPLOAD UX (2026-06)
+Targeted client-usability fix. No new Sprint/Phase. No business-logic/certificate/RBAC-matrix change. Validated: testing_agent iteration_17 — `tests/test_cms_visuals_media.py` 16/16 + FE 100%. Baseline restored (media=0, counter=14 → next `AZR-GEM-000015-26`).
+- **Reuses Sprint 10 media/storage** (`services/media.store_media` + `media` collection + storage adapter). NEW CMS-scoped endpoints in `api/settings.py`: `POST /api/admin/settings/visuals/media` (guard `CMS_WRITE`, images jpg/png/webp only, ≤15MB, entity_type=`cms`/entity_id=`site`, audited `cms_media`) + `GET /api/admin/settings/visuals/media` (guard `CMS_READ`, picker list). No 2nd media backend/uploader.
+- **Frontend `VisualsPage.tsx`**: `ImageControl` (preview + Upload from computer + Choose-from-Media modal + Reset-default + advanced URL field secondary) for Admin Login Image + Certification Process Image. `MediaPicker` modal lists CMS media. Preview updates immediately; fallback image on error; alt ID/EN retained. `lib/api.ts` `mediaUrl()` resolves relative `/api/media/..` to backend base; LoginPage + HomePage use it so uploaded images render after Save. RBAC: write roles (SUPER_ADMIN/ADMINISTRATOR/CONTENT_MANAGER) can upload/select/save; CUSTOMER_SERVICE read-only (backend 403 + frontend controls disabled presentationally).
+- testids: `visuals-{login,process}-{upload,pick,reset,file,url,preview}`, `visuals-media-picker`, `visuals-picker-item`.
+
+
 ### AZURIS PRODUCTION CANDIDATE — PRE-HOSTINGER MIGRATION (Freeze, 2026-06)
 Current build FROZEN & APPROVED as Production Candidate. No feature/design/schema/RBAC/numbering changes. Not a new Sprint/Phase.
 - **Production hygiene:** no seed runs at startup (`server.py` on_startup = Mongo connect + index bootstrap only). `scripts/seed_test_roles.py` + `scripts/seed_admin.py` both `raise SystemExit` when `ENVIRONMENT=production` and never auto-run → test accounts (admin/cm/cs/adminr @azuris.local) will NOT exist in production. Test scripts remain in repo for regression.
