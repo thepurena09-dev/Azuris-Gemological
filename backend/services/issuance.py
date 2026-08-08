@@ -25,7 +25,7 @@ from repositories.legality import (
 from services.security import gen_qr_token, gen_security_code
 
 PUBLIC_BASE_URL = os.environ.get(
-    "PUBLIC_BASE_URL", "https://azuris-sprint.preview.emergentagent.com"
+    "PUBLIC_BASE_URL", "https://customer-domain-api.preview.emergentagent.com"
 ).rstrip("/")
 
 
