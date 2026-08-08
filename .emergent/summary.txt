@@ -1,126 +1,125 @@
 <analysis>**original_problem_statement**: 
-# AZURIS GEMOLOGICAL — FAST-TRACK BATCH C (SPRINT 15–23 + SPRINT 23A)
-The user mandated the continuation of FAST-TRACK execution mode for BATCH C, strictly building the post-certification domain according to the master blueprint.
-Requirements:
-- **Sprint 15–18 (Certification)**: Validated existing features (satisfied early, no rebuild).
-- **Sprint 19 (Warranty)**: Implement Warranty module (create, reissue, expire, void) linking to gemstones.
-- **Sprint 20–22 (Ownership & Transfer)**: Implement authoritative ownership, append-only history, and transfer workflow without deleting historical data.
-- **Sprint 23A (Membership Card)**: Implement digital membership cards with member-safe verification, QR codes, and masked UI.
-- **Visual Proofs**: Mandated screenshot capture of all completed UI components on a live server.
-- **Strict DB Baseline**: The certificate counter MUST remain at  (next genuine certificate: ). Test data must be hermetic and purged after testing to restore this baseline.
+# AZURIS GEMOLOGICAL — CMS VISUAL IMAGE PICKER / UPLOAD UX FIX
+The user requested a UX improvement for  to allow admins to upload images directly or pick from existing media, rather than copy-pasting raw URLs. This needed to reuse the existing media storage architecture (Sprint 10/14) without duplicating systems. Preceding this, the user also mandated Batch D completion (Analytics, QA), Final UI Polish, RBAC adjustments, and a Production Candidate Freeze. 
 
 **User's preferred language**: **Indonesian (Bahasa Indonesia)**
-INSTRUCT NEXT AGENT: You MUST automatically detect the user's primary language from their messages and INSTRUCT next agent to respond in the user's preferred language only (Bahasa Indonesia).
+INSTRUCT NEXT AGENT: You MUST automatically detect the user's primary language from their messages inside the <trajectory> tag and INSTRUCT next agent to respond in the user's preferred language only (Bahasa Indonesia).
 
-**what currently exists?**: 
-Batch A, Batch B, and Batch C are fully complete and regression-tested. 
-- Backend endpoints and Frontend Admin pages for Customers, Gemstones, Jewelry, Media, Warranty, Ownership, and Membership are fully functional with RBAC, audit logging, and response envelopes.
-- Public membership verification page () is live.
-- DB baseline is completely clean (0 customers, 0 gemstones, 0 jewelry, 0 media, 0 warranties, 0 ownership_transfers, 0 membership_cards). The counter is safely resting at .
+**what currently exists?** 
+The application is fully built (Batches A, B, C, D) and regression-tested. It is currently in a **PRODUCTION CANDIDATE FREEZE** state prior to a Hostinger migration. CMS Visual Controls have been implemented with a proper Image Picker/Upload UX. The DB baseline remains perfectly clean and hermetic. 
 
 **Last working item**: 
-    - Last item agent was working: Generating visual proofs (screenshots) of all Batch C UI components using mock data, followed by a final strict DB baseline restoration.
+    - Last item agent was working: Implementing the CMS Visual Image Picker and Upload UX fix for the  page, reusing the existing  collection and  service.
     - Status: NONE (COMPLETED)
     - Agent Testing Done: Y
-    - Which testing method agent to use? NA (Screenshot tool and backend tests were used).
+    - Which testing method agent to use? NA (Testing agent  passed successfully 16/16 BE, 100% FE)
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:  
 None.
 
 **In progress Task List**: 
-None. Batch C is entirely complete.
+None. 
 
-**Upcoming and Future Tasks**:
+**Upcoming and Future Tasks**
     Upcoming Tasks:
-    - **BATCH D (Sprint 24–30)**: CMS / Public / Analytics / QA / Production / Launch [P0] *(CRITICAL: This is the next phase. Wait for user instruction to begin).*
+    - Wait for client instruction regarding the Hostinger production migration/deployment.
+    Future Tasks:
+    - Await client approval to lock provisional numbering formats ( and ).
 
-**Completed work in this session**:
-- **Sprint 15-18**: Verified and audited existing certification capabilities ().
-- **Sprint 19**: Created  & . (DONE)
-- **Sprint 20-22**: Created ,  & . (DONE)
-- **Sprint 23A**: Created , , , , and . (DONE)
-- Updated frontend i18n (, ), app routing, and AdminLayout. (DONE)
-- Created and passed hermetic testing suite  (20/20 PASS). (DONE)
-- Captured required live application screenshots and fully purged the test data to restore DB baseline. (DONE)
+**Completed work in this session**
+- BATCH D: Built Analytics backend/frontend (, ), Production Readiness config, and executed full 84/84 regression. (DONE)
+- POST-BATCH D UI POLISH: Refined Dashboard marble, admin logo size, brand-to-nav spacing, and public nav champagne-gold borders. (DONE)
+- CMS VISUAL CONTROLS: Added editable settings for Admin Login Image, Certification Process Image, and Homepage Membership showcase (, ). (DONE)
+- RBAC FIX: Granted  permission to the  role. (DONE)
+- PRODUCTION CANDIDATE FREEZE & PREVIEW SYNC: Hygiene audit executed. Dev preview restarted to serve latest source. Cleaned test residue from DB. (DONE)
+- CMS VISUAL IMAGE UX FIX: Added CMS-scoped  and  endpoints reusing existing media architecture. Updated frontend with visual media picker, upload capability, and live previews. (DONE)
 
-**Earlier issues found/mentioned but not fixed**:
+**Earlier issues found/mentioned but not fixed**
 None.
 
-**Known issue recurrence from previous fork**:
+**Known issue recurrence from previous fork**
   - Issue recurrence in previous fork: None
   - Recurrence count: 0
   - Status: NA
 
-**Code Architecture**:
+**Code Architecture**
 
 
-**Key Technical Concepts**:
-React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Standardized API Response Envelopes, Strict RBAC, Append-only History, Data Masking (Privacy-safe verifications), Opaque Tokens.
+**Key Technical Concepts**
+React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Append-only History, Role-Based Access Control (RBAC).
 
-**key DB schema**:
-  - : , , , , 
-  - : , , , , 
-  - : , , , , 
-  - : Atomic increments. MUST REMAIN untouched at  (). Separate counters were created for warranties and memberships to prevent interference.
+**key DB schema**
+  - : Single document configuration for visual settings and public flags.
+  - : Document storage for uploaded assets, reused for CMS Visuals ().
+  - : Atomic increments. **MUST REMAIN untouched at **.
 
-**changes in tech stack**:
+**changes in tech stack**
 None.
 
-**All files of reference**:
+**All files of reference** 
   -  (New)
   -  (New)
-  -  (New)
-  -  (New)
-  -  (New)
-  -  (New regression suite)
-  -  (New)
-  -  (New)
-  -  (New)
-  -  (New)
-  -  (New)
-  -  (Updated master roadmap tracker)
+  -  (Updated)
+  -  (New & Refined UX)
+  -  (Updated to handle visual settings & CMS media upload)
+  -  (Updated ADMINISTRATOR permissions)
+  -  (New - Production audit report)
+  -  (Updated ledger)
+  -  (Added  helper)
 
 **Areas that need refactoring**: 
-None. 
+None. Code is frozen as a Production Candidate. 
 
-**key api endpoints**:
+**key api endpoints**
+  - 
+  - 
+  - 
+  -  (CMS Upload)
+  -  (CMS Media List)
+
+**Critical Info for New Agent**
+1. **PRODUCTION CANDIDATE FREEZE**: The app is strictly locked. Do NOT introduce new features, design changes, schema migrations, or business logic alterations unless explicitly commanded by the client.
+2. **DB BASELINE INVARIANTS**: The certificate counter MUST rest at  (). All business collections (, , , , , , , ) MUST be strictly at  upon task completion. Any tests performed MUST be cleaned up completely.
+3. **LANGUAGE**: Always respond in Indonesian.
+4. **BUSINESS RULES LOCK**: Do not touch .
+
+**documents and test reports created in this job** 
   - 
   - 
   - 
   - 
-
-**Critical Info for New Agent**:
-1. **BATCH C COMPLETE**: Sprints 15-23 and 23A are entirely finished. Do not rebuild them. 
-2. **DB INVARIANTS**: The database is fully cleared of test data. The certificate counter is currently resting correctly at  (Next genuine format: ). Do not alter or seed fake data that breaks this rule. Ensure any future tests use isolated fixtures and clean up properly.
-3. **NEXT BATCH**: You must await the user's explicit command to begin **BATCH D (Sprint 24-30)**. Do not start it autonomously.
-4. **LANGUAGE**: Always respond in Indonesian.
-
-**documents and test reports created in this job**:
   - 
-  -  (Ledger updated)
+  - 
 
-**Last 10 User Messages and any pending HUMAN messages**:
-1. User defined FAST-TRACK BATCH C (Sprints 15-23 + 23A). 
-2. Agent successfully implemented all backend and frontend changes, verified through hermetic tests, and submitted a completion summary.
-3. User commanded the agent to take live visual proofs (screenshots) of all the newly created modules using mock data, then securely clean the DB.
-4. Agent generated test data, took 11 screenshots covering Warranty, Ownership, Membership Admin, Card Front/Back/Mobile, and Verification portals, then completely restored the database baseline (counter=14). 
-*(No pending human messages. Await instruction to begin BATCH D).*
+**Last 10 User Messages and any pending HUMAN messages** 
+1. **User**: Commanded FAST-TRACK BATCH D (Sprints 24-30). (Completed)
+2. **User**: Bug reminder to use . (Acknowledged)
+3. **User**: Requested POST-BATCH D Final UI Polish and CMS Visual Control extension. (Completed)
+4. **User**: Commanded targeted RBAC audit & fix to give ADMINISTRATOR  permissions. (Completed)
+5. **User**: Bug reminder to use . (Acknowledged)
+6. **User**: Declared PRODUCTION CANDIDATE FREEZE and requested hygiene audit. (Completed)
+7. **User**: Commanded Sync Production Candidate to Dev Preview (refresh without code changes). (Completed)
+8. **User**: Bug reminder to use . (Acknowledged)
+9. **User**: Asked to display Dev/Test Login IDs (Read-only, no passwords). (Completed)
+10. **User**: Asked to display the passwords for the dev/test accounts. (Completed)
+11. **User**: Requested UX Fix for CMS Visual Image Picker/Upload. (Completed)
+*(No pending human messages. Await instructions for Hostinger deployment or client approval)*
 
-**Project Health Check**:
-Healthy.
+**Project Health Check:**
+Healthy. No broken or mocked integrations.
 
-**3rd Party Integrations**:
-- JWT Auth (Internal).
+**3rd Party Integrations** 
+- JWT Auth (Internal)
 
-**Testing status**:
-  - Testing agent used after significant changes: NO (Used extensive backend Pytest regression suite instead)
+**Testing status**
+  - Testing agent used after significant changes: YES (Iterations 13-17 covering Batch D, UI polish, RBAC, Sync, and CMS Image UX).
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: 
-  - Known regressions: None. 
+  - Test files created: , , 
+  - Known regressions: None
 
-**Credentials to test flow**:
-Refer to  (e.g.,  / ).
+**Credentials to test flow:**
+See  (e.g.,  / ).
 
-**What agent forgot to execute**:
-Nothing. Batch C was executed, tested, visual proofs generated, and cleaned up flawlessly.</analysis>
+**What agent forgot to execute**
+Nothing. All tasks were executed, strictly verified by the testing agent, and the DB baseline was flawlessly maintained.</analysis>
