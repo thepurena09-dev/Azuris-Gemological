@@ -23,6 +23,7 @@ from repositories.legality import (
     CertificateRepository,
     GemstonePhotoRepository,
     GemstoneRepository,
+    SettingsRepository,
     VerificationTokenRepository,
 )
 from services.certificate_pdf import build_certificate_pdf, decode_photo
@@ -198,6 +199,12 @@ async def certificate_pdf(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(
         "gemstone_snapshot": snap,
         "qr_url": qr_url(token),
     }
+    try:
+        settings = await SettingsRepository(db).get_or_create()
+        if settings and settings.whatsapp_enabled:
+            payload["whatsapp"] = settings.whatsapp_number
+    except Exception:
+        pass
     pdf = build_certificate_pdf(payload, photo_bytes)
     await write_audit_log(
         db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.UPDATE,
