@@ -22,6 +22,13 @@ export interface Visuals {
   dashboard_bg_enabled: boolean;
   dashboard_bg_url: string;
   dashboard_bg_opacity: number;
+  dashboard_bg_fit: string;
+  dashboard_bg_blur: number;
+  login_bg_enabled: boolean;
+  login_bg_url: string;
+  login_bg_opacity: number;
+  login_bg_fit: string;
+  login_bg_blur: number;
 }
 
 interface BusinessSettings extends Partial<Visuals> {

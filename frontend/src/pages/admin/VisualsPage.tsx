@@ -213,6 +213,65 @@ function MediaPicker({
   );
 }
 
+/** Appearance controls (opacity + fit + blur) shared by background sections. */
+function BgAppearance({
+  slug, prefix, v, set, disabled,
+}: {
+  slug: string; prefix: string; v: Visuals; set: (k: string, val: any) => void; disabled: boolean;
+}) {
+  const { t } = useLanguage();
+  const opacity = v[`${prefix}_opacity`] ?? 10;
+  const fit = v[`${prefix}_fit`] || "cover";
+  const blur = v[`${prefix}_blur`] ?? 0;
+  return (
+    <div className="mt-5 grid max-w-2xl gap-5 sm:grid-cols-2">
+      <div>
+        <label className="mb-1.5 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+          <span>{t("adminVisuals.bgOpacity")}</span>
+          <span data-testid={`visuals-${slug}-opacity-value`} className="font-mono text-foreground">{opacity}%</span>
+        </label>
+        <input
+          data-testid={`visuals-${slug}-opacity`}
+          type="range" min={4} max={24} step={1}
+          value={opacity}
+          disabled={disabled}
+          onChange={(e) => set(`${prefix}_opacity`, parseInt(e.target.value, 10))}
+          className="w-full accent-gold disabled:opacity-50"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+          {t("adminVisuals.bgFit")}
+        </label>
+        <select
+          data-testid={`visuals-${slug}-fit`}
+          value={fit}
+          disabled={disabled}
+          onChange={(e) => set(`${prefix}_fit`, e.target.value)}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-gold disabled:opacity-60"
+        >
+          <option value="cover">{t("adminVisuals.fitCover")}</option>
+          <option value="center">{t("adminVisuals.fitCenter")}</option>
+        </select>
+      </div>
+      <div className="sm:col-span-2">
+        <label className="mb-1.5 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+          <span>{t("adminVisuals.bgBlur")}</span>
+          <span data-testid={`visuals-${slug}-blur-value`} className="font-mono text-foreground">{blur}px</span>
+        </label>
+        <input
+          data-testid={`visuals-${slug}-blur`}
+          type="range" min={0} max={12} step={1}
+          value={blur}
+          disabled={disabled}
+          onChange={(e) => set(`${prefix}_blur`, parseInt(e.target.value, 10))}
+          className="w-full accent-gold disabled:opacity-50"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function VisualsPage() {
   const { t } = useLanguage();
   const { refresh } = useBusiness();
@@ -221,7 +280,7 @@ export default function VisualsPage() {
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<string | null>(null);
   const [readOnly, setReadOnly] = React.useState(false);
-  const [picker, setPicker] = React.useState<{ slot: "login" | "process" | "dashboard" } | null>(null);
+  const [picker, setPicker] = React.useState<{ field: string } | null>(null);
   const [media, setMedia] = React.useState<MediaItem[]>([]);
 
   // Presentational gate — roles with CMS_WRITE per the locked RBAC matrix.
@@ -247,11 +306,11 @@ export default function VisualsPage() {
     set(key, res.url);
   };
 
-  const openPicker = async (slot: "login" | "process" | "dashboard") => {
+  const openPicker = async (field: string) => {
     try {
       const data = await apiJson<{ items: MediaItem[] }>("/api/admin/settings/visuals/media");
       setMedia(data.items || []);
-      setPicker({ slot });
+      setPicker({ field });
     } catch {
       setReadOnly(true);
     }
@@ -259,13 +318,7 @@ export default function VisualsPage() {
 
   const applyPicked = (url: string) => {
     if (!picker) return;
-    const field =
-      picker.slot === "login"
-        ? "login_image_url"
-        : picker.slot === "process"
-          ? "process_image_url"
-          : "dashboard_bg_url";
-    set(field, url);
+    set(picker.field, url);
     setPicker(null);
   };
 
@@ -314,7 +367,7 @@ export default function VisualsPage() {
               defaultUrl={LOGIN_DEFAULT}
               onChange={(x) => set("login_image_url", x)}
               onUpload={uploadFor("login_image_url")}
-              onOpenPicker={() => openPicker("login")}
+              onOpenPicker={() => openPicker("login_image_url")}
               disabled={readOnly}
             />
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -334,7 +387,7 @@ export default function VisualsPage() {
               defaultUrl={PROCESS_DEFAULT}
               onChange={(x) => set("process_image_url", x)}
               onUpload={uploadFor("process_image_url")}
-              onOpenPicker={() => openPicker("process")}
+              onOpenPicker={() => openPicker("process_image_url")}
               disabled={readOnly}
             />
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -382,28 +435,10 @@ export default function VisualsPage() {
               defaultUrl=""
               onChange={(x) => set("dashboard_bg_url", x)}
               onUpload={uploadFor("dashboard_bg_url")}
-              onOpenPicker={() => openPicker("dashboard")}
+              onOpenPicker={() => openPicker("dashboard_bg_url")}
               disabled={readOnly || v.dashboard_bg_enabled !== true}
             />
-            <div className="mt-5 max-w-md">
-              <label className="mb-1.5 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
-                <span>{t("adminVisuals.bgOpacity")}</span>
-                <span data-testid="visuals-dashboard-opacity-value" className="font-mono text-foreground">
-                  {v.dashboard_bg_opacity ?? 10}%
-                </span>
-              </label>
-              <input
-                data-testid="visuals-dashboard-opacity"
-                type="range"
-                min={4}
-                max={24}
-                step={1}
-                value={v.dashboard_bg_opacity ?? 10}
-                disabled={readOnly || v.dashboard_bg_enabled !== true}
-                onChange={(e) => set("dashboard_bg_opacity", parseInt(e.target.value, 10))}
-                className="w-full accent-gold disabled:opacity-50"
-              />
-            </div>
+            <BgAppearance slug="dashboard" prefix="dashboard_bg" v={v} set={set} disabled={readOnly || v.dashboard_bg_enabled !== true} />
             <button
               type="button"
               data-testid="visuals-dashboard-reset-marble"
@@ -412,11 +447,53 @@ export default function VisualsPage() {
                 set("dashboard_bg_enabled", false);
                 set("dashboard_bg_url", "");
                 set("dashboard_bg_opacity", 10);
+                set("dashboard_bg_fit", "cover");
+                set("dashboard_bg_blur", 0);
               }}
               className="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-gold disabled:opacity-60"
             >
               <ArrowCounterClockwise size={14} />
               {t("adminVisuals.resetMarble")}
+            </button>
+          </SectionCard>
+
+          <SectionCard icon={<SignIn size={18} />} title={t("adminVisuals.loginSectionBg")}>
+            <p className="mb-4 text-sm text-muted-foreground">{t("adminVisuals.loginBgHint")}</p>
+            <label className="mb-4 flex items-center gap-2 text-sm text-foreground">
+              <input
+                data-testid="visuals-loginbg-enabled"
+                type="checkbox"
+                checked={v.login_bg_enabled === true}
+                disabled={readOnly}
+                onChange={(e) => set("login_bg_enabled", e.target.checked)}
+              />
+              {t("adminVisuals.bgEnabled")}
+            </label>
+            <ImageControl
+              slug="loginbg"
+              value={v.login_bg_url || ""}
+              defaultUrl=""
+              onChange={(x) => set("login_bg_url", x)}
+              onUpload={uploadFor("login_bg_url")}
+              onOpenPicker={() => openPicker("login_bg_url")}
+              disabled={readOnly || v.login_bg_enabled !== true}
+            />
+            <BgAppearance slug="loginbg" prefix="login_bg" v={v} set={set} disabled={readOnly || v.login_bg_enabled !== true} />
+            <button
+              type="button"
+              data-testid="visuals-loginbg-reset"
+              disabled={readOnly}
+              onClick={() => {
+                set("login_bg_enabled", false);
+                set("login_bg_url", "");
+                set("login_bg_opacity", 10);
+                set("login_bg_fit", "cover");
+                set("login_bg_blur", 0);
+              }}
+              className="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-gold disabled:opacity-60"
+            >
+              <ArrowCounterClockwise size={14} />
+              {t("adminVisuals.resetLoginBg")}
             </button>
           </SectionCard>
 

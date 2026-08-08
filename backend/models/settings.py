@@ -51,3 +51,12 @@ class BusinessSettings(BaseDocument, AuditMixin):
     dashboard_bg_enabled: bool = False
     dashboard_bg_url: str = Field(default="", max_length=1000)
     dashboard_bg_opacity: int = Field(default=10, ge=0, le=100)
+    dashboard_bg_fit: str = Field(default="cover", max_length=10)
+    dashboard_bg_blur: int = Field(default=0, ge=0, le=40)
+
+    # --- Admin login page background (mirror of the dashboard control) ---
+    login_bg_enabled: bool = False
+    login_bg_url: str = Field(default="", max_length=1000)
+    login_bg_opacity: int = Field(default=10, ge=0, le=100)
+    login_bg_fit: str = Field(default="cover", max_length=10)
+    login_bg_blur: int = Field(default=0, ge=0, le=40)

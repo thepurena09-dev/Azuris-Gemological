@@ -57,6 +57,13 @@ class VisualsUpdate(BaseModel):
     dashboard_bg_enabled: bool | None = None
     dashboard_bg_url: str | None = None
     dashboard_bg_opacity: int | None = None
+    dashboard_bg_fit: str | None = None
+    dashboard_bg_blur: int | None = None
+    login_bg_enabled: bool | None = None
+    login_bg_url: str | None = None
+    login_bg_opacity: int | None = None
+    login_bg_fit: str | None = None
+    login_bg_blur: int | None = None
 
 
 def _contact(s) -> dict:
@@ -87,6 +94,13 @@ def _visuals(s) -> dict:
         "dashboard_bg_enabled": s.dashboard_bg_enabled,
         "dashboard_bg_url": s.dashboard_bg_url,
         "dashboard_bg_opacity": s.dashboard_bg_opacity,
+        "dashboard_bg_fit": s.dashboard_bg_fit,
+        "dashboard_bg_blur": s.dashboard_bg_blur,
+        "login_bg_enabled": s.login_bg_enabled,
+        "login_bg_url": s.login_bg_url,
+        "login_bg_opacity": s.login_bg_opacity,
+        "login_bg_fit": s.login_bg_fit,
+        "login_bg_blur": s.login_bg_blur,
     }
 
 
@@ -151,9 +165,15 @@ async def admin_update_visuals(
     repo = SettingsRepository(db)
     before = await repo.get_or_create()
     changes = {k: v for k, v in body.model_dump(exclude_unset=True).items()}
-    # Keep dashboard background opacity within a readability-safe range.
-    if changes.get("dashboard_bg_opacity") is not None:
-        changes["dashboard_bg_opacity"] = max(4, min(24, int(changes["dashboard_bg_opacity"])))
+    # Keep background appearance controls within readability-safe ranges.
+    for pre in ("dashboard_bg", "login_bg"):
+        ok, bk, fk = f"{pre}_opacity", f"{pre}_blur", f"{pre}_fit"
+        if changes.get(ok) is not None:
+            changes[ok] = max(4, min(24, int(changes[ok])))
+        if changes.get(bk) is not None:
+            changes[bk] = max(0, min(12, int(changes[bk])))
+        if changes.get(fk) is not None and changes[fk] not in ("cover", "center"):
+            changes[fk] = "cover"
     if not changes:
         return _visuals(before)
     after = await repo.update_business(changes)

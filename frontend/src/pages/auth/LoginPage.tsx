@@ -20,6 +20,13 @@ export default function LoginPage() {
   const panelAlt =
     (locale === "en" ? visuals?.login_image_alt_en : visuals?.login_image_alt_id) ||
     "Azuris gemstone";
+  const useLoginBg = Boolean(visuals?.login_bg_enabled && visuals?.login_bg_url);
+  const loginBgImage = useLoginBg ? mediaUrl(visuals!.login_bg_url) : "";
+  const loginBgOpacity = useLoginBg
+    ? Math.min(Math.max((visuals!.login_bg_opacity ?? 10) / 100, 0.04), 0.24)
+    : 0;
+  const loginBgSize = useLoginBg && visuals!.login_bg_fit === "center" ? "contain" : "cover";
+  const loginBgBlur = useLoginBg ? Math.min(Math.max(visuals!.login_bg_blur ?? 0, 0), 12) : 0;
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
@@ -44,7 +51,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div data-testid={TEST_IDS.page.login} className="grid min-h-screen bg-background lg:grid-cols-2">
+    <div data-testid={TEST_IDS.page.login} className="relative grid min-h-screen overflow-hidden bg-background lg:grid-cols-2">
+      {useLoginBg && (
+        <div
+          aria-hidden="true"
+          data-testid="login-bg-overlay"
+          className="pointer-events-none absolute inset-0 bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(${loginBgImage})`,
+            backgroundSize: loginBgSize,
+            opacity: loginBgOpacity,
+            filter: loginBgBlur ? `blur(${loginBgBlur}px)` : undefined,
+          }}
+        />
+      )}
       <div className="relative hidden overflow-hidden bg-secondary lg:block">
         <img src={panelImage} alt={panelAlt} data-testid="login-panel-image" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
@@ -71,7 +91,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-center px-8 py-16 md:px-20">
+      <div className="relative flex flex-col justify-center px-8 py-16 md:px-20">
         <div className="mb-14 flex items-center justify-between">
           <Link
             to="/"

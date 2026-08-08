@@ -24,6 +24,8 @@ export default function AdminLayout() {
   const bgOpacity = useCustomBg
     ? Math.min(Math.max((visuals!.dashboard_bg_opacity ?? 10) / 100, 0.04), 0.24)
     : 0.1;
+  const bgSize = useCustomBg && visuals!.dashboard_bg_fit === "center" ? "contain" : "cover";
+  const bgBlur = useCustomBg ? Math.min(Math.max(visuals!.dashboard_bg_blur ?? 0, 0), 12) : 0;
 
   return (
     <div
@@ -139,11 +141,16 @@ export default function AdminLayout() {
           <div
             aria-hidden="true"
             data-testid="admin-bg-overlay"
-            className={`pointer-events-none absolute inset-0 bg-cover bg-center ${useCustomBg ? "" : "mix-blend-multiply"}`}
+            className={`pointer-events-none absolute inset-0 bg-center bg-no-repeat ${useCustomBg ? "" : "mix-blend-multiply"}`}
             style={{
               backgroundImage: `url(${bgImage})`,
+              backgroundSize: bgSize,
               opacity: bgOpacity,
-              filter: useCustomBg ? undefined : "contrast(1.25) saturate(0.9)",
+              filter: useCustomBg
+                ? bgBlur
+                  ? `blur(${bgBlur}px)`
+                  : undefined
+                : "contrast(1.25) saturate(0.9)",
             }}
           />
           <div className="relative">

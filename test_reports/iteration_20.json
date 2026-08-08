@@ -1,0 +1,41 @@
+{
+  "summary": "Extended Dashboard Background CMS + new Login Background section verified end-to-end. Backend pytest 10/10 (public exposes all 7 new fields; PUT persists dashboard_bg_fit/blur and login_bg_enabled/url/opacity/fit/blur; opacity clamped 4..24, blur 0..12, fit non-cover/center coerced to cover; CONTENT_MANAGER PUT OK; CUSTOMER_SERVICE PUT 403 / GET OK; unauth PUT 401). Frontend Playwright: /admin/visuals shows all new controls (visuals-dashboard-fit/blur/blur-value + full loginbg set incl. preview/upload/pick/url/opacity/opacity-value/fit/blur/blur-value/reset). Enabling+saving dashboard bg with fit=center blur=6 -> admin-bg-overlay style contains background-size:contain and filter:blur(6px). Enabling+saving login bg -> fresh incognito /login shows login-bg-overlay with correct URL, opacity 0.18, blur(5px); login-email/password/submit still visible. Default /login (custom bg disabled) has NO login-bg-overlay and keeps login-panel-image. Reset flows via API restore all defaults; verified via GET /api/settings/public. FREEZE preserved: certificate counter last_number=14, certificates/gemstones/customers all 0. Console errors: 0 across the flow.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_dashboard_bg.py",
+    "/app/test_reports/pytest/dashboard_bg_v20.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "settings.py admin_update_visuals loop over ('dashboard_bg','login_bg') cleanly reuses the same clamp logic for both prefixes — good DRY.",
+    "Server clamps opacity 4..24 and blur 0..12; fit whitelist to cover/center — defense-in-depth matches UI ranges.",
+    "AdminLayout overlay maps fit=center to background-size:contain and applies CSS filter blur() only when custom is enabled — verified in live DOM style.",
+    "LoginPage renders absolute login-bg-overlay only when login_bg_enabled AND login_bg_url set; form column keeps relative stacking so inputs are usable above overlay."
+  ],
+  "updated_files": ["/app/backend/tests/test_dashboard_bg.py"],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% (all critical flows)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! ; cm@azuris.local / CmDev@2026! ; cs@azuris.local / CsDev@2026!",
+  "seed_data_creation": "None. site_settings mutated transiently and restored to defaults (all dashboard_bg_* and login_bg_* at defaults). Verified via GET /api/settings/public and direct mongo query.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "verified": {
+    "public_settings_exposes_all_new_fields": true,
+    "dashboard_bg_fit_persist_and_center_maps_to_contain": true,
+    "dashboard_bg_blur_persists_and_clamps_to_12": true,
+    "login_bg_persist_and_overlay_renders_on_login": true,
+    "login_bg_opacity_clamp_99_to_24": true,
+    "login_bg_blur_clamp_high_and_low": true,
+    "invalid_fit_coerced_to_cover": true,
+    "cm_can_put": true,
+    "cs_get_ok_put_403": true,
+    "unauth_put_401": true,
+    "default_login_no_overlay_and_panel_image_intact": true,
+    "form_visible_over_overlay": true,
+    "console_errors_during_flow": 0,
+    "freeze_counter_last_number": 14,
+    "freeze_business_collections_zero": true,
+    "defaults_restored_after_tests": true
+  },
+  "context_for_next_testing_agent": "test_dashboard_bg.py now covers both dashboard_bg and login_bg with server clamp + RBAC and self-restores defaults in test_zzz_restore_defaults. UI selectors verified: visuals-dashboard-fit (native <select>), visuals-dashboard-blur (input range) with visuals-dashboard-blur-value display, and full visuals-loginbg-* set. LoginPage exposes login-bg-overlay only when both enabled=true AND url set; use a fresh incognito context to test /login rendering."
+}
