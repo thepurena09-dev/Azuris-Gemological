@@ -1,0 +1,25 @@
+{
+  "summary": "FASE 3 CRITICAL retest — all 3 fixes and both regressions PASS. Ran full regression suite /app/backend/tests/test_fase3_certificates.py: 22/22 green (was 20/22 on iter5). TestVersioningRevoke::test_reissue_creates_new_version now returns 200 with version=2 and same certificate_number; TestVersioningRevoke::test_revoke_shows_revoked now surfaces status='revoked' publicly via /api/verify. Direct DB verification confirms: (a) certificates collection has exactly the intended indexes — uq_certificate_number_version (compound unique on certificate_number+version) and uq_certificate_number_current (partial unique on {is_current:true}); the old global uq_certificate_number has been dropped. (b) Reissue produces two rows with the same certificate_number: v1 is_current=false (archived) + v2 is_current=true. (c) Counter monotonically advanced from 10 (end of iter5) to 14 with no reuse. (d) Two fresh issuances (AZR-GEM-2026-000013 and 000014) succeeded with no unique-index errors. Regression: fresh issue + manual verify returns 'valid' with gemstone identity, wrong security_code returns generic 'not_found', malformed number returns 'not_found', QR resolve is prefill-only (no gemstone/security_code leak), QR verify returns full, PDF is A6-landscape 2 pages, duplicate issue 409, RBAC (CM 403, unauth 401), audit_logs written, FASE 2 settings/legality intact.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_fase3_certificates.py",
+    "/app/test_reports/pytest/fase3_iter6.xml"
+  ],
+  "action_items": [
+    "Clean up TEST_ prefixed gemstones and their certificates created across iter5+iter6 (counter now at AZR-GEM-2026-000014). No code changes required."
+  ],
+  "critical_code_review_comments": [
+    "Index fix is correct: partial unique on {is_current:true} allows history rows to share certificate_number, and the compound (certificate_number, version) enforces per-version uniqueness. Combined they prevent both accidental duplicate current rows and duplicate versions.",
+    "Reissue path now succeeds end-to-end; the transactional/rollback concern from iter5 is no longer observable (no partial-state corruption seen). If not already, consider an integration test that injects an insert failure to prove the flip-back rollback path (nice-to-have, not blocking).",
+    "verify_manual behavior: with the fix, is_current row for revoked v2 exists and returns 'revoked' as expected. Fallback-to-latest-version logic is not needed anymore, but still worth keeping for defensive handling if a future migration ever leaves a certificate_number with no is_current row."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (22/22)", "frontend": "N/A (backend-only retest)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN); cm@azuris.local / CmDev@2026! (CONTENT_MANAGER)",
+  "seed_data_creation": "Added ~4 TEST_ gemstones and certs during this run; certificate counter advanced from 10 → 14. Includes one reissue (000012 v1+v2) and one revoke (000012 v2 status=revoked).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All FASE 3 backend flows are green. The regression suite /app/backend/tests/test_fase3_certificates.py runs in ~6s and covers gemstone CRUD, issuance (atomic sequential + 409), manual+QR verification, PDF A6-landscape/2-pages, reissue-versioning, revoke, RBAC, audit, and FASE 2 settings/legality. Do NOT reset the certificate counter. When re-running, expect 22/22 to pass; if reissue ever regresses, first check /app/backend/db/indexes.py for the two certificate indexes.",
+  "rca of the issue": "Fixed by main agent. Original iter5 RCA was correct: the global uq_certificate_number index conflicted with multi-version design. Verified via list_indexes(): the global index was dropped and replaced by uq_certificate_number_version (compound unique) + uq_certificate_number_current (partial unique on is_current:true). Reissue in services/issuance.py::reissue_certificate now flips old.is_current=false, inserts v2, and the partial index accepts it since only one is_current:true row per certificate_number exists at any moment. Public /api/verify uses is_current lookup and correctly returns v2's status ('valid' or 'revoked')."
+}

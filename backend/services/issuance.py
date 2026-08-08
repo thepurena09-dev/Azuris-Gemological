@@ -143,7 +143,9 @@ async def reissue_certificate(db, admin, cert_uuid: str, extra: dict) -> dict:
     if gem is None:
         raise HTTPException(status_code=404, detail="Gemstone not found")
 
-    # Archive current version (keep history immutable), keep certificate number.
+    # Archive current version first (partial-unique index allows only one current
+    # per number), then insert the new version. Roll back the flip on failure so a
+    # partial error never leaves the certificate without a current version.
     await repo.update_one({"uuid": old.uuid}, {"is_current": False})
 
     snapshot = _snapshot(gem, extra)
@@ -164,7 +166,11 @@ async def reissue_certificate(db, admin, cert_uuid: str, extra: dict) -> dict:
         created_by=admin.uuid,
         updated_by=admin.uuid,
     )
-    saved = await repo.create(new)
+    try:
+        saved = await repo.create(new)
+    except Exception:
+        await repo.update_one({"uuid": old.uuid}, {"is_current": True})
+        raise
 
     # QR persists across versions: repoint the existing active token to the new version.
     if old.verification_uuid:

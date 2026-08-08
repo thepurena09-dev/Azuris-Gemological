@@ -32,10 +32,18 @@ INDEX_SPECS: dict[str, list[IndexModel]] = {
     ],
     "certificates": [
         IndexModel([("uuid", ASCENDING)], unique=True, name="uq_certificate_uuid"),
+        # Versioned design: multiple docs may share certificate_number across
+        # versions. Uniqueness is per (number, version); only one is_current per number.
+        IndexModel(
+            [("certificate_number", ASCENDING), ("version", ASCENDING)],
+            unique=True,
+            name="uq_certificate_number_version",
+        ),
         IndexModel(
             [("certificate_number", ASCENDING)],
             unique=True,
-            name="uq_certificate_number",
+            partialFilterExpression={"is_current": True},
+            name="uq_certificate_number_current",
         ),
     ],
     "warranties": [
