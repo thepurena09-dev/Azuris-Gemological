@@ -1,0 +1,33 @@
+{
+  "summary": "Preview-sync verification + CMS visuals save/read e2e for Azuris Gemological Production Candidate. Frontend-only (no backend regression). All 7 checks pass. Zero console errors on homepage, /login, /admin/dashboard, /admin/visuals. Save/read roundtrip verified end-to-end (form save -> DB -> /api/settings/public reflects change on reload). Reset all 6 membership_* text fields to empty strings as instructed; homepage now shows approved i18n copy ('Keanggotaan Azuris'). Certificate counter left untouched (next: AZR-GEM-000015-26).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "checks_performed": {
+    "homepage_gold_bordered_nav": "PASS - each nav <a> has 1px solid rgba(199,163,72,0.7) border; BERANDA (active) has warmer champagne pill background",
+    "home_membership_masked": "PASS - data-testid='home-membership' shows 'Andi Pra****' + 'AZR-MEM-••••••-26' + 'Keanggotaan Azuris' copy + description + CTA (data-testid='home-membership-cta' -> /membership). No raw i18n keys.",
+    "process_image_on_homepage": "PASS - data-testid='process-image' present under 'Proses Sertifikasi'",
+    "login_panel_image_cms_driven": "PASS - data-testid='login-panel-image' src=https://images.unsplash.com/photo-1783771686998-... (non-empty, matches CMS login_image_url)",
+    "admin_login_still_works": "PASS - admin@azuris.local/AzurisDev@2026! -> redirects to /admin/legalitas",
+    "admin_dashboard_polish": "PASS - admin-logo present (34x34, smaller), marble bg visible, admin-nav-visuals present in sidebar, dash-loaded/dash-metrics/dash-verify-chart all render, 'AZR-GEM-000015-26' shown",
+    "cms_visuals_save_read_e2e": "PASS - saved membership_title_id='QA_CMS_ROUNDTRIP_2026' via [data-testid=visuals-save]; after reload form still shows saved value; public API /api/settings/public.data.membership_title_id == 'QA_CMS_ROUNDTRIP_2026'; then cleared to '' and re-verified via public API.",
+    "console_errors_all_pages": "PASS - 0 console errors across / , /login, /admin/dashboard, /admin/visuals",
+    "certificate_counter_untouched": "PASS - homepage/dashboard still shows AZR-GEM-000015-26 (last_number=14, unchanged)",
+    "final_reset_membership_fields": "PASS - all 6 fields (membership_title_id/en, membership_desc_id/en, membership_cta_id/en) confirmed empty in both admin form and /api/settings/public; homepage reflects approved i18n defaults (Keanggotaan Azuris)."
+  },
+  "test_report_links": [],
+  "action_items": [
+    "MINOR (informational only, out of this test's scope): /api/settings/public still contains leftover TEST_* values in non-membership fields: whatsapp_label='TEST_ADMINR_LABEL', membership_title_en was 'TEST_ADMINR_EN' before reset. These are residue from earlier iterations. The instruction specifically limited reset to membership_* fields (which are done). Main agent may want to sanitise whatsapp_label as well if the production candidate should not ship with TEST_ prefixes."
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN) - verified working",
+  "seed_data_creation": "None. Temporarily set membership_title_id='QA_CMS_ROUNDTRIP_2026' for roundtrip verification then cleared. No gemstone/certificate fixtures created. Counter untouched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Production Candidate preview-sync passed. Membership CMS fields left intentionally empty so homepage uses i18n defaults. If whatsapp_label='TEST_ADMINR_LABEL' still shows in preview, that is legacy residue in the settings collection — outside this task's mandate to touch. Login redirects to /admin/legalitas by default; use sidebar to reach /admin/dashboard and /admin/visuals. Visuals form testids follow the pattern 'visuals-mem-title-id' / 'visuals-mem-title-en' / 'visuals-mem-desc-id' / 'visuals-mem-desc-en' / 'visuals-mem-cta-id' / 'visuals-mem-cta-en' (NOT 'visuals-membership_title_id'). Public settings JSON at GET /api/settings/public wraps the values inside data.{...}."
+}
