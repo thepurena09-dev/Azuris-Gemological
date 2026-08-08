@@ -5,6 +5,19 @@ import pytest
 import requests
 from pymongo import MongoClient
 
+
+def J(_resp):
+    """Sprint 8 envelope compat: unwrap {success,data} -> data; pass raw through."""
+    _b = _resp.json()
+    if isinstance(_b, dict) and "success" in _b:
+        if _b.get("success") and "data" in _b:
+            return _b["data"]
+        _e = _b.get("error") or {}
+        return {"detail": _e.get("message"), **_b}
+    return _b
+
+
+
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 if not BASE_URL:
     # Fallback to reading frontend/.env for backend URL
@@ -30,7 +43,7 @@ def s():
 def logged_in(s):
     r = s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
     assert r.status_code == 200, r.text
-    return r.json()
+    return J(r)
 
 
 # ---------- login ----------
@@ -52,12 +65,12 @@ class TestLogin:
     def test_login_wrong_password(self, s):
         r = s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": "WRONG_pw_xxx!!"})
         assert r.status_code == 401
-        assert r.json().get("detail") == "Invalid credentials"
+        assert J(r).get("detail") == "Invalid credentials"
 
     def test_login_unknown_email_same_generic(self, s):
         r = s.post(f"{API}/auth/login", json={"email": "nobody@azuris.local", "password": "whatever123"})
         assert r.status_code == 401
-        assert r.json().get("detail") == "Invalid credentials"
+        assert J(r).get("detail") == "Invalid credentials"
 
 
 # ---------- /me ----------
@@ -65,7 +78,7 @@ class TestMe:
     def test_me_ok(self, s, logged_in):
         r = s.get(f"{API}/auth/me", headers={"Authorization": f"Bearer {logged_in['access_token']}"})
         assert r.status_code == 200, r.text
-        me = r.json()
+        me = J(r)
         assert me.get("email") == ADMIN_EMAIL
         assert me.get("role") == "SUPER_ADMIN"
         assert "password_hash" not in me
@@ -88,7 +101,7 @@ class TestRefreshRotation:
         time.sleep(1.1)
         r = s.post(f"{API}/auth/refresh", json={"refresh_token": old_refresh})
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         assert "access_token" in data and data["access_token"] != old_access
         assert "refresh_token" in data and data["refresh_token"] != old_refresh
 
@@ -113,7 +126,7 @@ class TestLogout:
 
     def test_logout_success_then_refresh_dead(self, s):
         # Fresh session to avoid stomping other fixtures
-        login = s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}).json()
+        login = J(s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}))
         access = login["access_token"]
         refresh = login["refresh_token"]
 
@@ -123,7 +136,7 @@ class TestLogout:
             json={"refresh_token": refresh},
         )
         assert r.status_code == 200
-        assert r.json() == {"success": True}
+        assert J(r) == {"success": True}
 
         r2 = s.post(f"{API}/auth/refresh", json={"refresh_token": refresh})
         assert r2.status_code == 401
@@ -146,11 +159,11 @@ class TestDataLayer:
         # Trigger one of each event type freshly
         s = requests.Session()
         # login_success
-        login = s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}).json()
+        login = J(s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}))
         # login_fail
         s.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": "wrong!!"})
         # token_refresh
-        ref = s.post(f"{API}/auth/refresh", json={"refresh_token": login["refresh_token"]}).json()
+        ref = J(s.post(f"{API}/auth/refresh", json={"refresh_token": login["refresh_token"]}))
         # logout
         s.post(
             f"{API}/auth/logout",

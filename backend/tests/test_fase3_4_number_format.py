@@ -20,6 +20,19 @@ import pytest
 import requests
 from dotenv import load_dotenv
 
+
+def J(_resp):
+    """Sprint 8 envelope compat: unwrap {success,data} -> data; pass raw through."""
+    _b = _resp.json()
+    if isinstance(_b, dict) and "success" in _b:
+        if _b.get("success") and "data" in _b:
+            return _b["data"]
+        _e = _b.get("error") or {}
+        return {"detail": _e.get("message"), **_b}
+    return _b
+
+
+
 load_dotenv("/app/backend/.env")
 load_dotenv("/app/frontend/.env")
 
@@ -39,7 +52,7 @@ NEW_FMT = re.compile(r"^AZR-GEM-\d{6}-\d{2}$")
 def admin_headers():
     r = requests.post(f"{API}/auth/login", json={"email": ADMIN[0], "password": ADMIN[1]}, timeout=15)
     assert r.status_code == 200, r.text
-    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+    return {"Authorization": f"Bearer {J(r)['access_token']}"}
 
 
 @pytest.fixture(scope="module")
@@ -134,7 +147,7 @@ class TestVerifyRegex:
             timeout=10,
         )
         assert r.status_code == 200, r.text
-        d = r.json()
+        d = J(r)
         assert (d.get("status") or d.get("result")) == "not_found"
         assert d.get("certificate") in (None, {})
 
@@ -145,7 +158,7 @@ class TestVerifyRegex:
             timeout=10,
         )
         assert r.status_code == 200
-        d = r.json()
+        d = J(r)
         assert (d.get("status") or d.get("result")) == "not_found"
 
 
@@ -174,7 +187,7 @@ class TestIssuanceE2E:
         }
         r = requests.post(f"{API}/admin/gemstones", json=gem, headers=admin_headers, timeout=15)
         assert r.status_code == 201, r.text
-        self.__class__.created["gemstone_uuid"] = r.json()["uuid"]
+        self.__class__.created["gemstone_uuid"] = J(r)["uuid"]
 
         r = requests.post(
             f"{API}/admin/certificates/issue",
@@ -190,7 +203,7 @@ class TestIssuanceE2E:
             timeout=20,
         )
         assert r.status_code == 201, r.text
-        d = r.json()
+        d = J(r)
         assert d["certificate_number"] == "AZR-GEM-000015-26", d
         self.__class__.created.update({
             "cert_uuid": d["certificate_uuid"],
@@ -202,7 +215,7 @@ class TestIssuanceE2E:
     def test_03_admin_list_and_detail_show_new_format(self, admin_headers):
         r = requests.get(f"{API}/admin/certificates", headers=admin_headers, timeout=15)
         assert r.status_code == 200
-        data = r.json()
+        data = J(r)
         items = data if isinstance(data, list) else (data.get("items") or [])
         nums = [it.get("certificate_number") for it in items]
         assert self.created["cert_number"] in nums, nums
@@ -251,7 +264,7 @@ class TestIssuanceE2E:
             timeout=10,
         )
         assert r.status_code == 200
-        d = r.json()
+        d = J(r)
         assert (d.get("status") or d.get("result")) == "valid"
         cert = d.get("certificate") or {}
         assert cert.get("certificate_number") == "AZR-GEM-000015-26"
@@ -273,7 +286,7 @@ class TestIssuanceE2E:
     def test_09_qr_verify_new_format(self):
         r = requests.post(f"{API}/verify/qr", json={"token": self.created["qr_token"]}, timeout=10)
         assert r.status_code == 200
-        d = r.json()
+        d = J(r)
         cert = d.get("certificate") or {}
         assert cert.get("certificate_number") == "AZR-GEM-000015-26"
 
@@ -281,7 +294,7 @@ class TestIssuanceE2E:
         # CM login (best-effort — skip if not seeded)
         cr = requests.post(f"{API}/auth/login", json={"email": CM[0], "password": CM[1]}, timeout=10)
         if cr.status_code == 200:
-            tok = cr.json()["access_token"]
+            tok = J(cr)["access_token"]
             r = requests.post(
                 f"{API}/admin/certificates/issue",
                 json={"gemstone_id": self.created["gemstone_uuid"], "object_type": "x",
@@ -310,7 +323,7 @@ class TestIssuanceE2E:
             timeout=20,
         )
         assert r.status_code in (200, 201), r.text
-        d = r.json()
+        d = J(r)
         assert d.get("certificate_number") == "AZR-GEM-000015-26", d
         new_uuid = d.get("certificate_uuid") or d.get("uuid")
         self.__class__.created["cert_uuid_v2"] = new_uuid

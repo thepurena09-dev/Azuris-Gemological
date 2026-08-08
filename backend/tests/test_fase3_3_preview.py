@@ -29,6 +29,19 @@ import pytest
 import requests
 from dotenv import load_dotenv
 
+
+def J(_resp):
+    """Sprint 8 envelope compat: unwrap {success,data} -> data; pass raw through."""
+    _b = _resp.json()
+    if isinstance(_b, dict) and "success" in _b:
+        if _b.get("success") and "data" in _b:
+            return _b["data"]
+        _e = _b.get("error") or {}
+        return {"detail": _e.get("message"), **_b}
+    return _b
+
+
+
 load_dotenv("/app/backend/.env")
 load_dotenv("/app/frontend/.env")
 
@@ -56,7 +69,7 @@ def admin_headers():
         timeout=15,
     )
     assert r.status_code == 200, r.text
-    return {"Authorization": f"Bearer {r.json()['access_token']}"}
+    return {"Authorization": f"Bearer {J(r)['access_token']}"}
 
 
 @pytest.fixture(scope="module")
@@ -78,7 +91,7 @@ class TestReadOnlyRegressions:
             timeout=10,
         )
         assert r.status_code == 200, r.text
-        d = r.json()
+        d = J(r)
         assert (d.get("status") or d.get("result")) == "not_found"
         assert d.get("certificate") in (None, {})
         blob = str(d)
@@ -88,19 +101,19 @@ class TestReadOnlyRegressions:
     def test_qr_resolve_invalid_token(self):
         r = requests.get(f"{API}/verify/qr/resolve", params={"token": "INVALIDTOKEN"}, timeout=10)
         assert r.status_code == 200
-        assert r.json().get("token_valid") is False
+        assert J(r).get("token_valid") is False
 
     def test_settings_public_whatsapp(self):
         r = requests.get(f"{API}/settings/public", timeout=10)
         assert r.status_code == 200
-        d = r.json()
+        d = J(r)
         assert d.get("whatsapp_number") == "6287812128884"
         assert d.get("whatsapp_enabled") is True
 
     def test_legality_empty(self):
         r = requests.get(f"{API}/legality", timeout=10)
         assert r.status_code == 200
-        data = r.json()
+        data = J(r)
         if isinstance(data, list):
             assert len(data) == 0
         elif isinstance(data, dict):
@@ -162,7 +175,7 @@ class TestPreviewE2E:
         }
         r = requests.post(f"{API}/admin/gemstones", json=payload, headers=admin_headers, timeout=15)
         assert r.status_code == 201, r.text
-        self.__class__.created["gemstone_uuid"] = r.json()["uuid"]
+        self.__class__.created["gemstone_uuid"] = J(r)["uuid"]
 
     def test_03_issue_certificate(self, admin_headers):
         gid = self.created["gemstone_uuid"]
@@ -180,7 +193,7 @@ class TestPreviewE2E:
             timeout=20,
         )
         assert r.status_code == 201, r.text
-        d = r.json()
+        d = J(r)
         self.__class__.created.update({
             "cert_uuid": d["certificate_uuid"],
             "cert_number": d["certificate_number"],
@@ -198,7 +211,7 @@ class TestPreviewE2E:
             timeout=10,
         )
         assert r.status_code == 200, r.text
-        d = r.json()
+        d = J(r)
         assert (d.get("status") or d.get("result")) == "valid"
         cert = d.get("certificate") or {}
         pt = cert.get("preview_token")
@@ -237,7 +250,7 @@ class TestPreviewE2E:
     def test_07_verify_qr_also_has_preview_token_no_leak(self):
         r = requests.post(f"{API}/verify/qr", json={"token": self.created["qr_token"]}, timeout=10)
         assert r.status_code == 200
-        d = r.json()
+        d = J(r)
         cert = d.get("certificate") or {}
         assert (d.get("status") or d.get("result")) == "valid"
         assert cert.get("preview_token")
@@ -268,7 +281,7 @@ class TestPreviewE2E:
             timeout=20,
         )
         assert r.status_code in (200, 201), r.text
-        d = r.json()
+        d = J(r)
         # Response contract may return the new cert doc
         new_uuid = d.get("certificate_uuid") or d.get("uuid")
         new_number = d.get("certificate_number")
@@ -295,7 +308,7 @@ class TestPreviewE2E:
             timeout=10,
         )
         assert vr.status_code == 200, vr.text
-        vd = vr.json()
+        vd = J(vr)
         assert (vd.get("status") or vd.get("result")) == "valid"
         cert = vd.get("certificate") or {}
         assert cert.get("version") == 2, cert

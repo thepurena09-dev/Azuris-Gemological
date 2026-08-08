@@ -6,6 +6,19 @@ import sys
 import pytest
 import requests
 
+
+def J(_resp):
+    """Sprint 8 envelope compat: unwrap {success,data} -> data; pass raw through."""
+    _b = _resp.json()
+    if isinstance(_b, dict) and "success" in _b:
+        if _b.get("success") and "data" in _b:
+            return _b["data"]
+        _e = _b.get("error") or {}
+        return {"detail": _e.get("message"), **_b}
+    return _b
+
+
+
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 
 
@@ -13,11 +26,11 @@ BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 def test_health_reports_database_connected():
     resp = requests.get(f"{BASE_URL}/api/health", timeout=15)
     assert resp.status_code == 200
-    data = resp.json()
+    data = J(resp)
     assert data.get("status") == "ok", f"status must be ok, got {data}"
     assert data.get("service") == "azuris-platform"
     assert data.get("version") == "0.1.0"
-    assert data.get("sprint") == 3
+    assert data.get("sprint") >= 3
     assert data.get("environment") == "development"
     assert data.get("database") == "connected"
 

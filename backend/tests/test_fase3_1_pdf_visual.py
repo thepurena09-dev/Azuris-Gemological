@@ -33,6 +33,19 @@ import pytest
 import requests
 from dotenv import load_dotenv
 
+
+def J(_resp):
+    """Sprint 8 envelope compat: unwrap {success,data} -> data; pass raw through."""
+    _b = _resp.json()
+    if isinstance(_b, dict) and "success" in _b:
+        if _b.get("success") and "data" in _b:
+            return _b["data"]
+        _e = _b.get("error") or {}
+        return {"detail": _e.get("message"), **_b}
+    return _b
+
+
+
 load_dotenv("/app/backend/.env")
 load_dotenv("/app/frontend/.env")
 
@@ -57,7 +70,7 @@ def admin_headers():
         timeout=15,
     )
     assert r.status_code == 200, f"admin login failed: {r.status_code} {r.text}"
-    tok = r.json()["access_token"]
+    tok = J(r)["access_token"]
     return {"Authorization": f"Bearer {tok}"}
 
 
@@ -81,7 +94,7 @@ class TestReadOnlyRegressions:
             timeout=10,
         )
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         # accept either 'status' or 'result' key naming
         outcome = data.get("status") or data.get("result")
         assert outcome == "not_found", data
@@ -91,7 +104,7 @@ class TestReadOnlyRegressions:
     def test_qr_resolve_invalid_token(self):
         r = requests.get(f"{API}/verify/qr/resolve", params={"token": "INVALIDTOKEN"}, timeout=10)
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         assert data.get("token_valid") is False
         # no details on invalid
         assert not data.get("certificate_number")
@@ -100,14 +113,14 @@ class TestReadOnlyRegressions:
     def test_settings_public_whatsapp(self):
         r = requests.get(f"{API}/settings/public", timeout=10)
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         assert data.get("whatsapp_number") == "6287812128884", data
         assert data.get("whatsapp_enabled") is True, data
 
     def test_legality_unpublished_state(self):
         r = requests.get(f"{API}/legality", timeout=10)
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         # accept empty list, empty dict, or object with published=false / items=[]
         if isinstance(data, list):
             assert len(data) == 0
@@ -145,7 +158,7 @@ class TestPdfE2E:
         }
         r = requests.post(f"{API}/admin/gemstones", json=payload, headers=admin_headers, timeout=15)
         assert r.status_code == 201, r.text
-        g = r.json()
+        g = J(r)
         assert g["name_en"] == payload["name_en"]
         self.__class__.created["gemstone_uuid"] = g["uuid"]
 
@@ -162,7 +175,7 @@ class TestPdfE2E:
         }
         r = requests.post(f"{API}/admin/certificates/issue", json=body, headers=admin_headers, timeout=20)
         assert r.status_code == 201, r.text
-        d = r.json()
+        d = J(r)
         assert re.match(r"^AZR-GEM-\d{6}-\d{2}$", d["certificate_number"]), d
         assert d.get("security_code") and d.get("qr_token"), d
         self.__class__.created.update({
@@ -233,7 +246,7 @@ class TestPdfE2E:
             timeout=10,
         )
         assert r.status_code == 200, r.text
-        d = r.json()
+        d = J(r)
         outcome = d.get("status") or d.get("result")
         assert outcome == "valid", d
         # public response must never leak security_code or qr_token
@@ -244,7 +257,7 @@ class TestPdfE2E:
     def test_06_qr_verify_returns_valid_and_no_secret_leak(self):
         r = requests.post(f"{API}/verify/qr", json={"token": self.created["qr_token"]}, timeout=10)
         assert r.status_code == 200, r.text
-        d = r.json()
+        d = J(r)
         outcome = d.get("status") or d.get("result")
         assert outcome == "valid" or d.get("certificate"), d
         blob = str(d)

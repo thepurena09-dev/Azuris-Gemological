@@ -8,6 +8,19 @@ import pytest
 import requests
 from pymongo import MongoClient
 
+
+def J(_resp):
+    """Sprint 8 envelope compat: unwrap {success,data} -> data; pass raw through."""
+    _b = _resp.json()
+    if isinstance(_b, dict) and "success" in _b:
+        if _b.get("success") and "data" in _b:
+            return _b["data"]
+        _e = _b.get("error") or {}
+        return {"detail": _e.get("message"), **_b}
+    return _b
+
+
+
 BASE_URL = ""
 with open("/app/frontend/.env") as f:
     for line in f:
@@ -27,7 +40,7 @@ CERT_RE = re.compile(r"^AZR-GEM-\d{6}-\d{2}$")
 def _login(email, password):
     r = requests.post(f"{API}/auth/login", json={"email": email, "password": password})
     assert r.status_code == 200, r.text
-    return r.json()["access_token"]
+    return J(r)["access_token"]
 
 
 @pytest.fixture(scope="module")
@@ -79,7 +92,7 @@ def gemstone(super_hdr):
     }
     r = requests.post(f"{API}/admin/gemstones", json=body, headers=super_hdr)
     assert r.status_code == 201, r.text
-    data = r.json()
+    data = J(r)
     assert "uuid" in data
     return data
 
@@ -102,7 +115,7 @@ class TestGemstone:
             files=files, headers=super_hdr,
         )
         assert r.status_code == 200, r.text
-        photo_id = r.json()["photo_id"]
+        photo_id = J(r)["photo_id"]
         assert photo_id
         gemstone["photo_id"] = photo_id
         # Public GET
@@ -122,7 +135,7 @@ def issued(super_hdr, gemstone):
     }
     r = requests.post(f"{API}/admin/certificates/issue", json=body, headers=super_hdr)
     assert r.status_code == 201, r.text
-    return r.json()
+    return J(r)
 
 
 class TestIssuance:
@@ -143,16 +156,16 @@ class TestIssuance:
         # Create two more gemstones and issue certs; verify strictly increasing numbers.
         nums = [issued["certificate_number"]]
         for i in range(2):
-            g = requests.post(f"{API}/admin/gemstones", json={
+            g = J(requests.post(f"{API}/admin/gemstones", json={
                 "name_id": f"TEST_Seq_{i}", "name_en": f"TEST_Seq_{i}",
                 "category": "Beryl", "gemstone_type": "Emerald", "weight_carat": 1.0,
-            }, headers=super_hdr).json()
+            }, headers=super_hdr))
             r = requests.post(f"{API}/admin/certificates/issue",
                               json={"gemstone_id": g["uuid"], "conclusion": "N"},
                               headers=super_hdr)
             assert r.status_code == 201
-            nums.append(r.json()["certificate_number"])
-        seq = [int(n.split("-")[-1]) for n in nums]
+            nums.append(J(r)["certificate_number"])
+        seq = [int(n.split("-")[-2]) for n in nums]
         assert seq == sorted(seq) and len(set(seq)) == len(seq)
         assert all(b - a >= 1 for a, b in zip(seq, seq[1:]))
 
@@ -165,7 +178,7 @@ class TestVerification:
             "security_code": issued["security_code"],
         })
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         assert data["status"] == "valid", data
         cert = data.get("certificate") or {}
         assert cert.get("certificate_number") == issued["certificate_number"]
@@ -185,7 +198,7 @@ class TestVerification:
             "security_code": "WRONG-CODE-XYZ",
         })
         assert r.status_code == 200
-        data = r.json()
+        data = J(r)
         assert data["status"] == "not_found"
         assert not data.get("certificate")
 
@@ -194,12 +207,12 @@ class TestVerification:
             "certificate_number": "not-a-cert", "security_code": "x",
         })
         assert r.status_code == 200
-        assert r.json()["status"] == "not_found"
+        assert J(r)["status"] == "not_found"
 
     def test_qr_resolve_prefill_only(self, issued):
         r = requests.get(f"{API}/verify/qr/resolve", params={"token": issued["qr_token"]})
         assert r.status_code == 200
-        data = r.json()
+        data = J(r)
         assert data.get("token_valid") is True
         assert data.get("certificate_number") == issued["certificate_number"]
         # No gemstone details in prefill
@@ -209,7 +222,7 @@ class TestVerification:
     def test_qr_verify_full(self, issued):
         r = requests.post(f"{API}/verify/qr", json={"token": issued["qr_token"]})
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         assert data["status"] == "valid"
         assert data["certificate"]["certificate_number"] == issued["certificate_number"]
         assert issued["security_code"] not in str(data)
@@ -217,7 +230,7 @@ class TestVerification:
     def test_qr_invalid_token(self):
         r = requests.get(f"{API}/verify/qr/resolve", params={"token": "bogus_token_xxx"})
         assert r.status_code == 200
-        data = r.json()
+        data = J(r)
         assert data.get("token_valid") is False or data.get("status") == "not_found"
 
 
@@ -256,7 +269,7 @@ class TestVersioningRevoke:
                           json={"gemstone_id": "ignored", "conclusion": "Reissued note"},
                           headers=super_hdr)
         assert r.status_code == 200, r.text
-        data = r.json()
+        data = J(r)
         assert data["version"] == 2
         assert data["certificate_number"] == issued["certificate_number"]
         issued["v2_uuid"] = data["certificate_uuid"]
@@ -266,7 +279,7 @@ class TestVersioningRevoke:
             "security_code": issued["security_code"],
         })
         assert v.status_code == 200
-        vd = v.json()
+        vd = J(v)
         assert vd["status"] == "valid"
         # It should reflect the current (v2) version if exposed
         cert = vd.get("certificate") or {}
@@ -282,7 +295,7 @@ class TestVersioningRevoke:
             "security_code": issued["security_code"],
         })
         assert v.status_code == 200
-        assert v.json()["status"] == "revoked"
+        assert J(v)["status"] == "revoked"
 
 
 # -------- RBAC --------
@@ -333,10 +346,10 @@ class TestFase2Regression:
     def test_settings_public(self):
         r = requests.get(f"{API}/settings/public")
         assert r.status_code == 200
-        assert r.json().get("whatsapp_number") == "6287812128884"
+        assert J(r).get("whatsapp_number") == "6287812128884"
 
     def test_legality_empty(self):
         r = requests.get(f"{API}/legality")
         assert r.status_code == 200
-        data = r.json()
+        data = J(r)
         assert data.get("published") is False
