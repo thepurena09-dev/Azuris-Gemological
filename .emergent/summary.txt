@@ -1,122 +1,126 @@
 <analysis>**original_problem_statement**: 
-# AZURIS GEMOLOGICAL — FAST-TRACK BATCH B (SPRINT 11–14 — CORE DOMAIN)
-The user mandated the continuation of FAST-TRACK execution mode for BATCH B, explicitly building the core domain modules without stopping for permission between sprints.
+# AZURIS GEMOLOGICAL — FAST-TRACK BATCH C (SPRINT 15–23 + SPRINT 23A)
+The user mandated the continuation of FAST-TRACK execution mode for BATCH C, strictly building the post-certification domain according to the master blueprint.
 Requirements:
-- **Sprint 11 (Customers)**: Implement Customer domain (create, read, update, list/search, status, contact data, consent fields, audit trail). No sensitive data in public responses.
-- **Sprint 12 (Gemstones)**: Build Gemstones based on blueprint. Reuse existing gemstone data structures. Integrate with certificate system non-breakingly. 
-- **Sprint 13 (Jewelry)**: Build Jewelry domain. Maintain relations between Jewelry, Gemstone, and Customer. No marketplace/e-commerce features (Public Catalog remains disabled).
-- **Sprint 14 (Media Domain Wiring)**: Connect media metadata/object storage to Gemstone/Jewelry using the Sprint 10 storage adapter. Maintain public/private visibility and RBAC.
+- **Sprint 15–18 (Certification)**: Validated existing features (satisfied early, no rebuild).
+- **Sprint 19 (Warranty)**: Implement Warranty module (create, reissue, expire, void) linking to gemstones.
+- **Sprint 20–22 (Ownership & Transfer)**: Implement authoritative ownership, append-only history, and transfer workflow without deleting historical data.
+- **Sprint 23A (Membership Card)**: Implement digital membership cards with member-safe verification, QR codes, and masked UI.
+- **Visual Proofs**: Mandated screenshot capture of all completed UI components on a live server.
 - **Strict DB Baseline**: The certificate counter MUST remain at  (next genuine certificate: ). Test data must be hermetic and purged after testing to restore this baseline.
 
-**User's preferred language**: **Indonesian (Bahasa Indonesia)**.
-INSTRUCT NEXT AGENT: You MUST respond to the user ENTIRELY in Indonesian (Bahasa Indonesia).
+**User's preferred language**: **Indonesian (Bahasa Indonesia)**
+INSTRUCT NEXT AGENT: You MUST automatically detect the user's primary language from their messages and INSTRUCT next agent to respond in the user's preferred language only (Bahasa Indonesia).
 
 **what currently exists?**: 
-Batch A (Sprints 8-10) and Batch B (Sprints 11-14) are fully complete and heavily tested. 
-- Backend endpoints for Customers (), Jewelry (), and Gemstones (via extended ) are fully functional with RBAC, audit logging, and response envelopes.
-- Frontend Admin pages for Customers, Gemstones, and Jewelry are built, integrated into the sidebar navigation, and tested.
-- Media wiring successfully links  to gemstones and jewelry.
-- DB baseline is completely clean (0 customers, 0 gemstones, 0 jewelry, 0 media). The counter is safely resting at .
+Batch A, Batch B, and Batch C are fully complete and regression-tested. 
+- Backend endpoints and Frontend Admin pages for Customers, Gemstones, Jewelry, Media, Warranty, Ownership, and Membership are fully functional with RBAC, audit logging, and response envelopes.
+- Public membership verification page () is live.
+- DB baseline is completely clean (0 customers, 0 gemstones, 0 jewelry, 0 media, 0 warranties, 0 ownership_transfers, 0 membership_cards). The counter is safely resting at .
 
 **Last working item**: 
-    - Last item agent was working: Batch B Full Regression testing, database baseline restoration, and PRD ledger update.
+    - Last item agent was working: Generating visual proofs (screenshots) of all Batch C UI components using mock data, followed by a final strict DB baseline restoration.
     - Status: NONE (COMPLETED)
     - Agent Testing Done: Y
-    - Which testing method agent to use? NA
+    - Which testing method agent to use? NA (Screenshot tool and backend tests were used).
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:  
 None.
 
 **In progress Task List**: 
-None. Batch B is complete.
+None. Batch C is entirely complete.
 
-**Upcoming and Future Tasks**
+**Upcoming and Future Tasks**:
     Upcoming Tasks:
-    - **BATCH C (Sprint 15–23)**: Certification / Post-Certification / Ownership [P0] *(CRITICAL: This is the next FAST-TRACK batch. Follow the PRD mapping strictly).*
-    
-    Future Tasks:
-    - **BATCH C+ (Sprint 23A)**: Membership Card [P1]
-    - **BATCH D (Sprint 24–30)**: CMS / Public / Analytics / QA / Production / Launch [P2]
+    - **BATCH D (Sprint 24–30)**: CMS / Public / Analytics / QA / Production / Launch [P0] *(CRITICAL: This is the next phase. Wait for user instruction to begin).*
 
-**Completed work in this session**
-- **Sprint 11**: Created  & . Implemented full CRUD with RBAC and consent stamping. (DONE)
-- **Sprint 12**: Extended  & created . (DONE)
-- **Sprint 13**: Created  for Jewelry & . (DONE)
-- **Sprint 14**: Updated  for media wiring (main/gallery roles) to gemstones and jewelry. (DONE)
-- Frontend i18n (, ) updated for all new admin pages. (DONE)
-- Batch B full regression via testing agent (). 32/32 tests passed. (DONE)
+**Completed work in this session**:
+- **Sprint 15-18**: Verified and audited existing certification capabilities ().
+- **Sprint 19**: Created  & . (DONE)
+- **Sprint 20-22**: Created ,  & . (DONE)
+- **Sprint 23A**: Created , , , , and . (DONE)
+- Updated frontend i18n (, ), app routing, and AdminLayout. (DONE)
+- Created and passed hermetic testing suite  (20/20 PASS). (DONE)
+- Captured required live application screenshots and fully purged the test data to restore DB baseline. (DONE)
 
-**Earlier issues found/mentioned but not fixed**
+**Earlier issues found/mentioned but not fixed**:
 None.
 
-**Known issue recurrence from previous fork**
+**Known issue recurrence from previous fork**:
   - Issue recurrence in previous fork: None
   - Recurrence count: 0
   - Status: NA
 
-**Code Architecture**
+**Code Architecture**:
 
 
-**Key Technical Concepts**
-React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Standardized API Response Envelopes, Strict RBAC (SUPER_ADMIN, ADMINISTRATOR, CONTENT_MANAGER, CUSTOMER_SERVICE).
+**Key Technical Concepts**:
+React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Standardized API Response Envelopes, Strict RBAC, Append-only History, Data Masking (Privacy-safe verifications), Opaque Tokens.
 
-**key DB schema**
-  - : , , , , , 
+**key DB schema**:
   - : , , , , 
-  - : , 
-  - : Atomic increments. MUST REMAIN untouched at  ().
+  - : , , , , 
+  - : , , , , 
+  - : Atomic increments. MUST REMAIN untouched at  (). Separate counters were created for warranties and memberships to prevent interference.
 
-**changes in tech stack**
+**changes in tech stack**:
 None.
 
-**All files of reference**
-  -  (New customer API)
-  -  (New jewelry API)
-  -  (New customer UI)
-  -  (New jewelry UI)
-  -  (New gemstone UI)
-  -  (Regression suite for Batch B)
+**All files of reference**:
+  -  (New)
+  -  (New)
+  -  (New)
+  -  (New)
+  -  (New)
+  -  (New regression suite)
+  -  (New)
+  -  (New)
+  -  (New)
+  -  (New)
+  -  (New)
   -  (Updated master roadmap tracker)
-  -  (Batch B regression pass report)
 
 **Areas that need refactoring**: 
 None. 
 
-**key api endpoints**
+**key api endpoints**:
   - 
   - 
-  -  (Media wiring)
+  - 
+  - 
 
-**Critical Info for New Agent**
-1. **FAST-TRACK RULES ARE ACTIVE**: You are strictly instructed to execute **BATCH C (Sprints 15–23: Certification / Post-Certification / Ownership)** immediately if the user prompts it. Follow PRD mapping.
-2. **DB INVARIANTS**: The database is fully cleared of test data. The certificate counter is currently resting correctly at  (Next format: ). Do not alter or seed fake data that breaks this rule. Ensure any tests run in the future are followed by a strict purge of test data to restore this baseline.
-3. **Membership Card**: Sprint 23A (Membership Card) remains in the FUTURE. The Customer foundation is built, but do not prematurely build the card features yet.
+**Critical Info for New Agent**:
+1. **BATCH C COMPLETE**: Sprints 15-23 and 23A are entirely finished. Do not rebuild them. 
+2. **DB INVARIANTS**: The database is fully cleared of test data. The certificate counter is currently resting correctly at  (Next genuine format: ). Do not alter or seed fake data that breaks this rule. Ensure any future tests use isolated fixtures and clean up properly.
+3. **NEXT BATCH**: You must await the user's explicit command to begin **BATCH D (Sprint 24-30)**. Do not start it autonomously.
+4. **LANGUAGE**: Always respond in Indonesian.
 
-**documents and test reports created in this job**
-  -  (Batch B regression testing)
-  -  (Test suite)
+**documents and test reports created in this job**:
+  - 
   -  (Ledger updated)
 
-**Last 10 User Messages and any pending HUMAN messages** 
-1. User defined FAST-TRACK BATCH B (Sprints 11-14). Demanded core domain setup for Customers, Gemstones, Jewelry, and Media Wiring without stopping. Emphasized DB baseline (counter=14).
-*(Agent successfully completed all tasks, compiled frontend, ran full Batch B regression tests, purged test data to restore DB baseline, and submitted the final batch summary).*
-*(No pending human messages. Await instruction to begin BATCH C).*
+**Last 10 User Messages and any pending HUMAN messages**:
+1. User defined FAST-TRACK BATCH C (Sprints 15-23 + 23A). 
+2. Agent successfully implemented all backend and frontend changes, verified through hermetic tests, and submitted a completion summary.
+3. User commanded the agent to take live visual proofs (screenshots) of all the newly created modules using mock data, then securely clean the DB.
+4. Agent generated test data, took 11 screenshots covering Warranty, Ownership, Membership Admin, Card Front/Back/Mobile, and Verification portals, then completely restored the database baseline (counter=14). 
+*(No pending human messages. Await instruction to begin BATCH D).*
 
-**Project Health Check:**
+**Project Health Check**:
 Healthy.
 
-**3rd Party Integrations**
+**3rd Party Integrations**:
 - JWT Auth (Internal).
 
-**Testing status**
-  - Testing agent used after significant changes: YES
+**Testing status**:
+  - Testing agent used after significant changes: NO (Used extensive backend Pytest regression suite instead)
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: 
   - Known regressions: None. 
 
-**Credentials to test flow:**
-Refer to  (e.g.,  / ). Added test roles (CONTENT_MANAGER, CUSTOMER_SERVICE) via .
+**Credentials to test flow**:
+Refer to  (e.g.,  / ).
 
-**What agent forgot to execute**
-Nothing. Batch B was executed, tested, and cleaned up flawlessly.</analysis>
+**What agent forgot to execute**:
+Nothing. Batch C was executed, tested, visual proofs generated, and cleaned up flawlessly.</analysis>
