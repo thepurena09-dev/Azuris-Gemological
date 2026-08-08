@@ -293,6 +293,11 @@ const en = {
     qrNote: "QR URL:", gemstones: "Registered Gemstones", certificates: "Certificates",
     pdf: "Download PDF", revoke: "Revoke", revoked: "Revoked.",
     noGem: "No gemstones yet.", issuedBadge: "Certified",
+    demoPreview: "Preview Sample Certificate",
+    demoTitle: "Sample Certificate (Demo Preview)",
+    demoNote: "Design preview only. Not a genuine certificate — nothing is saved, verified, or affects numbering.",
+    demoOpenPdf: "Open PDF",
+    demoClose: "Close",
   },
   adminCustomers: {
     title: "Customers", subtitle: "Manage gemstone owner records. Contact data is never shown publicly.",

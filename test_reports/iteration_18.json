@@ -1,0 +1,28 @@
+{
+  "summary": "Verified admin certificate DEMO PREVIEW feature end-to-end. 5/5 backend pytest tests pass and full frontend UI flow passes with 0 console errors. Demo endpoint is stateless — DB baseline is preserved exactly (counter last_number=14, certificates/gemstones/customers/verification_tokens all 0) after 3 demo calls + full UI flow. PDF is valid A6-landscape 2-page with 'AZR-GEM-DEMO' number and DEMO/PREVIEW/NOT VALID watermark; the genuine next number 'AZR-GEM-000015-26' is NOT present. Existing issuance endpoints (list/gemstones/issue) still respond correctly. Auth guard confirmed (401 anon).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cert_demo_preview.py",
+    "/app/test_reports/pytest/cert_demo_preview.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "certificate_pdf.py is 569 lines — approaching the 700-line split threshold but still cohesive; consider extracting _panel_* into a subpackage if it grows further.",
+    "openDemo() in CertificatesPage.tsx silently returns on !r.ok without surfacing an error to the user; consider a toast/inline error state for parity with other admin flows.",
+    "Demo iframe rendered blank in a headless Chromium screenshot capture (native PDF viewer timing); the 'Buka PDF' fallback button covers this, so no user-facing issue, but worth noting for cross-browser QA."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_cert_demo_preview.py"
+  ],
+  "success_rate": { "backend": "100%", "frontend": "100%" },
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN) — from /app/memory/test_credentials.md",
+  "seed_data_creation": "None. No mutations performed. DB snapshot before/after identical: counter last_number=14, certificates=0, gemstones=0, customers=0, verification_tokens=0.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "DB baseline is sacred: counter must remain last_number=14 and business collections at 0. The regression file /app/backend/tests/test_cert_demo_preview.py snapshots and re-verifies this. Media collection has 8 pre-existing CMS docs (leave alone). Preview URL from /app/frontend/.env."
+}

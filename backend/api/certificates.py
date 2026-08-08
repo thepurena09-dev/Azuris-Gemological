@@ -222,6 +222,47 @@ async def upload_photo(uuid: str, file: UploadFile = File(...), admin: Admin = D
 
 
 # ---------- CERTIFICATES ----------
+# DEMO PREVIEW — stateless UI-only certificate design preview. Creates NO
+# certificate/gemstone/token, never touches the counter, never reaches Mongo.
+_DEMO_SNAP = {
+    "name": "Natural Sapphire",
+    "object_type": "Loose Gemstone",
+    "species": "Corundum",
+    "variety": "Sapphire",
+    "carat": 2.35,
+    "color": "Royal Blue",
+    "clarity": "Transparent",
+    "transparency": "Transparent",
+    "cut": "Oval Mixed Cut",
+    "shape": "Oval",
+    "dimensions": "8.20 × 6.10 × 4.35 mm",
+    "origin": "Demo",
+    "treatment": "No indication / Demo",
+    "examiner": "AZURIS GEMOLOGICAL",
+    "signatory": "Azuris Gemological",
+    "conclusion": "Natural Sapphire",
+    "photo_id": None,
+}
+
+
+@admin_router.get("/certificates/demo-preview")
+async def demo_certificate_preview(admin: Admin = Depends(_ADMIN)):
+    cert = {
+        "certificate_number": "AZR-GEM-DEMO",
+        "issued_at": "",
+        "version": 1,
+        "gemstone_snapshot": dict(_DEMO_SNAP),
+        "qr_url": "DEMO - NOT VALID",
+        "website": "azuris-gemological.com",
+    }
+    pdf = build_certificate_pdf(cert, None, demo=True)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="AZR-GEM-DEMO.pdf"'},
+    )
+
+
 @admin_router.get("/certificates")
 async def list_certificates(admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
     items, _ = await CertificateRepository(db).list(page=1, page_size=100)

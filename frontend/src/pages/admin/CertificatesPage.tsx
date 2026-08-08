@@ -35,6 +35,9 @@ export default function CertificatesPage() {
   const [issueResult, setIssueResult] = React.useState<any>(null);
   const [examiner, setExaminer] = React.useState("");
   const [conclusion, setConclusion] = React.useState("");
+  const [demoOpen, setDemoOpen] = React.useState(false);
+  const [demoUrl, setDemoUrl] = React.useState<string | null>(null);
+  const [demoBusy, setDemoBusy] = React.useState(false);
 
   const load = React.useCallback(async () => {
     const [g, c] = await Promise.all([
@@ -101,6 +104,28 @@ export default function CertificatesPage() {
       const blob = await r.blob();
       window.open(URL.createObjectURL(blob), "_blank");
     });
+  };
+
+  const openDemo = async () => {
+    setDemoBusy(true);
+    try {
+      const r = await apiFetch("/api/admin/certificates/demo-preview");
+      if (!r.ok) return;
+      const blob = await r.blob();
+      if (demoUrl) URL.revokeObjectURL(demoUrl);
+      setDemoUrl(URL.createObjectURL(blob));
+      setDemoOpen(true);
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
+  const closeDemo = () => {
+    setDemoOpen(false);
+    if (demoUrl) {
+      URL.revokeObjectURL(demoUrl);
+      setDemoUrl(null);
+    }
   };
 
   const gf = (k: string, label: string, type = "text") => (
@@ -196,7 +221,18 @@ export default function CertificatesPage() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-7">
-            <h2 className="mb-4 text-xs uppercase tracking-[0.2em] text-foreground">{t("adminCert.certificates")}</h2>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-xs uppercase tracking-[0.2em] text-foreground">{t("adminCert.certificates")}</h2>
+              <button
+                data-testid="cert-demo-preview-btn"
+                onClick={openDemo}
+                disabled={demoBusy}
+                className="inline-flex items-center gap-1.5 rounded-md border border-gold px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-gold transition-colors hover:bg-gold/10 disabled:opacity-60"
+              >
+                {demoBusy ? <CircleNotch size={13} className="animate-spin" /> : <SealCheck size={13} />}
+                {t("adminCert.demoPreview")}
+              </button>
+            </div>
             {certs.length === 0 ? (
               <p className="text-sm text-muted-foreground">—</p>
             ) : (
@@ -224,6 +260,48 @@ export default function CertificatesPage() {
           </div>
         </div>
       </div>
+
+      {demoOpen && demoUrl && (
+        <div
+          data-testid="cert-demo-modal"
+          className="fixed inset-0 z-50 flex flex-col bg-navy/70 p-4 backdrop-blur-sm md:p-8"
+          onClick={closeDemo}
+        >
+          <div
+            className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-border p-5">
+              <div>
+                <h3 className="font-serif text-xl">{t("adminCert.demoTitle")}</h3>
+                <p className="mt-1 max-w-2xl text-xs text-muted-foreground">{t("adminCert.demoNote")}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  data-testid="cert-demo-open-pdf"
+                  onClick={() => window.open(demoUrl, "_blank")}
+                  className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.15em] text-royal hover:bg-royal/5"
+                >
+                  <FilePdf size={14} /> {t("adminCert.demoOpenPdf")}
+                </button>
+                <button
+                  data-testid="cert-demo-close"
+                  onClick={closeDemo}
+                  className="rounded-md bg-primary px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.15em] text-primary-foreground"
+                >
+                  {t("adminCert.demoClose")}
+                </button>
+              </div>
+            </div>
+            <iframe
+              data-testid="cert-demo-iframe"
+              title="demo-certificate"
+              src={demoUrl}
+              className="w-full flex-1 bg-neutral-100"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

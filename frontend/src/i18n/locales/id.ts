@@ -294,6 +294,11 @@ const id = {
     qrNote: "URL QR:", gemstones: "Batu Terdaftar", certificates: "Sertifikat",
     pdf: "Unduh PDF", revoke: "Cabut", revoked: "Dicabut.",
     noGem: "Belum ada batu.", issuedBadge: "Bersertifikat",
+    demoPreview: "Lihat Contoh Sertifikat",
+    demoTitle: "Contoh Sertifikat (Pratinjau Demo)",
+    demoNote: "Pratinjau desain saja. Bukan sertifikat asli — tidak tersimpan, tidak diverifikasi, dan tidak memengaruhi penomoran.",
+    demoOpenPdf: "Buka PDF",
+    demoClose: "Tutup",
   },
   adminCustomers: {
     title: "Pelanggan", subtitle: "Kelola data pemilik batu mulia. Data kontak tidak pernah ditampilkan publik.",

@@ -146,6 +146,29 @@ def _double_frame(c, x0, x1, color1=GOLD, color2=GOLD_SOFT, inset=3 * mm):
     c.restoreState()
 
 
+def _demo_stamp(c, x0, x1):
+    """Diagonal DEMO / PREVIEW / NOT VALID watermark over a panel (visible but non-obscuring)."""
+    cx = (x0 + x1) / 2
+    cy = PAGE_H / 2
+    c.saveState()
+    c.translate(cx, cy)
+    c.rotate(30)
+    # faint white halo so it stays legible on both navy and ivory panels
+    c.setFillColorRGB(1, 1, 1)
+    c.setFillAlpha(0.16)
+    c.setFont(HEADB, 27)
+    c.drawCentredString(0.6, 8 * mm - 0.6, "DEMO")
+    c.setFillColorRGB(0.83, 0.16, 0.16)
+    c.setFillAlpha(0.40)
+    c.setFont(HEADB, 27)
+    c.drawCentredString(0, 8 * mm, "DEMO")
+    c.setFont(HEADB, 13)
+    c.drawCentredString(0, 0.5 * mm, "PREVIEW")
+    c.setFont(BODYB, 9)
+    c.drawCentredString(0, -6 * mm, "NOT VALID")
+    c.restoreState()
+
+
 def _fold_guide(c):
     c.saveState()
     c.setStrokeColorRGB(0.78, 0.78, 0.78)
@@ -458,7 +481,7 @@ def _panel_gemstone(c, x0, x1, snap, photo_reader, number):
 
 
 # ---------------------------------------------------------------- build
-def build_certificate_pdf(cert: dict, photo_bytes: Optional[bytes]) -> bytes:
+def build_certificate_pdf(cert: dict, photo_bytes: Optional[bytes], demo: bool = False) -> bytes:
     snap = cert.get("gemstone_snapshot") or {}
     number = cert["certificate_number"]
     year = (cert.get("issued_at") or "")[:4] or ""
@@ -482,6 +505,9 @@ def build_certificate_pdf(cert: dict, photo_bytes: Optional[bytes]) -> bytes:
     c.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
     _panel_back(c, 0, FOLD_X, cert.get("version"), website, contact)
     _panel_front(c, FOLD_X, PAGE_W, number, year)
+    if demo:
+        _demo_stamp(c, 0, FOLD_X)
+        _demo_stamp(c, FOLD_X, PAGE_W)
     _fold_guide(c)
     c.showPage()
 
@@ -490,6 +516,9 @@ def build_certificate_pdf(cert: dict, photo_bytes: Optional[bytes]) -> bytes:
     c.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
     _panel_info(c, 0, FOLD_X, cert, snap, qr_reader)
     _panel_gemstone(c, FOLD_X, PAGE_W, snap, photo_reader, number)
+    if demo:
+        _demo_stamp(c, 0, FOLD_X)
+        _demo_stamp(c, FOLD_X, PAGE_W)
     _fold_guide(c)
     c.showPage()
 
