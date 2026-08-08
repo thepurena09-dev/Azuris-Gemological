@@ -197,7 +197,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div data-testid={TEST_IDS.admin.dashVerifyChart} className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={256}>
                 <LineChart data={data.verification.series} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E7E7E7" vertical={false} />
                   <XAxis

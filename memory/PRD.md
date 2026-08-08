@@ -40,6 +40,28 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### BATCH D — CMS / Public / Analytics / QA / Security / Performance / Production / Launch (Sprints 24–30) ✅ (2026-06, validated: testing_agent iteration_13 — new `tests/test_batch_d_analytics.py` 10/10; combined authoritative gate 84/84 = batch_d 10 + A 22 + B 32 + C 20; FE dashboard render + public smoke pass; DB baseline held)
+Fast-track, REUSE-FIRST, blueprint-first. No locked rule touched; BUSINESS_RULES_LOCK.md UNCHANGED. Certificate format LOCKED `AZR-GEM-{SEQ6}-{YY}`. DB baseline held (all business collections=0, counter.last_number=14 → next real cert `AZR-GEM-000015-26`). Full report: `/app/docs/PRODUCTION_READINESS.md`.
+
+**Sprint 24 — CMS → SATISFIED EARLY.** Legality CMS (`/admin/legalitas`, draft/publish + document upload) + Business Settings (`/admin/settings`, WhatsApp) + Media library (Sprint 10/14) + bilingual i18n content. Reuses RBAC/audit/envelope/media. No page-builder (not in PRD).
+
+**Sprint 25 — Public Website → SATISFIED EARLY.** HomePage (3-slide hero, verification, process, why, standards, legality teaser, contact), About, Contact, Legalitas, `/membership` portal. Public Catalog stays DISABLED (approved client revision — `/catalog*` redirect to `/`). Positioning = examination/identification/documentation/certification/verification (NOT marketplace).
+
+**Sprint 26 — Public Verification + Legalitas + Bilingual → SATISFIED EARLY.** Manual (cert# + security code) + QR (opaque token) + signed preview token; latest-version visibility; format `AZR-GEM-{SEQ6}-{YY}`. Legalitas clean placeholder when no document published. Full ID/EN.
+
+**Sprint 27 — Analytics + Admin Dashboard → COMPLETE (NEW).** `services/analytics.py` (`build_overview`, soft-delete-aware aggregations, privacy-safe) + `api/analytics.py` (`GET /api/admin/analytics/overview`, guard `require_permission(ANALYTICS_READ)` → SUPER_ADMIN + ADMINISTRATOR only; CONTENT_MANAGER/CUSTOMER_SERVICE → 403; unauth → 401). Returns ONLY aggregates: totals (9 collections), *_by_status (gemstones/certificates/warranties/transfers/memberships), verification {total, by_result, 14-day series}, admin_activity {by_action, 30d}, certificate_counter {last_number, next_number}. No PII, no secrets (security_code/qr_token/preview_token/password_hash), no ObjectId. FE `DashboardPage.tsx` (replaces coming-soon placeholder): metric cards + recharts verification-trend LineChart + status breakdown bars + navy next-certificate panel + refresh. i18n `admin.dash.*` (id/en). testids `admin-dashboard`/`dash-refresh`/`dash-metrics`/`dash-verify-chart`/`dash-loaded`. Router registered in `server.py`.
+
+**Sprint 28 — QA → COMPLETE.** testing_agent iteration_13: 84/84 combined (per-file, hermetic). Analytics structure/RBAC/privacy verified; FE dashboard renders (all testids, next-cert `AZR-GEM-000015-26`, i18n, 0 errors); public smoke (/ 3-slide, /legalitas placeholder, /membership, /catalog→/ redirect); public verify + membership verify return generic outcomes without leaking secrets.
+
+**Sprint 29 — Security QA + Performance QA + Responsive/A11y → COMPLETE.** JWT/Argon2id/refresh-rotation/default-deny RBAC; generic 401/403; secret/PII/ObjectId never returned; enumeration-safe verifies + per-IP rate limit (20/60s); IDOR-safe (token/RBAC-gated, public media = PUBLIC-only); safe 500 envelope + server-only stack + X-Request-ID correlation. Perf: `count_documents` + light `$group` over indexed soft-delete-aware collections, bounded 14-day series, paginated lists, raw-bytes media/PDF/preview (preview cached). Responsive breakpoints (360/390/768/1024/1440) + a11y audited via responsive classes/prior batches. Findings: no blockers.
+
+**Sprint 30 — Production Config + Launch Readiness → READY WITH BLOCKERS.** `backend/.env.example` completed with production guidance (CORS_ORIGINS, JWT_SECRET, ADMIN seed, PUBLIC_BASE_URL, STORAGE_BACKEND) — no real secrets. `docs/PRODUCTION_READINESS.md` = sprint status, QA/security/perf summary, PRE-LAUNCH CLIENT DECISIONS, blueprint audit. No deploy / DNS / genuine data / legal upload performed.
+
+**PRE-LAUNCH CLIENT DECISIONS / BLOCKERS:** (1) **PUBLIC_BASE_URL / official domain — PRODUCTION BLOCKER** (QR + membership URLs; preview-host fallback in `services/issuance.py`; do NOT guess); (2) Member ID `AZR-MEM-{SEQ6}-{YY}` — PROVISIONAL, client approval before lock; (3) Warranty No. `AZR-WTY-{SEQ6}-{YY}` — PROVISIONAL, client approval before lock; (4) genuine legality document upload (placeholder until then); (5) production secrets/config (real JWT_SECRET, MONGO_URL, explicit CORS_ORIGINS, ENVIRONMENT=production). **Production status: READY WITH BLOCKERS.**
+
+**Visual proof (screenshot_tool = public desktop pages only; auth-gated/mobile/post-interaction not capturable by this tool):** Homepage desktop ✅, Legalitas placeholder ✅, Membership portal safe-state ✅. Admin dashboard/analytics + certificate-verification-success functionally verified by testing_agent iteration_13 (real login + rendering + values), not directly screenshot-capturable via the preview tool.
+
+
 ### BATCH C — Certification / Post-Certification / Ownership + 23A Membership (Sprints 15–23 + 23A) ✅ (2026-06, validated: hermetic `tests/test_batch_c_regression.py` 20/20; A 22/22, B 32/32, FASE3 certs 22/22, FASE3.4 16/16 — all serial `-n0`; FE smoke pass)
 Fast-track, REUSE-FIRST, no locked rule touched. Certificate numbering/counter/QR/verification/security_code/owner-masking/versioning/PDF/auth UNCHANGED. BUSINESS_RULES_LOCK unchanged (no blocker). Public Catalog stays disabled. DB restored to baseline (all business collections=0, counter.last_number=14 → next real cert AZR-GEM-000015-26).
 
