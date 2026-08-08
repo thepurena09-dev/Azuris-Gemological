@@ -40,6 +40,30 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### BATCH B — Core Domain Modules (Sprints 11–14) ✅ (2026-06, validated: testing_agent iteration_12, BE 32/32 + FE 100%, 0 issues)
+Fast-track master roadmap. Executed sequentially (no approval gate inside batch). REUSE-FIRST: extended existing models/schemas/repositories/audit/RBAC; no locked rule touched; certificate numbering/counter/QR/verification/security_code/owner-masking/versioning/PDF design/auth UNCHANGED. DB stayed production-clean (customers=0, gemstones=0, jewelry=0, media=0, media_objects=0, certs=0, counter.last_number=14 → next real cert AZR-GEM-000015-26).
+
+**Sprint 11 — Customers** (`api/customers.py`, NEW; router `/api/admin/customers`)
+- Admin owner registry (foundation for Ownership → Ownership Transfer → Membership Card; those NOT built now). CRUD: GET list `?page=&page_size=&q=` (regex search full_name/email/phone), GET `/{uuid}`, POST, PUT `/{uuid}`, DELETE `/{uuid}` (soft delete). Reuses `repositories/people.CustomerRepository` + existing `Customer` model/schema.
+- **RBAC (permission-based, matches locked matrix):** read=`CUSTOMER_READ`, write=`CUSTOMER_WRITE`, delete=`CUSTOMER_DELETE`. CONTENT_MANAGER write→403; CUSTOMER_SERVICE write→OK, delete→403; unauth→401.
+- **Consent history:** `consent_at` auto-stamped once when `privacy_consent` first becomes true (create or PUT false→true). No public customer endpoint; contact/PII never public, never logged. Responses whitelist fields (no Mongo `_id`). All mutations audited (Sprint 9 correlation-aware writer).
+
+**Sprint 12 — Gemstones** (extended in `api/certificates.py`, non-breaking; reuses existing `GemstoneRepository`)
+- Enhanced `GET /api/admin/gemstones` → `?page=&page_size=&status=&q=` returning `{items,total,page,page_size}`; read guard now `GEMSTONE_READ` (CM/CS may read). Added `GET /api/admin/gemstones/{uuid}` (view now exposes `media_ids`).
+- `POST /api/admin/gemstones/{uuid}/status` — locked lifecycle transitions (draft→verified→published→transferred→published, any→archived, archived→published); invalid → 409 CONFLICT. `DELETE /api/admin/gemstones/{uuid}` — soft delete; blocked (409) if `certificate_id` set (issued certificate). Guards: status=`GEMSTONE_WRITE`, delete=`GEMSTONE_DELETE`. Audited.
+
+**Sprint 13 — Jewelry** (`api/catalog.py`, NEW; router `/api/admin/jewelry`; reuses `repositories/catalog`)
+- Data/certification domain (NOT marketplace; public catalog stays disabled). CRUD: GET list `?page=&page_size=&status=&q=`, GET `/{uuid}`, POST (validates `gemstone_ids` resolve → else 400), PUT (re-validates), `POST /{uuid}/status` (draft→published→archived, archived→published; invalid → 409), DELETE (soft).
+- **RBAC:** read=`JEWELRY_READ`, write=`JEWELRY_WRITE`, delete=`JEWELRY_DELETE`. CM write→403; CS read→200, write→403. Audited (association changes recorded).
+
+**Sprint 14 — Media Domain Wiring** (extended `api/media.py`; reuses Sprint 10 storage adapter — no second uploader)
+- Authoritative media↔entity link stays on the media doc (entity_type+entity_id); `entity.media_ids` maintained as a denormalized cache for gemstone/jewelry. Upload with entity gemstone/jewelry → appends media uuid to `media_ids`; `role=main` demotes any existing main (single-main per entity, §8). `POST /api/admin/media/{uuid}/main` promotes + demotes others. `DELETE` unlinks from `media_ids`. Public/private visibility, RBAC (ADMINISTRATOR), audit preserved.
+- **Certificate compatibility-safe:** legacy `gemstone_photos` + certificate PDF/preview UNCHANGED. Legacy `POST /api/admin/gemstones/{uuid}/photo` now PREPENDS the examination photo (keeps it at `media_ids[0]` for the certificate snapshot) while preserving Sprint-10 gallery links.
+
+**Test roles:** `scripts/seed_test_roles.py` (dev-only, refuses production) seeds `cm@azuris.local`/CmDev@2026! (CONTENT_MANAGER) + `cs@azuris.local`/CsDev@2026! (CUSTOMER_SERVICE). **Admin UI:** new pages `pages/admin/{CustomersPage,GemstonesPage,JewelryPage}.tsx` + routes (`/admin/customers|gemstones|jewelry`) + AdminLayout nav; i18n id/en (`adminCustomers`/`adminGemstones`/`adminJewelry`); testids. `tsc --noEmit` clean.
+- **Validation (testing_agent iteration_12):** BE 32/32 (`tests/test_batch_b_regression.py`, hermetic/self-cleaning), FE 100% (login + 3 pages render + create/delete). Authoritative regression gate now = Batch A (22) + Batch B (32) = **54 tests**, run per-file (`pytest tests/test_batch_a_regression.py`, `pytest tests/test_batch_b_regression.py`) — NEVER whole `tests/` (legacy FASE suites non-hermetic). Baseline restored: all business collections 0, counter.last_number=14.
+
+
 ### BATCH A — Platform Infrastructure (Sprints 8–10) ✅ (2026-06, validated: 97/97 per-suite green incl. new envelope suite 22/22)
 Fast-track master roadmap. Executed sequentially; no scope reduced, no locked rule changed, DB stayed production-clean (certs=0, gems=0, media=0, counter.last_number=14 → next real cert AZR-GEM-000015-26).
 
@@ -149,7 +173,7 @@ Fast-track master roadmap. Executed sequentially; no scope reduced, no locked ru
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next (BATCH B — Core Domain Modules, Sprints 11–14):** Customers, Gemstones, Jewelry, Media wiring per PRD. (Batch A / Sprints 8–10 = COMPLETE.)
+- **P0 next (BATCH C — Certification / Post-Certification / Ownership, Sprints 15–23) + BATCH C+ (Sprint 23A Membership Card):** Warranties, Ownership, Ownership Transfer, Membership Card, etc. (BATCH A / Sprints 8–10 = COMPLETE; **BATCH B / Sprints 11–14 = COMPLETE 2026-06**.)
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
@@ -184,7 +208,7 @@ FINAL client revision before resuming the master roadmap. NO other business rule
   **last_number=14** → next real number **AZR-GEM-000015-26**; DB clean (certs=0, gems=0).
 
 ## Roadmap / Blueprint Ledger (additive — nothing removed)
-- **Sprint status:** Sprints 1–10 = COMPLETE (RC1 FROZEN; **BATCH A / Sprints 8–10 DONE 2026-06**). **NEXT DEVELOPMENT = BATCH B — Sprint 11 (Core Domain Modules)**, then Sprints 12–14, Batch C (15–23), Batch C+ (23A Membership Card), Batch D (24–30), strictly in order (no skipping). Client revisions FASE 3.1→3.4 were interleaved and are all COMPLETE.
+- **Sprint status:** Sprints 1–14 = COMPLETE (RC1 FROZEN; **BATCH A / Sprints 8–10 DONE 2026-06**; **BATCH B / Sprints 11–14 DONE 2026-06**). **NEXT DEVELOPMENT = BATCH C — Sprints 15–23** (Certification / Post-Certification / Ownership), then Batch C+ (23A Membership Card), Batch D (24–30), strictly in order (no skipping). Client revisions FASE 3.1→3.4 were interleaved and are all COMPLETE.
 - **FASE ledger (do not merge/overwrite):** FASE 3.1 A6 Visual Refinement (COMPLETE) · FASE 3.2 Logo + Premium Redesign
   (COMPLETE) · FASE 3.3 Public Verification Front-Cover Preview (COMPLETE) · FASE 3.4 Number Format + Compact Plate (COMPLETE).
 - **Membership Card:** ORIGINAL requirement (present since Sprint 3 bootstrap list; carries VersionMixin). Original PRD had
