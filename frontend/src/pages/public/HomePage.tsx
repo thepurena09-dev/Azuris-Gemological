@@ -19,6 +19,8 @@ import {
 import type { Icon } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
+import { apiJson } from "@/lib/api";
+import { useBusiness } from "@/lib/settings";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import VerificationForm from "@/components/home/VerificationForm";
 
@@ -34,8 +36,6 @@ const GEM = {
   emerald:
     "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/8138fec9a0cfedc223c4896ebd58852071928246a1875cecdb3ce5aaebe929ad.jpeg",
 };
-
-const WHATSAPP = "6281200000000";
 
 function Eyebrow({ label }: { label: string }) {
   return (
@@ -62,7 +62,31 @@ function StonePanel({ img, name, desc }: { img: string; name: string; desc: stri
 
 export default function HomePage() {
   const { t } = useLanguage();
-  const { hash } = useLocation();
+  const { hash, search } = useLocation();
+  const { whatsappHref } = useBusiness();
+
+  const [qrToken, setQrToken] = React.useState<string | undefined>(undefined);
+  const [qrCert, setQrCert] = React.useState<string | undefined>(undefined);
+
+  // QR flow: ?qr=<opaque_token> -> resolve certificate number (prefill only, no details)
+  React.useEffect(() => {
+    const params = new URLSearchParams(search);
+    const token = params.get("qr");
+    if (!token) return;
+    setQrToken(token);
+    apiJson<{ token_valid: boolean; certificate_number?: string }>(
+      `/api/verify/qr/resolve?token=${encodeURIComponent(token)}`
+    )
+      .then((r) => {
+        if (r.token_valid && r.certificate_number) setQrCert(r.certificate_number);
+      })
+      .catch(() => undefined);
+    const el = document.getElementById("verification");
+    if (el) {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    }
+  }, [search]);
 
   React.useEffect(() => {
     if (!hash) return;
@@ -239,7 +263,7 @@ export default function HomePage() {
               AZR-GEM-YYYY-000001
             </p>
           </div>
-          <VerificationForm />
+          <VerificationForm initialCert={qrCert} qrToken={qrToken} />
         </div>
       </section>
 
@@ -363,7 +387,7 @@ export default function HomePage() {
           {t("contact.subtitle")}
         </p>
         <a
-          href={`https://wa.me/${WHATSAPP}`}
+          href={whatsappHref()}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-9 inline-flex items-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl"

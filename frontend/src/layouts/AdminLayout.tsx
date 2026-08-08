@@ -1,10 +1,17 @@
 import { Link, Outlet, NavLink } from "react-router-dom";
-import { Gauge, ArrowLeft, MagnifyingGlass, Bell } from "@phosphor-icons/react";
+import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
+import { useAuth } from "@/lib/auth";
+
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `relative flex items-center gap-3 rounded-lg px-4 py-3 text-xs uppercase tracking-[0.15em] transition-colors duration-300 ${
+    isActive ? "bg-white/5 text-gold" : "text-primary-foreground/60 hover:text-primary-foreground"
+  }`;
 
 export default function AdminLayout() {
   const { t } = useLanguage();
+  const { logout } = useAuth();
 
   return (
     <div
@@ -26,36 +33,29 @@ export default function AdminLayout() {
         </Link>
 
         <nav className="flex flex-col gap-1.5">
-          <NavLink
-            to="/admin/dashboard"
-            data-testid={TEST_IDS.admin.navDashboard}
-            className={({ isActive }) =>
-              `relative flex items-center gap-3 rounded-lg px-4 py-3 text-xs uppercase tracking-[0.15em] transition-colors duration-300 ${
-                isActive
-                  ? "bg-white/5 text-gold"
-                  : "text-primary-foreground/60 hover:text-primary-foreground"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                {isActive && (
-                  <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r bg-gold" />
-                )}
-                <Gauge size={18} weight="regular" />
-                {t("admin.dashboard")}
-              </>
-            )}
+          <NavLink to="/admin/dashboard" data-testid={TEST_IDS.admin.navDashboard} className={navLinkClass}>
+            <Gauge size={18} weight="regular" />
+            {t("admin.dashboard")}
+          </NavLink>
+          <NavLink to="/admin/legalitas" data-testid={TEST_IDS.admin.navLegality} className={navLinkClass}>
+            <Certificate size={18} weight="regular" />
+            {t("adminNav.legality")}
+          </NavLink>
+          <NavLink to="/admin/settings" data-testid={TEST_IDS.admin.navSettings} className={navLinkClass}>
+            <Gear size={18} weight="regular" />
+            {t("adminNav.settings")}
           </NavLink>
         </nav>
 
-        <Link
-          to="/"
+        <button
+          type="button"
+          data-testid={TEST_IDS.admin.logout}
+          onClick={logout}
           className="mt-auto flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.15em] text-primary-foreground/50 transition-colors hover:text-primary-foreground"
         >
-          <ArrowLeft size={16} weight="thin" />
-          {t("nav.home")}
-        </Link>
+          <SignOut size={16} weight="thin" />
+          {t("auth.logout")}
+        </button>
       </aside>
 
       {/* Workspace */}

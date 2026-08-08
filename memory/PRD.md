@@ -139,7 +139,74 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
-## Client Revision — Post RC1 (FASE 1: Public Repositioning, 2026-06, frontend-only, validated)
+## Client Revision — FASE 2 (Backend Verification + Legality CMS/Admin + WhatsApp Settings, 2026-06, validated)
+Incremental on FASE 1. Reused existing FastAPI/Mongo/Pydantic/JWT/RBAC/audit/base+domain repos. No new
+dependencies. **No auth/JWT/RBAC/certificate-counter/numbering/owner-masking/version-visibility changes.**
+No destructive migration. No fake certificate/gemstone/owner/legality data left in DB.
+
+### Verification (public, real backend)
+- `services/verification.py` + `api/verify.py`. Locked priority QR→SecurityCode→Certificate→Gemstone→Owner.
+- Manual: `POST /api/verify` requires BOTH certificate_number (regex `^AZR-GEM-\d{4}-\d{6}$`, validated FE+BE) and
+  security_code (exact match). Generic non-enumerable outcomes: valid|archived|revoked|not_found. Malformed → not_found.
+- QR: opaque token. `GET /api/verify/qr/resolve?token=` returns only `{token_valid, certificate_number?}` (prefill, NO
+  details). `POST /api/verify/qr {token}` returns permitted details only after user action. Token/Mongo IDs/security
+  codes never in URL or response. Minimal in-memory per-IP rate limiter (20/60s) as anti-enumeration.
+- Public response omits empty fields (exclude_none); owner via locked masking (`mask_owner_name`); current version only.
+- NOTE: certificate issuance is FASE 3 → no certificates exist yet, so verification legitimately returns not_found
+  (real endpoint, no fake success). Success/detail rendering is coded and ready for FASE 3 data.
+- VerificationLog written (method, result, masked cert number, sha256(ip)). Security code never returned/logged.
+
+### Legality CMS/Admin
+- `models/legality.py` (LegalityCredential + LegalityDocument), `repositories/legality.py`, `api/legality.py`.
+- Public: `GET /api/legality` (published only; drafts never public); `GET /api/legality/document/{uuid}` streams bytes
+  only when the referenced record is published. Mongo `_id` never exposed (uuid + projected views).
+- Admin `/api/admin/legality`: list/create/update/publish/unpublish/delete + document upload (multipart, base64 in
+  `legality_documents`, ≤10MB, image/* + pdf). Single published credential (publish unpublishes others).
+- Document stored in Mongo (minimal secure storage; no external object storage / no DAM). Served with original bytes
+  (aspect ratio preserved in FE viewer; image inline, pdf via iframe).
+
+### WhatsApp business settings (admin-managed, centralized)
+- `models/settings.py` (BusinessSettings single-doc `site_settings` key=business), `services/whatsapp.py`, `api/settings.py`.
+- Default/canonical number **6287812128884**. Public `GET /api/settings/public`; admin GET/PUT `/api/admin/settings`.
+- Normalization: strip spaces/dashes/parens, remove `+`, leading `0`→`62`, reject letters, len 8–15. Verified:
+  `08999888777`→`628999888777`, `+62 878-1212-8884`→`6287812128884`, letters→400.
+- FE single source of truth: `lib/settings.tsx` `BusinessSettingsProvider`/`useBusiness()` (fallback 6287812128884 in
+  ONE place). All public WhatsApp CTA (HomePage contact) read it; admin save → `refresh()` → CTA updates without code
+  change. Old placeholder `6281200000000` removed from frontend.
+
+### RBAC (server-side enforced)
+- Legality + settings mutations: `require_roles(AdminRole.ADMINISTRATOR)` (SUPER_ADMIN implicitly allowed).
+- Verified: unauth→401; CONTENT_MANAGER→403; SUPER_ADMIN→200. CONTENT_MANAGER is **view-would-be** but since no
+  field-level restriction architecture exists, it is conservatively restricted from all mutations (spec forbids letting
+  it alter critical fields when field-level perms are absent). **Proposed change (not implemented):** field-level perms
+  to let CONTENT_MANAGER edit presentation only.
+
+### Audit
+- `auth/audit.py` `write_audit_log` → existing append-only `audit_logs`. Records create/update/publish/unpublish/delete/
+  document-upload (legality) and settings update, with actor/role/before/after (no secrets). Verified entries written.
+
+### Frontend admin wiring (was placeholder before)
+- `lib/api.ts` (token fetch), `lib/auth.tsx` (AuthProvider/useAuth, real `/api/auth/login`, tokens in localStorage,
+  `/api/auth/me` bootstrap), `RequireAuth` guard in `App.tsx`. Real `LoginPage`. Admin pages
+  `pages/admin/LegalityAdminPage.tsx` (+/admin/legalitas) and `SettingsPage.tsx` (+/admin/settings). AdminLayout nav +
+  logout. i18n keys added (id/en): verifyResult, auth, adminNav, adminLegality, adminSettings.
+- **API URL fix:** `config.apiUrl()` already prepends `/api`; `lib/api.ts` uses `appConfig.api.baseUrl + path` (path
+  already includes `/api`) to avoid double `/api/api` prefix.
+
+### Validated
+- Backend curl: verify manual/qr not_found, malformed→not_found, settings default+normalization+letters-400, legality
+  draft-not-public→publish→public, RBAC 401/403/200, audit entries, cleanup.
+- Frontend screenshots: login→admin legalitas create+publish, public /legalitas shows published + "Terverifikasi dan
+  Aktif" badge, settings WA change (08999888777→628999888777) propagates to public contact CTA, manual verify real
+  call → "Tidak Dapat Diverifikasi". tsc --noEmit clean.
+
+### Known limitations / pending
+- Verification returns not_found until FASE 3 seeds real certificates (by design; no fake data).
+- Doc storage is base64-in-Mongo (fine for single legality doc); revisit if large media needed.
+- FASE 3 NOT started: certificate issuance + gemstone entry + A6 PDF booklet + QR generation.
+- **BUSINESS_RULES_LOCK.md: UNCHANGED.**
+
+
 Repositioned public site from gemstone catalog/shop → gemological certification & verification platform.
 Frontend-only; **no backend/API/DB changes**, no locked business rules changed, no destructive migration,
 no fake certificate/gemstone/legality data introduced.

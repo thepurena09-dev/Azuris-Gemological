@@ -11,7 +11,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { SAMPLE_STONES } from "@/data/sampleGemstones";
 
-const WHATSAPP_NUMBER = "6281200000000";
+const WHATSAPP_NUMBER = "6287812128884";
 
 const FILTERS = [
   { key: "all", type: null },

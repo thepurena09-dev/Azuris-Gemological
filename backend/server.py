@@ -16,6 +16,11 @@ from starlette.middleware.cors import CORSMiddleware
 
 from api.auth import router as auth_router
 from api.health import router as health_router
+from api.verify import router as verify_router
+from api.legality import public_router as legality_public_router
+from api.legality import admin_router as legality_admin_router
+from api.settings import public_router as settings_public_router
+from api.settings import admin_router as settings_admin_router
 from core.config import get_settings
 from db.init import init_database
 from db.mongodb import mongodb
@@ -37,6 +42,11 @@ app = FastAPI(
 # Public API routes are mounted under the configured prefix (K8s ingress: /api).
 app.include_router(health_router, prefix=settings.api_prefix)
 app.include_router(auth_router, prefix=settings.api_prefix)
+app.include_router(verify_router, prefix=settings.api_prefix)
+app.include_router(legality_public_router, prefix=settings.api_prefix)
+app.include_router(legality_admin_router, prefix=settings.api_prefix)
+app.include_router(settings_public_router, prefix=settings.api_prefix)
+app.include_router(settings_admin_router, prefix=settings.api_prefix)
 
 app.add_middleware(
     CORSMiddleware,

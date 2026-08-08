@@ -34,6 +34,8 @@ export const TEST_IDS = {
     legality: "page-legality",
     login: "page-login",
     adminDashboard: "page-admin-dashboard",
+    adminLegality: "page-admin-legality",
+    adminSettings: "page-admin-settings",
     notFound: "page-not-found",
   },
   common: {
@@ -73,5 +75,8 @@ export const TEST_IDS = {
     layout: "admin-layout",
     sidebar: "admin-sidebar",
     navDashboard: "admin-nav-dashboard",
+    navLegality: "admin-nav-legality",
+    navSettings: "admin-nav-settings",
+    logout: "admin-logout",
   },
 } as const;
