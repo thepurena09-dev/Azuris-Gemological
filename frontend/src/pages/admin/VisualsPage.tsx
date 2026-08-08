@@ -492,7 +492,7 @@ export default function VisualsPage() {
             <BgAppearance slug="loginbg" prefix="login_bg" v={v} set={set} disabled={readOnly || v.login_bg_enabled !== true} />
             <button
               type="button"
-              data-testid="visuals-loginbg-reset"
+              data-testid="visuals-loginbg-reset-all"
               disabled={readOnly}
               onClick={() => {
                 set("login_bg_enabled", false);
@@ -532,7 +532,7 @@ export default function VisualsPage() {
             <BgAppearance slug="homebg" prefix="home_bg" v={v} set={set} disabled={readOnly || v.home_bg_enabled !== true} />
             <button
               type="button"
-              data-testid="visuals-homebg-reset"
+              data-testid="visuals-homebg-reset-all"
               disabled={readOnly}
               onClick={() => {
                 set("home_bg_enabled", false);
