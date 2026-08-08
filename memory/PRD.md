@@ -139,6 +139,14 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
+## Client Revision — FASE 3.2 (Azuris Logo Integration + Premium Certificate Redesign, 2026-06, validated 11/11 BE + 5/5 FE)
+Visual/branding only. NO changes to issuance/verification/counter/numbering/versioning/RBAC/audit/BUSINESS_RULES_LOCK.
+- **Logo asset:** official Azuris emblem (transparent gold faceted-gem monogram) autocropped → `frontend/public/azuris-logo.png` + `backend/assets/azuris-logo.png` + faint `backend/assets/azuris-watermark.png` (alpha ~9%). Reusable `frontend/src/components/common/Logo.tsx`.
+- **Website logo integration:** Header brand, Footer, Homepage hero (slide 1), Legalitas hero, Login (left panel), Admin sidebar + topbar avatar, and favicon/apple-touch-icon (`public/index.html`). test-ids: azuris-logo, hero-logo, footer-logo, legality-logo, login-logo, admin-logo.
+- **Certificate PDF redesign (`services/certificate_pdf.py`):** richer royal-editorial palette — added Beige `#E8DFCF`, Taupe `#B8A58A`, Slate `#5C6F82` alongside Navy/Royal/Gold/Ivory. **Front cover = navy-dominant** (real gold logo, ivory AZURIS + gold GEMOLOGICAL tracked, gold divider, ivory number plate w/ gold border, tone-on-tone gold scallop pattern, double gold frame). **Back cover = ivory** with navy branded header band (logo + wordmark), gold accents, authenticity + 3-step verification, website (royal) + WhatsApp (from centralized settings), gold divider. **Inside pages** = ivory with faint logo **watermark**, **navy section bars with gold accent tab + ivory tracked labels**, **zebra soft-beige field rows**, dotted-gold leaders, gemstone photo in beige mat + gold frame (aspect preserved, collapses cleanly with fewer/no fields), gold-framed QR. Structure LOCKED & re-verified: 2 pages, 148×105mm, fold 74mm, ≥5mm safe.
+- **Validation (testing_agent iteration_8):** BE 11/11 (PDF 200/2-page A6, QR decodes to `<base>/?qr=<token>#verification`, manual+QR verify valid, security_code/qr_token never in public responses; regressions verify not_found/settings 6287812128884/legality empty). FE 5/5 logos visible, asset HTTP 200, 0 JS errors, admin redirect OK. MANDATORY cleanup ran → counter restored **last_number=14** (next real number **AZR-GEM-2026-000015**), DB clean (certs=0, gems=0). PUBLIC_BASE_URL still unset → set before first production certificate.
+
+
 ## Client Revision — FASE 3.1 (A6 Certificate Visual Refinement, 2026-06, validated 11/11 backend)
 Visual-only refinement of `services/certificate_pdf.py` (+ read-only WhatsApp fetch in the PDF endpoint of
 `api/certificates.py`). NO changes to issuance/verification/counter/numbering/versioning/RBAC/audit. BUSINESS_RULES_LOCK.md unchanged.
