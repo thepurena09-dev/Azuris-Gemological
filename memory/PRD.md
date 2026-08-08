@@ -139,6 +139,54 @@ attached to the job; executed from the detailed written direction.)
 - server.py uses deprecated `@app.on_event`; migrate to lifespan handler in a later sprint.
 - CORS credentialed wildcard to be fixed in Sprint 2/6.
 
+## Client Revision — FASE 3.4 (Certificate Number Format + Compact Number Plate, 2026-06, validated 44/44 BE + FE)
+FINAL client revision before resuming the master roadmap. NO other business rule changed.
+- **Number format (CLIENT-APPROVED business-rule revision):** OLD `AZR-GEM-YYYY-000001` (e.g. `AZR-GEM-2026-000015`)
+  → NEW **`AZR-GEM-000001-YY`** (e.g. `AZR-GEM-000015-26`). 6-digit sequence + 2-digit issue year. Reason: Client
+  Approved Certificate Number Format Revision — FASE 3.4. Recorded in `BUSINESS_RULES_LOCK.md` (Section A) with old→new
+  + reason; every other locked rule (atomic counter, non-reuse, immutability, verification priority, QR opaque token,
+  security code, versioning, owner masking, RBAC, audit, auth, visibility) UNCHANGED.
+- **Backward compatibility:** DB had 0 issued certificates at revision time → new format applies from next issuance
+  (`AZR-GEM-000015-26`). Historical numbers (if any existed) remain immutable; no auto-rename.
+- **Single source of truth updated everywhere:** `repositories/counter.py` (generator), `api/verify.py` CERT_RE
+  `^AZR-GEM-\d{6}-\d{2}$`, PDF front cover + inside spread + preview (shared `_panel_front`), admin list, manual/QR
+  verify, i18n placeholder/formatError (id+en), HomePage example chip, and display-only `sampleGemstones.ts` (disabled
+  catalog) — no old-format string remains.
+- **Compact number plate:** front-cover plate reduced (38×9.5mm, number font 8.5, label 3.4, 0.5 gold border) so the
+  serial reads like a luxury plaque and does NOT dominate `AZURIS`. Cover hierarchy preserved: Logo → AZURIS →
+  GEMOLOGICAL → Gemological Certificate → Sertifikat Gemologi → Nomor Sertifikat → Tahun Terbit. Rest of FASE 3.2/3.3
+  design untouched; 2-page A6 148×105mm + QR + preview intact.
+- **Validation (testing_agent iteration_10):** BE **44/44** (counter unit incl. 20-concurrent atomicity + 6-digit seq +
+  2-digit year; reissue keeps same number & does not re-increment; issuance/PDF/list/DB/manual+QR/preview all show
+  `AZR-GEM-000015-26` with ZERO old-format occurrences; old-format input → generic not_found; RBAC/audit/versioning +
+  FASE 3.1/3.3 regressions green). FE 100% (new placeholder, rejects old format, accepts new). New suite
+  `tests/test_fase3_4_number_format.py`; old suites updated to new format. MANDATORY cleanup → counter restored
+  **last_number=14** → next real number **AZR-GEM-000015-26**; DB clean (certs=0, gems=0).
+
+## Roadmap / Blueprint Ledger (additive — nothing removed)
+- **Sprint status:** Sprints 1–7 = COMPLETE (RC1 FROZEN). **NEXT DEVELOPMENT = Sprint 8 — Global Error Handling &
+  Response Envelope**, then Sprint 9 (Logging: audit/verification/security), Sprint 10 (Object Storage + Media Metadata),
+  … through Sprint 30, strictly in order (no skipping). Client revisions FASE 3.1→3.4 were interleaved and are all COMPLETE.
+- **FASE ledger (do not merge/overwrite):** FASE 3.1 A6 Visual Refinement (COMPLETE) · FASE 3.2 Logo + Premium Redesign
+  (COMPLETE) · FASE 3.3 Public Verification Front-Cover Preview (COMPLETE) · FASE 3.4 Number Format + Compact Plate (COMPLETE).
+- **Membership Card:** ORIGINAL requirement (present since Sprint 3 bootstrap list; carries VersionMixin). Original PRD had
+  NO dedicated sprint number → assigned additive slot **SPRINT 23A — MEMBERSHIP CARD** (FUTURE), WITHOUT shifting Sprints
+  1–30. Dependency chain to honor: Customers → Ownership → Ownership Transfer → Membership Card. Scope retained for when
+  its phase arrives: Azuris Membership Card, member identity + unique member id, linkage to customer/owner, membership
+  status, issue date, digital card, physical-card-ready design (if in original PRD), QR/verification (if in original PRD),
+  admin management, member-safe visibility, RBAC, audit history. Status: FUTURE (not built in FASE 3.4).
+- **Public Catalog:** Removed from active public scope by approved client revision (routes redirect); historical blueprint
+  RETAINED (status: CLIENT REVISED — do not re-enable). Sample catalog data kept for reference only.
+- **Blueprint Completeness Audit (all retained, statuses):** FOUNDATION (Frontend/Backend/Config/MongoDB/Models/Repository/
+  Auth/JWT/Refresh Token/Argon2id/RBAC) = COMPLETE. PLATFORM (Global Error Handling=NEXT Sprint 8, Response Envelope=NEXT,
+  Audit/Verification/Security Logging=FUTURE Sprint 9, Object Storage/Media Metadata=FUTURE Sprint 10). DOMAIN
+  (Customers/Gemstones/Jewelry/Media)=partially scaffolded/FUTURE. CERTIFICATION (Certificate Mgmt, Issuance, Versioning,
+  PDF, Physical A6, QR, Verification Token, Manual Verification, Digital Certificate, Public Verification, Certificate
+  Preview)=COMPLETE (RC1 + FASE 3.1–3.4). POST-CERTIFICATION (Warranty, Ownership, Ownership Transfer=FUTURE; Membership
+  Card=FUTURE Sprint 23A). CONTENT/PUBLIC (CMS, Homepage, Legalitas, Contact, WhatsApp handoff, ID/EN bilingual)=COMPLETE/
+  ongoing. OPERATIONS (Analytics, QA, Security QA, Performance QA, Production Config, Launch)=FUTURE. No Sprint 1–30 removed.
+
+
 ## Client Revision — FASE 3.3 (Public Verification Certificate Front-Cover Preview, 2026-06, validated 17/17 BE + FE full)
 Adds a real "Pratinjau Sertifikat" (front cover) to public verification results. Rendered from the SAME generator as the
 booklet (single source of truth). NO changes to issuance/verification logic/QR/opaque token/security code/numbering/

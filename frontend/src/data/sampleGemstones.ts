@@ -19,7 +19,7 @@ export interface SampleStone {
 export const SAMPLE_STONES: SampleStone[] = [
   {
     id: "blue-sapphire",
-    certNumber: "AZR-GEM-2026-000101",
+    certNumber: "AZR-GEM-000101-26",
     image:
       "https://images.unsplash.com/photo-1605821771565-35e0d046a2fb?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
     type: "sapphire",
@@ -31,7 +31,7 @@ export const SAMPLE_STONES: SampleStone[] = [
   },
   {
     id: "ruby",
-    certNumber: "AZR-GEM-2026-000102",
+    certNumber: "AZR-GEM-000102-26",
     image:
       "https://images.unsplash.com/photo-1705575490492-4e91fd97bbb4?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
     type: "ruby",
@@ -43,7 +43,7 @@ export const SAMPLE_STONES: SampleStone[] = [
   },
   {
     id: "emerald",
-    certNumber: "AZR-GEM-2026-000103",
+    certNumber: "AZR-GEM-000103-26",
     image:
       "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/8138fec9a0cfedc223c4896ebd58852071928246a1875cecdb3ce5aaebe929ad.jpeg",
     type: "emerald",
@@ -55,7 +55,7 @@ export const SAMPLE_STONES: SampleStone[] = [
   },
   {
     id: "diamond",
-    certNumber: "AZR-GEM-2026-000104",
+    certNumber: "AZR-GEM-000104-26",
     image:
       "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
     type: "diamond",
@@ -67,7 +67,7 @@ export const SAMPLE_STONES: SampleStone[] = [
   },
   {
     id: "yellow-sapphire",
-    certNumber: "AZR-GEM-2026-000105",
+    certNumber: "AZR-GEM-000105-26",
     image:
       "https://images.unsplash.com/photo-1705575472028-d92d0bba6608?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
     type: "sapphire",
@@ -79,7 +79,7 @@ export const SAMPLE_STONES: SampleStone[] = [
   },
   {
     id: "pink-sapphire",
-    certNumber: "AZR-GEM-2026-000106",
+    certNumber: "AZR-GEM-000106-26",
     image:
       "https://images.unsplash.com/photo-1705575463786-474f9271b1e1?crop=entropy&cs=srgb&fm=jpg&q=85&w=800",
     type: "sapphire",
