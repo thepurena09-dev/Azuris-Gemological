@@ -6,6 +6,7 @@ import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
 import { useBusiness } from "@/lib/settings";
+import { mediaUrl } from "@/lib/api";
 
 const PANEL_IMAGE =
   "https://images.unsplash.com/photo-1600287648597-d81be16a5a16?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400";
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const { login, admin } = useAuth();
   const { visuals } = useBusiness();
   const navigate = useNavigate();
-  const panelImage = visuals?.login_image_url || PANEL_IMAGE;
+  const panelImage = mediaUrl(visuals?.login_image_url) || PANEL_IMAGE;
   const panelAlt =
     (locale === "en" ? visuals?.login_image_alt_en : visuals?.login_image_alt_id) ||
     "Azuris gemstone";

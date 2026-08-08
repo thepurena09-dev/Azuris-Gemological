@@ -21,6 +21,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { apiJson } from "@/lib/api";
 import { useBusiness } from "@/lib/settings";
+import { mediaUrl } from "@/lib/api";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import VerificationForm from "@/components/home/VerificationForm";
 import { MembershipCardVisual } from "@/components/membership/MembershipCardVisual";
@@ -67,7 +68,7 @@ export default function HomePage() {
   const { whatsappHref, visuals } = useBusiness();
 
   const showProcessImg = visuals?.process_image_show !== false && !!visuals?.process_image_url;
-  const processImg = visuals?.process_image_url;
+  const processImg = mediaUrl(visuals?.process_image_url);
   const processAlt =
     (locale === "en" ? visuals?.process_image_alt_en : visuals?.process_image_alt_id) ||
     t("process.title");

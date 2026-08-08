@@ -17,6 +17,13 @@ export function clearTokens(): void {
   localStorage.removeItem(REFRESH);
 }
 
+/** Resolve a stored image reference to a loadable URL (absolute passthrough;
+ * relative `/api/media/..` gets the backend base prefixed). */
+export function mediaUrl(url?: string | null): string {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${API_BASE}${url}`;
+}
+
 export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
   const headers = new Headers(opts.headers || {});
   const tok = getToken();

@@ -1,25 +1,43 @@
 import * as React from "react";
-import { CircleNotch, Image as ImageIcon, IdentificationCard, SignIn } from "@phosphor-icons/react";
+import {
+  CircleNotch,
+  Image as ImageIcon,
+  IdentificationCard,
+  SignIn,
+  UploadSimple,
+  ImagesSquare,
+  ArrowCounterClockwise,
+  X,
+} from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
-import { apiJson } from "@/lib/api";
+import { apiJson, mediaUrl } from "@/lib/api";
 import { useBusiness } from "@/lib/settings";
 import { MembershipCardVisual } from "@/components/membership/MembershipCardVisual";
 
 type Visuals = Record<string, any>;
+interface MediaItem {
+  uuid: string;
+  url: string;
+  alt_text_id?: string | null;
+  alt_text_en?: string | null;
+}
+
+const LOGIN_DEFAULT =
+  "https://images.unsplash.com/photo-1783771686998-0af6c0efec6e?crop=entropy&cs=srgb&fm=jpg&q=90&w=1400";
+const PROCESS_DEFAULT =
+  "https://images.unsplash.com/photo-1628058494685-6c2f796ac24a?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200";
+const FALLBACK =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='150'><rect width='100%' height='100%' fill='%23eee'/><text x='50%' y='50%' fill='%23999' font-size='12' text-anchor='middle' dominant-baseline='middle'>image</text></svg>"
+  );
 
 function Field({
-  label,
-  value,
-  onChange,
-  testid,
-  placeholder,
+  label, value, onChange, testid, placeholder, disabled,
 }: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  testid: string;
-  placeholder?: string;
+  label: string; value: string; onChange: (v: string) => void; testid: string;
+  placeholder?: string; disabled?: boolean;
 }) {
   return (
     <div>
@@ -30,31 +48,165 @@ function Field({
         data-testid={testid}
         value={value}
         placeholder={placeholder}
+        disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-gold"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-gold disabled:opacity-60"
       />
     </div>
   );
 }
 
-function SectionCard({
-  icon,
-  title,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}) {
+function SectionCard({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       <div className="mb-5 flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/5 text-primary">
-          {icon}
-        </span>
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/5 text-primary">{icon}</span>
         <h2 className="text-[0.66rem] uppercase tracking-[0.22em] text-gold">{title}</h2>
       </div>
       {children}
+    </div>
+  );
+}
+
+/** Visual image control: preview + Upload + Choose-from-Media + Reset + advanced URL. */
+function ImageControl({
+  slug, value, defaultUrl, onChange, onUpload, onOpenPicker, disabled,
+}: {
+  slug: string; value: string; defaultUrl: string;
+  onChange: (v: string) => void;
+  onUpload: (file: File) => Promise<void>;
+  onOpenPicker: () => void;
+  disabled: boolean;
+}) {
+  const { t } = useLanguage();
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = React.useState(false);
+  const [err, setErr] = React.useState<string | null>(null);
+
+  const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setErr(t("adminVisuals.invalidType"));
+      return;
+    }
+    setErr(null);
+    setUploading(true);
+    try {
+      await onUpload(file);
+    } catch {
+      setErr(t("adminVisuals.uploadFailed"));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
+      <div className="overflow-hidden rounded-xl border border-border bg-secondary">
+        <img
+          data-testid={`visuals-${slug}-preview`}
+          src={mediaUrl(value) || FALLBACK}
+          alt="preview"
+          onError={(e) => ((e.target as HTMLImageElement).src = FALLBACK)}
+          className="aspect-[4/3] h-full w-full object-cover"
+        />
+      </div>
+      <div className="space-y-3">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          data-testid={`visuals-${slug}-file`}
+          onChange={pick}
+        />
+        <div className="flex flex-wrap gap-2.5">
+          <button
+            type="button"
+            data-testid={`visuals-${slug}-upload`}
+            disabled={disabled || uploading}
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-primary-foreground transition-shadow hover:shadow-lg disabled:opacity-60"
+          >
+            {uploading ? <CircleNotch size={14} className="animate-spin" /> : <UploadSimple size={14} />}
+            {uploading ? t("adminVisuals.uploading") : t("adminVisuals.uploadBtn")}
+          </button>
+          <button
+            type="button"
+            data-testid={`visuals-${slug}-pick`}
+            disabled={disabled}
+            onClick={onOpenPicker}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-foreground transition-colors hover:border-gold disabled:opacity-60"
+          >
+            <ImagesSquare size={14} />
+            {t("adminVisuals.pickBtn")}
+          </button>
+          <button
+            type="button"
+            data-testid={`visuals-${slug}-reset`}
+            disabled={disabled}
+            onClick={() => onChange(defaultUrl)}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-[0.64rem] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-gold disabled:opacity-60"
+          >
+            <ArrowCounterClockwise size={14} />
+            {t("adminVisuals.reset")}
+          </button>
+        </div>
+        {err && <p className="text-sm text-red-600">{err}</p>}
+        <Field
+          label={t("adminVisuals.advancedUrl")}
+          value={value || ""}
+          onChange={onChange}
+          testid={`visuals-${slug}-url`}
+          disabled={disabled}
+        />
+      </div>
+    </div>
+  );
+}
+
+function MediaPicker({
+  items, onSelect, onClose,
+}: {
+  items: MediaItem[]; onSelect: (url: string) => void; onClose: () => void;
+}) {
+  const { t } = useLanguage();
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" data-testid="visuals-media-picker">
+      <div className="max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h3 className="text-[0.7rem] uppercase tracking-[0.2em] text-gold">{t("adminVisuals.pickerTitle")}</h3>
+          <button type="button" data-testid="visuals-picker-close" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="max-h-[64vh] overflow-y-auto p-6">
+          {items.length === 0 ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">{t("adminVisuals.pickerEmpty")}</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {items.map((m) => (
+                <button
+                  key={m.uuid}
+                  type="button"
+                  data-testid="visuals-picker-item"
+                  onClick={() => onSelect(m.url)}
+                  className="group overflow-hidden rounded-xl border border-border transition-colors hover:border-gold"
+                >
+                  <img
+                    src={mediaUrl(m.url)}
+                    alt={m.alt_text_id || "media"}
+                    onError={(e) => ((e.target as HTMLImageElement).src = FALLBACK)}
+                    className="aspect-[4/3] w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -66,14 +218,40 @@ export default function VisualsPage() {
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<string | null>(null);
   const [readOnly, setReadOnly] = React.useState(false);
+  const [picker, setPicker] = React.useState<{ slot: "login" | "process" } | null>(null);
+  const [media, setMedia] = React.useState<MediaItem[]>([]);
 
   React.useEffect(() => {
-    apiJson<Visuals>("/api/admin/settings/visuals")
-      .then(setV)
-      .catch(() => setReadOnly(true));
+    apiJson<Visuals>("/api/admin/settings/visuals").then(setV).catch(() => setReadOnly(true));
   }, []);
 
   const set = (k: string, val: any) => setV((s) => ({ ...(s || {}), [k]: val }));
+
+  const uploadFor = (key: string) => async (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await apiJson<{ uuid: string; url: string }>("/api/admin/settings/visuals/media", {
+      method: "POST",
+      body: fd,
+    });
+    set(key, res.url);
+  };
+
+  const openPicker = async (slot: "login" | "process") => {
+    try {
+      const data = await apiJson<{ items: MediaItem[] }>("/api/admin/settings/visuals/media");
+      setMedia(data.items || []);
+      setPicker({ slot });
+    } catch {
+      setReadOnly(true);
+    }
+  };
+
+  const applyPicked = (url: string) => {
+    if (!picker) return;
+    set(picker.slot === "login" ? "login_image_url" : "process_image_url", url);
+    setPicker(null);
+  };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,12 +275,8 @@ export default function VisualsPage() {
 
   return (
     <section data-testid={TEST_IDS.page.adminVisuals} className="px-6 py-10 md:px-10 md:py-12">
-      <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted-foreground">
-        {t("admin.title")}
-      </p>
-      <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight">
-        {t("adminVisuals.title")}
-      </h1>
+      <p className="text-[0.7rem] uppercase tracking-[0.3em] text-muted-foreground">{t("admin.title")}</p>
+      <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight">{t("adminVisuals.title")}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{t("adminVisuals.subtitle")}</p>
 
       {readOnly && (
@@ -117,61 +291,56 @@ export default function VisualsPage() {
         </div>
       ) : (
         <form onSubmit={save} className="mt-8 space-y-6">
-          {/* Login image */}
           <SectionCard icon={<SignIn size={18} />} title={t("adminVisuals.loginSection")}>
-            <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
-              <div className="space-y-4">
-                <Field label={t("adminVisuals.imageUrl")} value={v.login_image_url || ""} onChange={(x) => set("login_image_url", x)} testid="visuals-login-url" />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={t("adminVisuals.altId")} value={v.login_image_alt_id || ""} onChange={(x) => set("login_image_alt_id", x)} testid="visuals-login-alt-id" />
-                  <Field label={t("adminVisuals.altEn")} value={v.login_image_alt_en || ""} onChange={(x) => set("login_image_alt_en", x)} testid="visuals-login-alt-en" />
-                </div>
-              </div>
-              <div className="overflow-hidden rounded-xl border border-border bg-secondary">
-                {v.login_image_url ? (
-                  <img data-testid="visuals-login-preview" src={v.login_image_url} alt="preview" className="aspect-[4/3] h-full w-full object-cover" />
-                ) : null}
-              </div>
+            <ImageControl
+              slug="login"
+              value={v.login_image_url || ""}
+              defaultUrl={LOGIN_DEFAULT}
+              onChange={(x) => set("login_image_url", x)}
+              onUpload={uploadFor("login_image_url")}
+              onOpenPicker={() => openPicker("login")}
+              disabled={readOnly}
+            />
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label={t("adminVisuals.altId")} value={v.login_image_alt_id || ""} onChange={(x) => set("login_image_alt_id", x)} testid="visuals-login-alt-id" disabled={readOnly} />
+              <Field label={t("adminVisuals.altEn")} value={v.login_image_alt_en || ""} onChange={(x) => set("login_image_alt_en", x)} testid="visuals-login-alt-en" disabled={readOnly} />
             </div>
           </SectionCard>
 
-          {/* Process image */}
           <SectionCard icon={<ImageIcon size={18} />} title={t("adminVisuals.processSection")}>
             <label className="mb-4 flex items-center gap-2 text-sm text-foreground">
-              <input data-testid="visuals-process-show" type="checkbox" checked={v.process_image_show !== false} onChange={(e) => set("process_image_show", e.target.checked)} />
+              <input data-testid="visuals-process-show" type="checkbox" checked={v.process_image_show !== false} disabled={readOnly} onChange={(e) => set("process_image_show", e.target.checked)} />
               {t("adminVisuals.show")}
             </label>
-            <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
-              <div className="space-y-4">
-                <Field label={t("adminVisuals.imageUrl")} value={v.process_image_url || ""} onChange={(x) => set("process_image_url", x)} testid="visuals-process-url" />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={t("adminVisuals.altId")} value={v.process_image_alt_id || ""} onChange={(x) => set("process_image_alt_id", x)} testid="visuals-process-alt-id" />
-                  <Field label={t("adminVisuals.altEn")} value={v.process_image_alt_en || ""} onChange={(x) => set("process_image_alt_en", x)} testid="visuals-process-alt-en" />
-                </div>
-              </div>
-              <div className="overflow-hidden rounded-xl border border-border bg-secondary">
-                {v.process_image_url ? (
-                  <img data-testid="visuals-process-preview" src={v.process_image_url} alt="preview" className="aspect-[4/3] h-full w-full object-cover" />
-                ) : null}
-              </div>
+            <ImageControl
+              slug="process"
+              value={v.process_image_url || ""}
+              defaultUrl={PROCESS_DEFAULT}
+              onChange={(x) => set("process_image_url", x)}
+              onUpload={uploadFor("process_image_url")}
+              onOpenPicker={() => openPicker("process")}
+              disabled={readOnly}
+            />
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label={t("adminVisuals.altId")} value={v.process_image_alt_id || ""} onChange={(x) => set("process_image_alt_id", x)} testid="visuals-process-alt-id" disabled={readOnly} />
+              <Field label={t("adminVisuals.altEn")} value={v.process_image_alt_en || ""} onChange={(x) => set("process_image_alt_en", x)} testid="visuals-process-alt-en" disabled={readOnly} />
             </div>
           </SectionCard>
 
-          {/* Homepage membership */}
           <SectionCard icon={<IdentificationCard size={18} />} title={t("adminVisuals.membershipSection")}>
             <label className="mb-4 flex items-center gap-2 text-sm text-foreground">
-              <input data-testid="visuals-membership-show" type="checkbox" checked={v.membership_show !== false} onChange={(e) => set("membership_show", e.target.checked)} />
+              <input data-testid="visuals-membership-show" type="checkbox" checked={v.membership_show !== false} disabled={readOnly} onChange={(e) => set("membership_show", e.target.checked)} />
               {t("adminVisuals.show")}
             </label>
             <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t("adminVisuals.titleId")} value={v.membership_title_id || ""} onChange={(x) => set("membership_title_id", x)} testid="visuals-mem-title-id" />
-                <Field label={t("adminVisuals.titleEn")} value={v.membership_title_en || ""} onChange={(x) => set("membership_title_en", x)} testid="visuals-mem-title-en" />
-                <Field label={t("adminVisuals.descId")} value={v.membership_desc_id || ""} onChange={(x) => set("membership_desc_id", x)} testid="visuals-mem-desc-id" />
-                <Field label={t("adminVisuals.descEn")} value={v.membership_desc_en || ""} onChange={(x) => set("membership_desc_en", x)} testid="visuals-mem-desc-en" />
-                <Field label={t("adminVisuals.ctaId")} value={v.membership_cta_id || ""} onChange={(x) => set("membership_cta_id", x)} testid="visuals-mem-cta-id" />
-                <Field label={t("adminVisuals.ctaEn")} value={v.membership_cta_en || ""} onChange={(x) => set("membership_cta_en", x)} testid="visuals-mem-cta-en" />
-                <Field label={t("adminVisuals.link")} value={v.membership_link || ""} onChange={(x) => set("membership_link", x)} testid="visuals-mem-link" />
+                <Field label={t("adminVisuals.titleId")} value={v.membership_title_id || ""} onChange={(x) => set("membership_title_id", x)} testid="visuals-mem-title-id" disabled={readOnly} />
+                <Field label={t("adminVisuals.titleEn")} value={v.membership_title_en || ""} onChange={(x) => set("membership_title_en", x)} testid="visuals-mem-title-en" disabled={readOnly} />
+                <Field label={t("adminVisuals.descId")} value={v.membership_desc_id || ""} onChange={(x) => set("membership_desc_id", x)} testid="visuals-mem-desc-id" disabled={readOnly} />
+                <Field label={t("adminVisuals.descEn")} value={v.membership_desc_en || ""} onChange={(x) => set("membership_desc_en", x)} testid="visuals-mem-desc-en" disabled={readOnly} />
+                <Field label={t("adminVisuals.ctaId")} value={v.membership_cta_id || ""} onChange={(x) => set("membership_cta_id", x)} testid="visuals-mem-cta-id" disabled={readOnly} />
+                <Field label={t("adminVisuals.ctaEn")} value={v.membership_cta_en || ""} onChange={(x) => set("membership_cta_en", x)} testid="visuals-mem-cta-en" disabled={readOnly} />
+                <Field label={t("adminVisuals.link")} value={v.membership_link || ""} onChange={(x) => set("membership_link", x)} testid="visuals-mem-link" disabled={readOnly} />
               </div>
               <div>
                 <MembershipCardVisual side="front" cardNumber="AZR-MEM-••••••-26" memberName="Andi Pra****" memberSince="2026" status="active" />
@@ -193,6 +362,8 @@ export default function VisualsPage() {
           </div>
         </form>
       )}
+
+      {picker && <MediaPicker items={media} onSelect={applyPicked} onClose={() => setPicker(null)} />}
     </section>
   );
 }

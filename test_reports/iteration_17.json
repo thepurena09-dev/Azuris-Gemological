@@ -1,0 +1,45 @@
+{
+  "summary": "POST-BATCH D CMS Visual Image Picker/Upload feature — full backend + frontend targeted testing. 16/16 pytest tests pass covering LIST/UPLOAD endpoint RBAC (SUPER_ADMIN/ADMINISTRATOR/CONTENT_MANAGER upload => 201, CUSTOMER_SERVICE => 403, unauth => 401), non-image => 400, GET /api/media/{uuid} servable. Frontend /admin/visuals: all 17 required testids present (Upload/Pick/Reset/File/URL/Preview x2 + save + alt fields). Upload flow: preview updates to /api/media/{uuid} before Save. Picker modal opens, lists uploaded items, click sets preview & closes. Reset restores approved default URL. Save persists to DB; /login left panel (login-panel-image) shows uploaded /api/media/... after propagation (verified). CS backend 403 on upload verified via direct API call. MANDATORY CLEANUP DONE: all 2 CMS media uploads deleted (media count=0), login/process image URLs reset to approved defaults. Certificate counter unchanged: last_number=14, next=AZR-GEM-000015-26.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/visuals (CUSTOMER_SERVICE)", "issues": ["MINOR UX gap: for CS role, GET /visuals returns 200 (CMS_READ), so the frontend does not preemptively show the read-only banner nor disable the Upload/Save buttons. Only after a failed PUT/POST does readOnly flip on. Backend correctly returns 403 so data integrity is safe. Consider hydrating admin.role and disabling controls when the current role lacks CMS_WRITE for a clearer UX. Not a blocker."]}
+    ]
+  },
+  "checks_performed": {
+    "backend_list_rbac": "PASS - unauth 401; SUPER_ADMIN/ADMINISTRATOR/CONTENT_MANAGER/CUSTOMER_SERVICE all 200",
+    "backend_upload_rbac": "PASS - unauth 401; CS 403; SA/ADMINR/CM 201 with {uuid,url}",
+    "backend_non_image_400": "PASS - text/plain rejected",
+    "backend_media_servable": "PASS - GET /api/media/{uuid} returns 200 image/*",
+    "frontend_testids_present": "PASS - all visuals-{login,process}-{upload,pick,reset,file,url,preview}, save, alt-id/en found",
+    "frontend_upload_flow": "PASS - preview src changed from unsplash to https://.../api/media/{uuid} immediately",
+    "frontend_picker_flow": "PASS - modal opens (visuals-media-picker), items rendered, click sets preview & closes",
+    "frontend_reset_flow": "PASS - login-url field restored to approved default (photo-1783771686998)",
+    "frontend_save_and_propagation": "PASS - saved uploaded /api/media/... value; /login login-panel-image src resolves to backend + /api/media/{uuid}",
+    "cs_backend_403_on_upload": "PASS - direct fetch with CS token returns 403",
+    "cleanup_media_zero": "PASS - 2 media deleted, remaining = 0",
+    "cleanup_visuals_reset": "PASS - login_image_url + process_image_url reset to approved defaults",
+    "counter_untouched": "PASS - last_number=14, next=AZR-GEM-000015-26"
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cms_visuals_media.py",
+    "/app/test_reports/pytest/pytest_cms_visuals_media.xml"
+  ],
+  "action_items": [
+    "OPTIONAL UX polish: on /admin/visuals, when the logged-in admin lacks CMS_WRITE (e.g. CUSTOMER_SERVICE), preemptively set readOnly=true and disable Upload/Save buttons rather than relying on the first PUT/POST 403. This would surface the read-only banner immediately per the review_request expectation."
+  ],
+  "critical_code_review_comments": [
+    "settings.py POST /visuals/media rejects non-image content_type correctly and reuses store_media with entity_type=CMS + entity_id='site' — clean.",
+    "Audit log written with entity_type='cms_media' — good.",
+    "VisualsPage.tsx: 370 lines, still under 700 line threshold; ImageControl + MediaPicker are reusable components. mediaUrl() helper correctly resolves relative /api/media URLs to REACT_APP_BACKEND_URL."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "100% core flows + 1 minor UX gap"},
+  "test_credentials": "admin@azuris.local/AzurisDev@2026! + adminr/cm/cs test roles verified working",
+  "seed_data_creation": "Temporarily uploaded 3 tiny PNGs during backend tests (1 SA + 1 ADMINR + 1 CM); auto-deleted by test_zz_cleanup_delete_uploaded. Frontend flow uploaded 2 additional PNGs (login upload + picker source); deleted via API cleanup step. Final media collection count = 0.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "CMS Visual Media Picker feature fully working. Endpoints: GET/POST /api/admin/settings/visuals/media (CMS_READ/CMS_WRITE). Frontend testids follow visuals-{login|process}-{upload|pick|reset|file|url|preview}, modal=visuals-media-picker, items=visuals-picker-item. mediaUrl() resolves relative /api/media/... to backend base. If retesting E2E: login-panel-image is on /login (must be unauthenticated — clear localStorage.azuris_access/refresh first). process-image is far down the homepage under 'Proses Sertifikasi' section; scroll ~3000px. Certificate counter must stay last_number=14."
+}

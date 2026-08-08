@@ -7,16 +7,23 @@ CMS_WRITE — so CONTENT_MANAGER may manage presentation visuals; CUSTOMER_SERVI
 read-only). Single source of truth. All mutations audited.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi.responses import Response as _Response  # noqa: F401 (kept for parity)
 from pydantic import BaseModel
 
 from auth.audit import write_audit_log
 from auth.rbac import Permission, require_permission, require_roles
 from db.mongodb import get_database
-from models.enums import AdminRole, AuditAction
+from errors import ApiError, ErrorCode
+from models.enums import AdminRole, AuditAction, MediaEntityType, MediaRole, MediaVisibility
 from models.people import Admin
 from repositories.legality import SettingsRepository
+from repositories.media import MediaRepository
+from services.media import MAX_MEDIA_BYTES, store_media
 from services.whatsapp import InvalidWhatsAppNumber, normalize_whatsapp
+
+# CMS visual images: images only (no PDF), reuse Sprint 10 storage pipeline.
+_CMS_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 public_router = APIRouter(prefix="/settings", tags=["settings"])
 admin_router = APIRouter(prefix="/admin/settings", tags=["settings-admin"])
@@ -147,3 +154,70 @@ async def admin_update_visuals(
         before=_visuals(before), after=_visuals(after),
     )
     return _visuals(after)
+
+
+# ---------- CMS visual images (reuses Sprint 10 media/storage; CMS-scoped) ----------
+@admin_router.get("/visuals/media")
+async def admin_list_visual_media(
+    admin: Admin = Depends(_CMS_READ), db=Depends(get_database)
+):
+    """List CMS-scoped images for the visual picker (reuses `media` collection)."""
+    items, _ = await MediaRepository(db).list(
+        {"entity_type": MediaEntityType.CMS.value}, page=1, page_size=200
+    )
+    return {
+        "items": [
+            {
+                "uuid": m.uuid,
+                "url": m.original_url,
+                "mime_type": m.mime_type,
+                "width": m.width,
+                "height": m.height,
+                "alt_text_id": m.alt_text_id,
+                "alt_text_en": m.alt_text_en,
+                "created_at": m.created_at,
+            }
+            for m in items
+        ]
+    }
+
+
+@admin_router.post("/visuals/media", status_code=status.HTTP_201_CREATED)
+async def admin_upload_visual_media(
+    file: UploadFile = File(...),
+    alt_text_id: str | None = Form(None),
+    alt_text_en: str | None = Form(None),
+    admin: Admin = Depends(_CMS_WRITE),
+    db=Depends(get_database),
+):
+    """Upload a CMS visual image from the Admin (JPG/PNG/WebP). Reuses store_media."""
+    if file.content_type not in _CMS_IMAGE_TYPES:
+        raise ApiError(
+            status.HTTP_400_BAD_REQUEST, ErrorCode.BAD_REQUEST,
+            "Unsupported image type. Use JPG, PNG, or WebP.",
+        )
+    raw = await file.read()
+    if not raw or len(raw) > MAX_MEDIA_BYTES:
+        raise ApiError(
+            status.HTTP_400_BAD_REQUEST, ErrorCode.BAD_REQUEST,
+            "File is empty or too large.",
+        )
+    media = await store_media(
+        db,
+        entity_type=MediaEntityType.CMS,
+        entity_id="site",
+        role=MediaRole.GALLERY,
+        visibility=MediaVisibility.PUBLIC,
+        filename=file.filename or "cms-image",
+        content_type=file.content_type,
+        data=raw,
+        alt_text_id=alt_text_id,
+        alt_text_en=alt_text_en,
+        actor_id=admin.uuid,
+    )
+    await write_audit_log(
+        db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.CREATE,
+        entity_type="cms_media", entity_id=media.uuid,
+        after={"entity_type": "cms", "mime_type": media.mime_type},
+    )
+    return {"uuid": media.uuid, "url": media.original_url, "mime_type": media.mime_type}
