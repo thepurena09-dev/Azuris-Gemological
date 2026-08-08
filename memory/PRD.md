@@ -40,6 +40,14 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### AZURIS PRODUCTION CANDIDATE v2 — PRE-HOSTINGER MIGRATION (Re-Freeze, 2026-06)
+Documentation/status only. NO new feature / Sprint / Phase / schema / business-logic change. The current source (including the Certificate Demo Preview added after the v1 freeze) is now the OFFICIAL frozen baseline.
+- **Baseline scope (all COMPLETE & retained):** Sprints 1–30 + 23A · FASE 3.1–3.4 · Final UI Polish + CMS Visual Control · CMS Visual RBAC fix (ADMINISTRATOR CMS_WRITE) · CMS Visual Image Picker/Upload UX · **Certificate Demo Preview (UI-only, stateless)** · current Visual & Content implementation.
+- **Baseline safety (verified read-only, NO mutation):** `counters.certificate.last_number = 14` → next genuine `AZR-GEM-000015-26`. Business collections genuine = 0 (certificates, gemstones, customers, jewelry, warranties, membership_cards, ownership_transfers, verification_tokens). media collection holds 8 pre-existing CMS docs (unrelated, retained).
+- **Demo preview guarantees (re-confirmed):** creates NO certificate/gemstone/customer, NO verification token, does NOT increment the counter, NOT in public verification, NOT counted as an analytics issuance. Stateless endpoint `GET /api/admin/certificates/demo-preview` only.
+- **BUSINESS_RULES_LOCK.md UNCHANGED.** Provisional (still NOT locked): Member ID `AZR-MEM-{SEQ6}-{YY}`, Warranty No. `AZR-WTY-{SEQ6}-{YY}` — await client approval.
+- **No scope beyond this freeze** (no Preview Data Kustom / download-share / photo mockup / other improvements) unless explicitly requested. Production deployed: NO. Hostinger deployed: NO.
+
 ### POST-FREEZE — ADMIN CERTIFICATE DEMO PREVIEW (UI-only, ZERO DB mutation, 2026-06)
 Client-usability addition. No new Sprint/Phase. Production Candidate stays FROZEN. Validated: testing_agent iteration_18 — new `tests/test_cert_demo_preview.py` 5/5 BE + FE 100%, 0 console errors. DB baseline verified identical before/after (counter last_number=14, certificates/gemstones/customers/verification_tokens=0).
 - **Reuses the EXISTING A6 booklet renderer** (`services/certificate_pdf.build_certificate_pdf`) — no 2nd certificate design. Added `demo: bool=False` param + `_demo_stamp()` which paints a diagonal **DEMO / PREVIEW / NOT VALID** watermark (red 0.40 alpha + faint white halo, legible on navy & ivory panels, design still assessable) on all 4 panels.
