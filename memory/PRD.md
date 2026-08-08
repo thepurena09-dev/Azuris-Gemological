@@ -40,6 +40,20 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### BATCH C — Certification / Post-Certification / Ownership + 23A Membership (Sprints 15–23 + 23A) ✅ (2026-06, validated: hermetic `tests/test_batch_c_regression.py` 20/20; A 22/22, B 32/32, FASE3 certs 22/22, FASE3.4 16/16 — all serial `-n0`; FE smoke pass)
+Fast-track, REUSE-FIRST, no locked rule touched. Certificate numbering/counter/QR/verification/security_code/owner-masking/versioning/PDF/auth UNCHANGED. BUSINESS_RULES_LOCK unchanged (no blocker). Public Catalog stays disabled. DB restored to baseline (all business collections=0, counter.last_number=14 → next real cert AZR-GEM-000015-26).
+
+**Sprints 15–18 — Certification** → **SATISFIED EARLY** (verified by regression). Certificate Management, Issuance, Atomic Numbering (`AZR-GEM-{SEQ6}-{YY}`), Versioning, A6/Premium PDF + Logo, QR + Opaque Token + Security Code, Manual + Public Verification, Preview — all built in RC1 + FASE 3.1–3.4. Not rebuilt; re-validated (issuance, manual verify, QR verify, security-code rotation) inside the Batch C suite + FASE cert suites.
+
+**Sprint 19 — Warranty** (`api/warranties.py`, NEW; `/api/admin/warranties`). Reuses Sprint 4 `Warranty` model + Sprint 5 `WarrantyRepository` + versioning spine + audit + RBAC. Lifecycle active→(expired|void), no reactivation; reissue = new version (same number). One active warranty per stone. Auto number `AZR-WTY-{SEQ6}-{YY}` from a SEPARATE `warranty` counter (cert counter untouched). Derives end_date from start_date+period_months. RBAC WARRANTY_READ/WRITE/DELETE.
+
+**Sprints 20–22 — Ownership + History + Transfer** (`api/ownership.py` + `services/ownership.py`, NEW; `/api/admin/ownership`). Authoritative Customer↔Gemstone ownership via `gemstone.active_owner_id` + `customer.owned_gemstone_ids`. `assign` sets FIRST owner only (already-owned→409, must use transfer). Transfer workflow: pending→completed|cancelled, one pending/stone, validates asset/recipient/role, prevents same-owner. **Completion is the ONLY path that mutates ownership**: sets gemstone status=transferred + new owner, ROTATES security code (QR/token stable, logged SECURITY_CODE_REGENERATION), returns new code once. History = append-only completed transfers + audit; no destructive overwrite. Ownership NEVER changes from verification/QR/security-code. No contact PII exposed. RBAC OWNERSHIP_READ/WRITE.
+
+**Sprint 23A — Membership Card** (`api/membership.py` + `services/membership.py` + FE `MembershipCardVisual`, NEW; admin `/api/admin/membership`, public `/api/membership/verify` + `/api/membership/qr`). Premium identity card (NOT payment/loyalty). Requires existing customer WITH consent (else 400). Masked identity only (locked masking), no PII/secrets. Member ID `AZR-MEM-{SEQ6}-{YY}` from SEPARATE `membership` counter — DISTINCT from cert number; format is a PROVISIONAL operational default documented here only (NOT in BUSINESS_RULES_LOCK). Versioning + status active/inactive + reissue + soft delete. Signed member-verify token (type `membership_verify`, distinct from cert QR); public token-gated member-safe verification + QR PNG (qrcode). Anti-enumeration; inactive/revoked → invalid. RBAC MEMBERSHIP_READ/WRITE (CONTENT_MANAGER has none; CUSTOMER_SERVICE read-only). FE: `/admin/membership` list/create/status/reissue + digital card modal (front/back, QR); public `/membership?t=` verify portal.
+
+**Frontend (BATCH C):** `WarrantiesPage.tsx`, `OwnershipPage.tsx`, `MembershipPage.tsx`, `public/MembershipVerifyPage.tsx`, `components/membership/MembershipCardVisual.tsx`; routes + sidebar nav (Garansi/Kepemilikan/Kartu Anggota) + testIds + i18n (id/en). Brand: Deep Navy #0D1B2A, Champagne Gold #C7A247.
+
+
 ### BATCH B — Core Domain Modules (Sprints 11–14) ✅ (2026-06, validated: testing_agent iteration_12, BE 32/32 + FE 100%, 0 issues)
 Fast-track master roadmap. Executed sequentially (no approval gate inside batch). REUSE-FIRST: extended existing models/schemas/repositories/audit/RBAC; no locked rule touched; certificate numbering/counter/QR/verification/security_code/owner-masking/versioning/PDF design/auth UNCHANGED. DB stayed production-clean (customers=0, gemstones=0, jewelry=0, media=0, media_objects=0, certs=0, counter.last_number=14 → next real cert AZR-GEM-000015-26).
 
@@ -173,7 +187,7 @@ Fast-track master roadmap. Executed sequentially; no scope reduced, no locked ru
 ---
 
 ## Backlog (per Sprint Book, gated)
-- **P0 next (BATCH C — Certification / Post-Certification / Ownership, Sprints 15–23) + BATCH C+ (Sprint 23A Membership Card):** Warranties, Ownership, Ownership Transfer, Membership Card, etc. (BATCH A / Sprints 8–10 = COMPLETE; **BATCH B / Sprints 11–14 = COMPLETE 2026-06**.)
+- **P0 next (BATCH D — CMS / Public / Analytics / QA / Production / Launch, Sprints 24–30):** (BATCH A / Sprints 8–10 = COMPLETE; **BATCH B / Sprints 11–14 = COMPLETE 2026-06**; **BATCH C / Sprints 15–23 + 23A Membership = COMPLETE 2026-06**.)
 - Sprint 3 DB layer (Motor + indexes + init) · Sprint 4 domain models (dual-id/audit/versioning) ·
   Sprint 5 repositories · Sprint 6 JWT auth · Sprint 7 RBAC guards · Sprint 8 response envelope ·
   Sprint 9 logging (audit/verification/security) · Sprint 10 storage+media · Sprints 11–30 business modules,
@@ -208,7 +222,7 @@ FINAL client revision before resuming the master roadmap. NO other business rule
   **last_number=14** → next real number **AZR-GEM-000015-26**; DB clean (certs=0, gems=0).
 
 ## Roadmap / Blueprint Ledger (additive — nothing removed)
-- **Sprint status:** Sprints 1–14 = COMPLETE (RC1 FROZEN; **BATCH A / Sprints 8–10 DONE 2026-06**; **BATCH B / Sprints 11–14 DONE 2026-06**). **NEXT DEVELOPMENT = BATCH C — Sprints 15–23** (Certification / Post-Certification / Ownership), then Batch C+ (23A Membership Card), Batch D (24–30), strictly in order (no skipping). Client revisions FASE 3.1→3.4 were interleaved and are all COMPLETE.
+- **Sprint status:** Sprints 1–23 + 23A = COMPLETE (RC1 FROZEN; **BATCH A / 8–10 DONE**; **BATCH B / 11–14 DONE**; **BATCH C / 15–23 + 23A Membership DONE 2026-06**). **NEXT DEVELOPMENT = BATCH D — Sprints 24–30** (CMS / Public / Analytics / QA / Production / Launch), strictly in order (no skipping). Client revisions FASE 3.1→3.4 were interleaved and are all COMPLETE.
 - **FASE ledger (do not merge/overwrite):** FASE 3.1 A6 Visual Refinement (COMPLETE) · FASE 3.2 Logo + Premium Redesign
   (COMPLETE) · FASE 3.3 Public Verification Front-Cover Preview (COMPLETE) · FASE 3.4 Number Format + Compact Plate (COMPLETE).
 - **Membership Card:** ORIGINAL requirement (present since Sprint 3 bootstrap list; carries VersionMixin). Original PRD had

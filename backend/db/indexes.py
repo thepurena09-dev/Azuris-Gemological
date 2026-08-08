@@ -48,9 +48,11 @@ INDEX_SPECS: dict[str, list[IndexModel]] = {
     ],
     "warranties": [
         IndexModel([("uuid", ASCENDING)], unique=True, name="uq_warranty_uuid"),
+        IndexModel([("gemstone_id", ASCENDING)], name="ix_warranty_gemstone"),
     ],
     "ownership_transfers": [
         IndexModel([("uuid", ASCENDING)], unique=True, name="uq_ownership_uuid"),
+        IndexModel([("gemstone_id", ASCENDING)], name="ix_ownership_gemstone"),
     ],
     "verification_tokens": [
         IndexModel([("uuid", ASCENDING)], unique=True, name="uq_vtoken_uuid"),
@@ -58,6 +60,13 @@ INDEX_SPECS: dict[str, list[IndexModel]] = {
     ],
     "membership_cards": [
         IndexModel([("uuid", ASCENDING)], unique=True, name="uq_membership_uuid"),
+        IndexModel([("customer_id", ASCENDING)], name="ix_membership_customer"),
+        IndexModel(
+            [("card_number", ASCENDING)],
+            unique=True,
+            partialFilterExpression={"is_current": True},
+            name="uq_membership_card_current",
+        ),
     ],
     "media": [
         IndexModel([("uuid", ASCENDING)], unique=True, name="uq_media_uuid"),

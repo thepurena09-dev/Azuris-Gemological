@@ -19,6 +19,10 @@ import CertificatesPage from "@/pages/admin/CertificatesPage";
 import CustomersPage from "@/pages/admin/CustomersPage";
 import GemstonesPage from "@/pages/admin/GemstonesPage";
 import JewelryPage from "@/pages/admin/JewelryPage";
+import WarrantiesPage from "@/pages/admin/WarrantiesPage";
+import OwnershipPage from "@/pages/admin/OwnershipPage";
+import MembershipPage from "@/pages/admin/MembershipPage";
+import MembershipVerifyPage from "@/pages/public/MembershipVerifyPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -41,6 +45,7 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/legalitas" element={<LegalityPage />} />
+                <Route path="/membership" element={<MembershipVerifyPage />} />
 
                 <Route path="/verification" element={<Navigate to="/#verification" replace />} />
                 <Route path="/catalog" element={<Navigate to="/" replace />} />
@@ -67,6 +72,9 @@ function App() {
                 <Route path="customers" element={<CustomersPage />} />
                 <Route path="gemstones" element={<GemstonesPage />} />
                 <Route path="jewelry" element={<JewelryPage />} />
+                <Route path="warranties" element={<WarrantiesPage />} />
+                <Route path="ownership" element={<OwnershipPage />} />
+                <Route path="membership" element={<MembershipPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 

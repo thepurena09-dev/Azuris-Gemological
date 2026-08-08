@@ -1,5 +1,5 @@
 import { Link, Outlet, NavLink } from "react-router-dom";
-import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown } from "@phosphor-icons/react";
+import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown, ShieldCheck, ArrowsLeftRight, IdentificationCard } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
@@ -66,6 +66,18 @@ export default function AdminLayout() {
           <NavLink to="/admin/jewelry" data-testid={TEST_IDS.admin.navJewelry} className={navLinkClass}>
             <Crown size={18} weight="regular" />
             {t("adminNav.jewelry")}
+          </NavLink>
+          <NavLink to="/admin/warranties" data-testid={TEST_IDS.admin.navWarranties} className={navLinkClass}>
+            <ShieldCheck size={18} weight="regular" />
+            {t("adminNav.warranties")}
+          </NavLink>
+          <NavLink to="/admin/ownership" data-testid={TEST_IDS.admin.navOwnership} className={navLinkClass}>
+            <ArrowsLeftRight size={18} weight="regular" />
+            {t("adminNav.ownership")}
+          </NavLink>
+          <NavLink to="/admin/membership" data-testid={TEST_IDS.admin.navMembership} className={navLinkClass}>
+            <IdentificationCard size={18} weight="regular" />
+            {t("adminNav.membership")}
           </NavLink>
           <NavLink to="/admin/settings" data-testid={TEST_IDS.admin.navSettings} className={navLinkClass}>
             <Gear size={18} weight="regular" />

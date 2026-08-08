@@ -27,6 +27,10 @@ from api.media import admin_router as media_admin_router
 from api.media import public_router as media_public_router
 from api.customers import admin_router as customers_admin_router
 from api.catalog import admin_router as jewelry_admin_router
+from api.warranties import admin_router as warranties_admin_router
+from api.ownership import admin_router as ownership_admin_router
+from api.membership import admin_router as membership_admin_router
+from api.membership import public_router as membership_public_router
 from core.config import get_settings
 from core.envelope import install_envelope
 from db.init import init_database
@@ -60,6 +64,10 @@ app.include_router(media_admin_router, prefix=settings.api_prefix)
 app.include_router(media_public_router, prefix=settings.api_prefix)
 app.include_router(customers_admin_router, prefix=settings.api_prefix)
 app.include_router(jewelry_admin_router, prefix=settings.api_prefix)
+app.include_router(warranties_admin_router, prefix=settings.api_prefix)
+app.include_router(ownership_admin_router, prefix=settings.api_prefix)
+app.include_router(membership_admin_router, prefix=settings.api_prefix)
+app.include_router(membership_public_router, prefix=settings.api_prefix)
 
 # Sprint 8 — standardized response envelope + global exception handling.
 # Added before CORS so the CORS middleware stays outer-most (headers applied to

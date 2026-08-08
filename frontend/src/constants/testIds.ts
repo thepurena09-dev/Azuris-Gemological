@@ -40,6 +40,10 @@ export const TEST_IDS = {
     adminCustomers: "page-admin-customers",
     adminGemstones: "page-admin-gemstones",
     adminJewelry: "page-admin-jewelry",
+    adminWarranties: "page-admin-warranties",
+    adminOwnership: "page-admin-ownership",
+    adminMembership: "page-admin-membership",
+    membershipVerify: "page-membership-verify",
     notFound: "page-not-found",
   },
   common: {
@@ -91,6 +95,9 @@ export const TEST_IDS = {
     navCustomers: "admin-nav-customers",
     navGemstones: "admin-nav-gemstones",
     navJewelry: "admin-nav-jewelry",
+    navWarranties: "admin-nav-warranties",
+    navOwnership: "admin-nav-ownership",
+    navMembership: "admin-nav-membership",
     logout: "admin-logout",
   },
 } as const;

@@ -18,6 +18,14 @@ from repositories.base import BaseRepository
 CERTIFICATE_COUNTER = "certificate"
 CERTIFICATE_PREFIX = "AZR-GEM"
 
+# BATCH C operational number sources (separate counters — the certificate
+# counter is never touched). Formats are provisional operational defaults
+# (documented in the PRD ledger, NOT locked in BUSINESS_RULES_LOCK).
+WARRANTY_COUNTER = "warranty"
+WARRANTY_PREFIX = "AZR-WTY"
+MEMBERSHIP_COUNTER = "membership"
+MEMBERSHIP_PREFIX = "AZR-MEM"
+
 
 class CounterRepository(BaseRepository):
     """Owns the `counters` collection. Repositories-only Mongo access."""
@@ -40,3 +48,13 @@ class CounterRepository(BaseRepository):
         year = year or datetime.now(timezone.utc).year
         seq = await self._next_sequence(CERTIFICATE_COUNTER, year)
         return f"{CERTIFICATE_PREFIX}-{seq:06d}-{year % 100:02d}"
+
+    async def next_warranty_number(self, year: Optional[int] = None) -> str:
+        year = year or datetime.now(timezone.utc).year
+        seq = await self._next_sequence(WARRANTY_COUNTER, year)
+        return f"{WARRANTY_PREFIX}-{seq:06d}-{year % 100:02d}"
+
+    async def next_membership_number(self, year: Optional[int] = None) -> str:
+        year = year or datetime.now(timezone.utc).year
+        seq = await self._next_sequence(MEMBERSHIP_COUNTER, year)
+        return f"{MEMBERSHIP_PREFIX}-{seq:06d}-{year % 100:02d}"
