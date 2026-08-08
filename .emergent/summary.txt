@@ -1,49 +1,52 @@
 <analysis>**original_problem_statement**: 
-The user provided a massive Post-RC1 Revision to reposition the luxury application from a gemstone sales catalog to a premium gemological certification & verification platform. The pivot was divided into three strict phases:
-- **FASE 1**: Reposition homepage (3-slide hero, verification form), remove public catalog, add  placeholder.
-- **FASE 2**: Build backend for verification, Legalitas CMS (upload/publish company credentials), and centralized WhatsApp settings. 
-- **FASE 3**: Admin workflow for Certificate Issuance, Gemstone data entry, Security Code generation, Opaque QR Token generation, and A6 Landscape Booklet PDF generation.
-PRODUCT REQUIREMENTS: 
-Strict adherence to  (atomic counters, non-reuse of certificate numbers, strict RBAC, no fake public data).
+# AZURIS GEMOLOGICAL — FAST-TRACK MASTER ROADMAP MODE
+The user mandated a FAST-TRACK execution mode to speed up development while adhering strictly to the  and . 
+Requirements:
+- Execute roadmap in specific batches (Batch A: Sprint 8-10, Batch B: Sprint 11-14, Batch C: Sprint 15-23, Batch C+: Sprint 23A, Batch D: Sprint 24-30).
+- **DO NOT STOP** between sprints in a batch to ask for permission. Proceed sequentially.
+- Re-use existing completed features (mark SATISFIED EARLY).
+- Conserve credits: targeted testing, only full regression at the end of the batch, no repetitive UI mockups or unprompted refactoring.
+- The current batch assigned was **BATCH A (Sprints 8, 9, 10)**.
 
 **User's preferred language**: **Indonesian (Bahasa Indonesia)**.
 INSTRUCT NEXT AGENT: You MUST respond to the user ENTIRELY in Indonesian.
 
 **what currently exists?**: 
-FASE 1, FASE 2, and FASE 3 of the Post-RC1 revision have been successfully implemented and tested. The frontend no longer acts as a store; it focuses purely on certification and verification. The backend is fully equipped with endpoints for manual/QR verification, a Legalitas CMS, centralized WhatsApp configuration, and a complete certificate issuance flow that generates secure QR tokens and A6 booklet PDFs (using ). The database has been cleaned of test data and is ready for production go-live entry.
+Batch A (Sprints 8–10) is fully implemented, heavily tested, and the database remains production-clean. 
+- **Sprint 8**: Global response envelopes (, , ) and exception handlers are implemented on the backend. The frontend API utilities (, ) have been updated to transparently unwrap this envelope to avoid breaking changes on existing UI components.
+- **Sprint 9**: Logging collections already existed from early phases (SATISFIED EARLY). A custom ASGI middleware was added to generate a  () injected seamlessly into all audit, security, and verification logs.
+- **Sprint 10**: An object storage adapter abstraction (Base, Factory, Mongo-backed default) was built. Media metadata models now support  (public/private) and .
+- Legacy E2E test suites were updated to accommodate the new JSON response envelopes. 
+The certificate counter is intact at  (next issuance will be ). Business collections are empty (0 certs, gems, media).
 
 **Last working item**: 
-    - Last item agent was working: Completing FASE 3 E2E testing via . Fixed a backend bug where certificate reissue failed due to a MongoDB unique index collision on  (fixed by making the index compound with  and adding a partial index for ). Re-tested and verified 22/22 tests passed. 
-    - Status: NONE (Completed and verified)
+    - Last item agent was working: Batch A Full Regression, and repairing legacy test suites (from earlier phases) that broke due to the Sprint 8 response envelope global change. Tests were isolated, and system libraries for PDF/QR testing were installed.
+    - Status: NONE (COMPLETED)
     - Agent Testing Done: Y
     - Which testing method agent to use? NA
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:  
-None. All 22 backend test cases for the newly implemented FASE 3 features passed successfully via the testing agent.
+None. All tests (119 total across regression and legacy suites) are passing successfully.
 
 **In progress Task List**: 
-None. FASE 1, 2, and 3 are complete.
+None. Batch A is complete.
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - Admin to manually upload the REAL Azuris Legality Document via  [P0]
-    - Start issuing actual certificates with real gemstone data [P0]
-    - Sprint 8 — Global Error Handling & Response Envelope (Backend) [P1]
-    - Sprint 9 — Logging Infrastructure (Audit, Verification, Security) [P2]
-    - Sprint 10 — Object Storage Adapter & Media Metadata [P2]
+    - **BATCH B (Sprint 11–14)**: Core Domain Modules [P0] *(CRITICAL: This is the STRICT next action. Execute seamlessly without asking for permission).*
+    - **BATCH C (Sprint 15–23)**: Certification / Post-Certification / Ownership [P1]
     
     Future Tasks:
-    - Ownership & Transfer modules (to allow owner masking to show real data on public verification).
+    - **BATCH C+ (Sprint 23A)**: Membership Card
+    - **BATCH D (Sprint 24–30)**: CMS / Public / Analytics / QA / Production / Launch
 
 **Completed work in this session**
-- Applied new sharp marble background and solid gold Preview button to Hero UI (DONE)
-- **FASE 1**: Built , , redirected  routes, created  placeholder (DONE)
-- **FASE 2**: Created backend models/APIs for Legality CMS, Settings (WhatsApp), and Verification. Wires admin frontend pages (DONE)
-- **FASE 3**: Built Certificate Issuance logic, Security Code generation, Opaque QR Token generation (DONE)
-- **FASE 3**: Implemented A6 Landscape Booklet PDF generator using  (DONE)
-- **FASE 3**: Fixed MongoDB index collision for versioned certificates and verified via  (DONE)
-- Cleaned up all dummy certificates/gemstones for go-live. Counter remains correctly at next available number (DONE)
+- **Sprint 8**: Created , modified , wrapped all endpoints, and built unwrapper in . (DONE)
+- **Sprint 9**: Created  for contextvar propagation of  into MongoDB audit logs. (DONE)
+- **Sprint 10**: Created  abstraction (, , ). Updated , added  for public/private uploads. (DONE)
+- Batch A full regression via testing agent (). (DONE)
+- Legacy test suite envelope unwrapping migration. (DONE)
 
 **Earlier issues found/mentioned but not fixed**
 None.
@@ -57,72 +60,66 @@ None.
 
 
 **Key Technical Concepts**
-React 19, TypeScript, Tailwind CSS, FastAPI, MongoDB (Motor Async), Pydantic v2, JWT Auth, RBAC, embla-carousel-react, reportlab (PDF), qrcode.
+React 19, TypeScript, FastAPI, MongoDB (Motor Async), PyMuPDF, ASGI Middleware, ContextVars (for log correlation IDs), Factory/Adapter Pattern (for object storage), Standardized API Response Envelopes.
 
 **key DB schema**
-  - : {uuid, certificate_number, version, is_current, status, qr_token, security_code_hash}
-  - : {uuid, certificate_id, object_type, species, carat, etc.}
-  - : {certificate_name, issuer, status, published, ...}
-  - : {key, value} (Used for centralized WhatsApp number)
+  - : {uuid, entity_type, entity_id, role, visibility, storage_key, mime_type}
+  - : Atomic increments (Must remain untouched in shape).
 
 **changes in tech stack**
-  - Installed  and  in the backend for generating the physical A6 certificates and secure QR tokens.
-  - Using  on the frontend for the strict 3-slide hero requirement.
+  - System dependencies installed for testing: , , .
 
 **All files of reference**
-  -  (Updated with FASE 1, 2, 3 completions)
-  -  (Strict business rules, untouched)
-  - 
-  -  (Proof of 22/22 passing tests)
+  -  &  (New core behavior for Sprint 8 and 9)
+  -  (Storage Adapter for Sprint 10)
+  -  (API fetchers utilizing  and automatically unwrapping the new  envelope)
+  -  (Updated master roadmap tracker)
+  -  (Batch A regression pass report)
 
 **Areas that need refactoring**: 
--  utility in  was modified to prevent double-prefixing . If creating new frontend API calls, verify they hit the correct route.
+- Legacy test suites (like  and ) share MongoDB state (, ). They **cannot** be run via a global ============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: /app
+plugins: anyio-4.14.2, xdist-3.8.0
+collected 0 items
+
+============================ no tests ran in 0.02s ============================= command without cross-contamination. If modifying them in the future, run them strictly individually using  against a cleared DB.
 
 **key api endpoints**
-  -  (Requires cert number + security code)
+  - ALL endpoints now return: 
+  -  (Requires standard JWT admin headers)
+  -  (Public/Private read logic implemented)
   - 
-  -  (Returns only published doc)
-  -  (Returns WhatsApp config)
-  - 
-  -  (Generates A6 booklet)
 
 **Critical Info for New Agent**
-1. **NO FAKE DATA**: The user has strictly forbidden generating mock/fake data for the public website. If the Legality document isn't uploaded by an admin, the  page must show a premium empty state. Do not bypass this.
-2. **BUSINESS_RULES_LOCK**: This file is absolute. Do not alter the certificate numbering format (), atomic counters, or RBAC rules.
-3. **WHATSAPP CONFIG**: The public WhatsApp CTA number is no longer hardcoded. It is fetched from the backend settings ( context).
-4. All FASE 3 dummy data was purged via database cleanup script. The system is entirely clean and ready for real client data entry.
+1. **FAST-TRACK RULES ARE ACTIVE**: You are strictly instructed to execute **BATCH B (Sprints 11–14: Core Domain Modules)** immediately. DO NOT ask the user for permission to move to the next sprint if you are inside a batch. Use  as the source of truth for the Sprint requirements.
+2. **API ENVELOPE IS GLOBAL**: Every new backend API route you create moving forward MUST yield raw data, which FastAPI will automatically wrap using the middleware/dependencies implemented in Sprint 8. Do not manually format  in route returns.
+3. **DB INVARIANTS**: The certificate counter is currently resting correctly at  (Next format: ). Do not alter or seed fake data that breaks this rule.
+4. **Context ID**: The  is automatically extracted by loggers via . You do not need to manually pass it to DB log operations.
 
 **documents and test reports created in this job**
-  - 
-  - 
-  -  (Updated)
+  -  (Batch A testing)
+  -  (Ledger updated)
 
 **Last 10 User Messages and any pending HUMAN messages** 
-1. (Msg 142) User provided FASE 2 prompt (Backend verify, Legality CMS, WhatsApp).
-2. (Msg 143-276) Agent implemented and tested FASE 2. 
-3. (Msg 277) User provided FASE 3 prompt (Certificate Issuance, Gemstone entry, Security Code, QR, A6 PDF).
-4. (Msg 278) System reminder to use  for bugs.
-5. (Msg 279-351) Agent implemented FASE 3 endpoints, PDF generation, and frontend admin pages.
-6. (Msg 352) Agent ran . Found a bug in  due to MongoDB index constraint.
-7. (Msg 353-366) Agent dropped old index, created compound index ( + ), fixed reissue logic, and verified via curl.
-8. (Msg 367-370) Agent ran  again. 22/22 tests passed.
-9. (Msg 371-375) Agent wiped test database records, validated go-live states (WhatsApp, Legality empty state), updated PRD, and called finish.
-*(No pending human messages. Task completed).*
+1. User defined FAST-TRACK MASTER ROADMAP MODE and grouped Sprints 8, 9, 10 into BATCH A. Commanded agent to perform the batch without stopping.
+*(Agent completed all tasks seamlessly, passed 97 backend tests, and submitted the finished summary).*
+*(No pending human messages. Begin BATCH B immediately).*
 
 **Project Health Check:**
-Healthy. 
+Healthy.
 
 **3rd Party Integrations**
-- JWT Auth (Custom Internal)
+- JWT Auth (Internal).
 
 **Testing status**
-  - Testing agent used after significant changes: YES (Iteration 5 and 6)
+  - Testing agent used after significant changes: YES
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: None this session (reused existing )
-  - Known regressions: None. The unique index bug for certificate versioning was identified and permanently fixed.
+  - Test files created: 
+  - Known regressions: None. (All legacy test files have been manually updated to unwrap the  envelope).
 
 **Credentials to test flow:**
 Refer to  ( / ).
 
 **What agent forgot to execute**
-Nothing. The agent successfully navigated the massive FASE 1, FASE 2, and FASE 3 prompt requirements, maintaining strict adherence to the business rules lock and cleaning the database for production use.</analysis>
+Nothing. Batch A executed and tested flawlessly.</analysis>
