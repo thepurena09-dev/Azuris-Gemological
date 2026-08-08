@@ -1,57 +1,49 @@
 <analysis>**original_problem_statement**: 
-The user is building a luxury, full-stack application (React+FastAPI+MongoDB) for managing gemological certificates, verification portals, and an admin dashboard. The project emphasizes a strict, modular sprint-by-sprint development approach, strict RBAC, and a high-end luxury UI (comparable to Cartier, Rolex, GIA). 
+The user provided a massive Post-RC1 Revision to reposition the luxury application from a gemstone sales catalog to a premium gemological certification & verification platform. The pivot was divided into three strict phases:
+- **FASE 1**: Reposition homepage (3-slide hero, verification form), remove public catalog, add  placeholder.
+- **FASE 2**: Build backend for verification, Legalitas CMS (upload/publish company credentials), and centralized WhatsApp settings. 
+- **FASE 3**: Admin workflow for Certificate Issuance, Gemstone data entry, Security Code generation, Opaque QR Token generation, and A6 Landscape Booklet PDF generation.
 PRODUCT REQUIREMENTS: 
-- Frontend: React + TypeScript + TailwindCSS + bilingual (ID/EN) routing shell.
-- Backend: FastAPI + MongoDB (Motor) + Pydantic + JWT Auth (Argon2id).
-- Business rule enforcement via strict repository layers and atomic counters.
+Strict adherence to  (atomic counters, non-reuse of certificate numbers, strict RBAC, no fake public data).
 
 **User's preferred language**: **Indonesian (Bahasa Indonesia)**.
 INSTRUCT NEXT AGENT: You MUST respond to the user ENTIRELY in Indonesian.
 
 **what currently exists?**: 
-A highly structured FastAPI backend and React+TS frontend. Sprints 1 through 7 have been completed. The backend has MongoDB connections, domain models, generic repositories, JWT Auth, and strict RBAC guards. The frontend has a routing shell, bilingual contexts, and a Light Luxury / Royal Editorial UI theme (Navy and Champagne Gold). **CRITICAL STATE: The project's business logic is officially FROZEN at RC1 (Release Candidate 1 - Sprint 7) pending client review. The agent has been working exclusively on visual UI tweaks for the homepage.**
+FASE 1, FASE 2, and FASE 3 of the Post-RC1 revision have been successfully implemented and tested. The frontend no longer acts as a store; it focuses purely on certification and verification. The backend is fully equipped with endpoints for manual/QR verification, a Legalitas CMS, centralized WhatsApp configuration, and a complete certificate issuance flow that generates secure QR tokens and A6 booklet PDFs (using ). The database has been cleaned of test data and is ready for production go-live entry.
 
 **Last working item**: 
-    - Last item agent was working: Enhancing the Hero section UI on . The user requested a sharper/more precise sapphire image and the addition of marble veins on the white background to make it less plain. The agent generated these images and applied them to the layout.
-    - Status: USER VERIFICATION PENDING
+    - Last item agent was working: Completing FASE 3 E2E testing via . Fixed a backend bug where certificate reissue failed due to a MongoDB unique index collision on  (fixed by making the index compound with  and adding a partial index for ). Re-tested and verified 22/22 tests passed. 
+    - Status: NONE (Completed and verified)
     - Agent Testing Done: Y
-    - Which testing method agent to use? Screenshot tool
+    - Which testing method agent to use? NA
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:  
-  Issue 1: Awaiting User Approval on Hero UI updates (P0)
-  
-  Issues Detail:
-  - Issue 1: 
-     - Attempted fixes: Agent updated the hero section with a new macro sapphire image and a marble vein background texture.
-     - Next debug checklist: Wait for user feedback. If the user approves, prompt them to green-light Sprint 8. If they request more UI changes, modify  accordingly. 
-     - Why fix this issue and what will be achieved with the fix? Meets the client's strict visual expectations for a premium, editorial luxury design before moving to the next phase.
-     - Status: USER VERIFICATION PENDING
-     - Is recurring issue? N
-     - Should Test frontend/backend/both after fix? Frontend (Screenshot tool)
-     - Blocked on other issue: None
+None. All 22 backend test cases for the newly implemented FASE 3 features passed successfully via the testing agent.
 
 **In progress Task List**: 
-None. (Awaiting user feedback to unlock Sprint 8).
+None. FASE 1, 2, and 3 are complete.
 
 **Upcoming and Future Tasks**
-*IMPORTANT: The user previously stated DO NOT start Sprint 8 until they return with client feedback and approve Sprint 7/RC1. The below tasks are strictly ON HOLD until explicit user approval.*
     Upcoming Tasks:
+    - Admin to manually upload the REAL Azuris Legality Document via  [P0]
+    - Start issuing actual certificates with real gemstone data [P0]
     - Sprint 8 — Global Error Handling & Response Envelope (Backend) [P1]
     - Sprint 9 — Logging Infrastructure (Audit, Verification, Security) [P2]
     - Sprint 10 — Object Storage Adapter & Media Metadata [P2]
     
     Future Tasks:
-    - Sprints 11-14: Modules for Customers, Gemstones, Jewelry, Media Library
-    - Sprints 15-23: Certificates, PDFs, QR Workflow, Verification Tokens, Warranty, Ownership Transfers
-    - Sprints 24-30: CMS, Public Website Catalog, Analytics, QA & Launch
+    - Ownership & Transfer modules (to allow owner masking to show real data on public verification).
 
 **Completed work in this session**
-- Redesigned HomePage hero section to a balanced two-column editorial layout (DONE)
-- Added Preview button and custom modal logic in  (DONE)
-- Replaced hero sapphire image with a precise macro shot (DONE)
-- Added marble vein texture to the hero white background (DONE)
-- Updated  (DONE)
+- Applied new sharp marble background and solid gold Preview button to Hero UI (DONE)
+- **FASE 1**: Built , , redirected  routes, created  placeholder (DONE)
+- **FASE 2**: Created backend models/APIs for Legality CMS, Settings (WhatsApp), and Verification. Wires admin frontend pages (DONE)
+- **FASE 3**: Built Certificate Issuance logic, Security Code generation, Opaque QR Token generation (DONE)
+- **FASE 3**: Implemented A6 Landscape Booklet PDF generator using  (DONE)
+- **FASE 3**: Fixed MongoDB index collision for versioned certificates and verified via  (DONE)
+- Cleaned up all dummy certificates/gemstones for go-live. Counter remains correctly at next available number (DONE)
 
 **Earlier issues found/mentioned but not fixed**
 None.
@@ -65,71 +57,72 @@ None.
 
 
 **Key Technical Concepts**
-React 19, TypeScript, Tailwind CSS, FastAPI, MongoDB (Motor Async), Pydantic v2, JWT Auth, Argon2id Password Hashing, RBAC, i18n (React Context).
+React 19, TypeScript, Tailwind CSS, FastAPI, MongoDB (Motor Async), Pydantic v2, JWT Auth, RBAC, embla-carousel-react, reportlab (PDF), qrcode.
 
 **key DB schema**
-  - : {name, year, last_number, updated_at}
-  - : {uuid, email, password_hash, role, is_active...}
-  - , , 
+  - : {uuid, certificate_number, version, is_current, status, qr_token, security_code_hash}
+  - : {uuid, certificate_id, object_type, species, carat, etc.}
+  - : {certificate_name, issuer, status, published, ...}
+  - : {key, value} (Used for centralized WhatsApp number)
 
 **changes in tech stack**
-  - Converted default React JS template to React + TypeScript.
-  - Used  for password hashing instead of standard bcrypt.
+  - Installed  and  in the backend for generating the physical A6 certificates and secure QR tokens.
+  - Using  on the frontend for the strict 3-slide hero requirement.
 
 **All files of reference**
-  -  (Target for UI fixes)
-  -  (Contains the dev admin seed credentials)
+  -  (Updated with FASE 1, 2, 3 completions)
+  -  (Strict business rules, untouched)
   - 
+  -  (Proof of 22/22 passing tests)
 
 **Areas that need refactoring**: 
-- **Shadcn UI  compatibility in **: The agent encountered TypeScript errors ( typing missing) when trying to use Shadcn  components (like ) inside  files (like ). The agent bypassed this by using a custom  standard HTML modal instead. Future agents should be aware of this typing limitation if pulling in more Shadcn  components. 
+-  utility in  was modified to prevent double-prefixing . If creating new frontend API calls, verify they hit the correct route.
 
 **key api endpoints**
+  -  (Requires cert number + security code)
   - 
+  -  (Returns only published doc)
+  -  (Returns WhatsApp config)
   - 
-  - 
-  - 
-  - 
+  -  (Generates A6 booklet)
 
 **Critical Info for New Agent**
-1. **FROZEN STATE (RC1)**: The user explicitly instructed to freeze all backend, routing, API, database, and feature additions at Sprint 7. **DO NOT modify any backend files or start Sprint 8 unless the user explicitly tells you to do so.**
-2. **LANGUAGE**: You must reply in **Indonesian**.
-3. **HOT RELOAD QUIRK**: The agent experienced caching/rebuilding delays with the React frontend. If your changes don't appear in the screenshot tool, use frontend: ERROR (not running)
-frontend: started to force a clean build.
+1. **NO FAKE DATA**: The user has strictly forbidden generating mock/fake data for the public website. If the Legality document isn't uploaded by an admin, the  page must show a premium empty state. Do not bypass this.
+2. **BUSINESS_RULES_LOCK**: This file is absolute. Do not alter the certificate numbering format (), atomic counters, or RBAC rules.
+3. **WHATSAPP CONFIG**: The public WhatsApp CTA number is no longer hardcoded. It is fetched from the backend settings ( context).
+4. All FASE 3 dummy data was purged via database cleanup script. The system is entirely clean and ready for real client data entry.
 
 **documents and test reports created in this job**
   - 
   - 
-  - 
+  -  (Updated)
 
 **Last 10 User Messages and any pending HUMAN messages** 
-1. (Msg 238) User requested UI REDESIGN ONLY to match a luxury theme. (Completed)
-2. (Msg 280) *[Indonesian]* User said the left side of the screen looks empty/blank on wide screens. (Attempted)
-3. (Msg 286) *[Indonesian]* User asked to show the preview button. (Clarified)
-4. (Agent Ask Human) Agent asked for clarification on preview button and hero section layout.
-5. (User Response) *[Indonesian]* User confirmed they wanted a physical Preview button on the page and trusted the agent to make the hero premium and balanced. 
-6. (User Feedback) *[Indonesian]* User reviewed the changes and stated the white background was too plain and the stone photo lacked precision. They requested the addition of marble veins on the background. **(Agent just completed this and finished the task. Pending human response).**
+1. (Msg 142) User provided FASE 2 prompt (Backend verify, Legality CMS, WhatsApp).
+2. (Msg 143-276) Agent implemented and tested FASE 2. 
+3. (Msg 277) User provided FASE 3 prompt (Certificate Issuance, Gemstone entry, Security Code, QR, A6 PDF).
+4. (Msg 278) System reminder to use  for bugs.
+5. (Msg 279-351) Agent implemented FASE 3 endpoints, PDF generation, and frontend admin pages.
+6. (Msg 352) Agent ran . Found a bug in  due to MongoDB index constraint.
+7. (Msg 353-366) Agent dropped old index, created compound index ( + ), fixed reissue logic, and verified via curl.
+8. (Msg 367-370) Agent ran  again. 22/22 tests passed.
+9. (Msg 371-375) Agent wiped test database records, validated go-live states (WhatsApp, Legality empty state), updated PRD, and called finish.
+*(No pending human messages. Task completed).*
 
 **Project Health Check:**
-Healthy.
+Healthy. 
 
 **3rd Party Integrations**
-- Gemini 3.1 Flash Image Preview (via Emergent LLM Key) — Used for generating the mockup certificate, sapphire image, and marble background.
 - JWT Auth (Custom Internal)
 
 **Testing status**
-  - Testing agent used after significant changes: NO (Only UI changes made this session)
+  - Testing agent used after significant changes: YES (Iteration 5 and 6)
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: None this session.
-  - Known regressions: None.
+  - Test files created: None this session (reused existing )
+  - Known regressions: None. The unique index bug for certificate versioning was identified and permanently fixed.
 
 **Credentials to test flow:**
-Refer to  (admin@azuris.local).
+Refer to  ( / ).
 
 **What agent forgot to execute**
-Nothing. All instructions and visual feedback requests were fulfilled.
-
-**Debugging checklist for current issue**
-    Issue: Awaiting User Approval on Hero UI updates.
-    Frontend files to check: 
-    -  -> If user requests further modifications to the sapphire image, marble veins, or layout, tweak the Tailwind classes here. Make sure to restart the frontend supervisor if changes do not reflect in the screenshot.</analysis>
+Nothing. The agent successfully navigated the massive FASE 1, FASE 2, and FASE 3 prompt requirements, maintaining strict adherence to the business rules lock and cleaning the database for production use.</analysis>
