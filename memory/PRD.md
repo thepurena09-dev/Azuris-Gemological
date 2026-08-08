@@ -40,6 +40,15 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### AZURIS PRODUCTION CANDIDATE — PRE-HOSTINGER MIGRATION (Freeze, 2026-06)
+Current build FROZEN & APPROVED as Production Candidate. No feature/design/schema/RBAC/numbering changes. Not a new Sprint/Phase.
+- **Production hygiene:** no seed runs at startup (`server.py` on_startup = Mongo connect + index bootstrap only). `scripts/seed_test_roles.py` + `scripts/seed_admin.py` both `raise SystemExit` when `ENVIRONMENT=production` and never auto-run → test accounts (admin/cm/cs/adminr @azuris.local) will NOT exist in production. Test scripts remain in repo for regression.
+- **Test-credential safety:** `/app/memory/test_credentials.md` is dev/test docs only — not referenced by any backend/frontend source, not served via API/frontend. Production admin credentials to be created separately (never reuse test passwords).
+- **DB baseline (verified read-only, no mutation):** business collections all 0; `counters.certificate(2026).last_number=14` → next genuine `AZR-GEM-000015-26`. Counter NOT incremented.
+- **Export readiness (for future Hostinger migration — NOT deployed now):** Frontend React (`frontend/package.json`), Backend FastAPI (`backend/requirements.txt`), Mongo index init (`db/indexes.py` via `init_database()`), media/storage via `STORAGE_BACKEND` (default `mongo`), env templates (`backend/.env.example`, `frontend/.env.example`), production config docs (`docs/PRODUCTION_READINESS.md`). No real secrets in repo. No Dockerfile/compose yet — to be authored at migration time (documented, not a current blocker).
+- **Provisional (unchanged, not locked):** Member ID `AZR-MEM-{SEQ6}-{YY}`, Warranty No `AZR-WTY-{SEQ6}-{YY}` — await client approval. BUSINESS_RULES_LOCK.md UNCHANGED. Deployment performed: NO.
+
+
 ### POST-BATCH D — CLIENT-APPROVED FINAL UI POLISH + CMS VISUAL CONTROL (2026-06)
 Not a new Sprint/Phase. Blueprint Sprint 1–30 + 23A stay COMPLETE. BUSINESS_RULES_LOCK.md UNCHANGED. Certificate format LOCKED `AZR-GEM-{SEQ6}-{YY}`, counter last_number=14 → next `AZR-GEM-000015-26`. Business collections baseline=0 held. Validated: testing_agent iteration_14 — new `tests/test_cms_visuals.py` 14/14 + FE 100%.
 
