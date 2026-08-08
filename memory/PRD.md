@@ -40,6 +40,12 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### POST-FREEZE — ADMIN CERTIFICATE DEMO PREVIEW (UI-only, ZERO DB mutation, 2026-06)
+Client-usability addition. No new Sprint/Phase. Production Candidate stays FROZEN. Validated: testing_agent iteration_18 — new `tests/test_cert_demo_preview.py` 5/5 BE + FE 100%, 0 console errors. DB baseline verified identical before/after (counter last_number=14, certificates/gemstones/customers/verification_tokens=0).
+- **Reuses the EXISTING A6 booklet renderer** (`services/certificate_pdf.build_certificate_pdf`) — no 2nd certificate design. Added `demo: bool=False` param + `_demo_stamp()` which paints a diagonal **DEMO / PREVIEW / NOT VALID** watermark (red 0.40 alpha + faint white halo, legible on navy & ivory panels, design still assessable) on all 4 panels.
+- **New stateless endpoint** `GET /api/admin/certificates/demo-preview` (`api/certificates.py`, guard `require_roles(ADMINISTRATOR)`): builds the 2-page PDF from a hardcoded `_DEMO_SNAP` fixture (Natural Sapphire / Corundum / 2.35 ct / Royal Blue / Oval Mixed Cut / 8.20×6.10×4.35 mm / examiner AZURIS GEMOLOGICAL). certificate_number = **`AZR-GEM-DEMO`** (never the genuine next `AZR-GEM-000015-26`); qr_url = inert `"DEMO - NOT VALID"`. NO Mongo access, NO counter increment, NO token/security-code, NO audit write → truly stateless. Unauth → 401.
+- **Frontend `CertificatesPage.tsx`**: 'Lihat Contoh Sertifikat' button (`cert-demo-preview-btn`) in the Certificates panel (visible even with 0 certs) → opens modal (`cert-demo-modal`) with an iframe (`cert-demo-iframe`) rendering the demo PDF blob + Open-PDF (`cert-demo-open-pdf`) + Close (`cert-demo-close`). i18n `adminCert.demo*` (id/en). Genuine issuance workflow untouched.
+
 ### POST-BATCH D — CMS VISUAL IMAGE PICKER / UPLOAD UX (2026-06)
 Targeted client-usability fix. No new Sprint/Phase. No business-logic/certificate/RBAC-matrix change. Validated: testing_agent iteration_17 — `tests/test_cms_visuals_media.py` 16/16 + FE 100%. Baseline restored (media=0, counter=14 → next `AZR-GEM-000015-26`).
 - **Reuses Sprint 10 media/storage** (`services/media.store_media` + `media` collection + storage adapter). NEW CMS-scoped endpoints in `api/settings.py`: `POST /api/admin/settings/visuals/media` (guard `CMS_WRITE`, images jpg/png/webp only, ≤15MB, entity_type=`cms`/entity_id=`site`, audited `cms_media`) + `GET /api/admin/settings/visuals/media` (guard `CMS_READ`, picker list). No 2nd media backend/uploader.
