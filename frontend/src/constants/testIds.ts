@@ -100,6 +100,7 @@ export const TEST_IDS = {
     navOwnership: "admin-nav-ownership",
     navMembership: "admin-nav-membership",
     navVisuals: "admin-nav-visuals",
+    navVideoStudio: "admin-nav-video-studio",
     logout: "admin-logout",
     dashboard: "admin-dashboard",
     dashRefresh: "dash-refresh",

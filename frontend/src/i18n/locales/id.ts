@@ -300,6 +300,9 @@ const id = {
     gemSapphire: "Safir",
     gemEmerald: "Zamrud",
   },
+  adminVideoStudio: {
+    navTitle: "Studio Video",
+  },
   adminCert: {
     navTitle: "Sertifikat",
     title: "Penerbitan Sertifikat",

@@ -40,6 +40,15 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### POST-FREEZE — VIDEO STUDIO (AI Walkthrough Generator) PHASE A (2026-06)
+Client request: bangun "AI Web Feature Walkthrough Video Generator" (video demo TikTok 9:16, 90s, Bahasa Indonesia, voice OpenAI TTS, real-UI Playwright recording). Dikerjakan bertahap; **Phase A saja** (audit → feature map → blueprint → script → editor UI → validasi). Voice-over/recording/render MP4 = Phase B (belum). Production Candidate v2 tetap FROZEN — modul ADDITIF & TERISOLASI, aplikasi existing tidak diubah.
+- **Backend (isolated):** `api/video_studio.py` (router `/api/admin/video-studio`, guard `require_roles(ADMINISTRATOR)`) + `services/video_studio_data.py` (audit terverifikasi: 19 halaman, 20 fitur feature-map, blueprint 5 segmen, 13 scene script ~212 kata). Endpoints: `GET /audit`, `GET/PUT /project`, `POST /project/reset`, `GET /validate`. Storage: koleksi baru **`video_studio_projects`** (BUKAN koleksi bisnis; freeze invariants tetap — counter 14, koleksi bisnis 0). Registered di `server.py`.
+- **Frontend (isolated):** `pages/admin/VideoStudioPage.tsx` + route `/admin/video-studio` + nav `admin-nav-video-studio` (icon FilmSlate) + i18n `adminVideoStudio.navTitle` (id/en). Script Editor/Review UI: workflow stepper (AUDIT/SCRIPT/SYNC=Phase A aktif; VOICE/STORYBOARD/TIMELINE/PREVIEW/EXPORT=Phase B locked), tab Audit&Fitur / Blueprint / Script(scene editor per-scene, modular, tombol "Regenerate scene · Phase B") / Validasi. testids `vs-*`.
+- **Validasi (self-test):** semua endpoint via curl OK; `GET /validate` → 6/6 lolos (durasi 90.0s, 212 kata, timeline kontigu, semua 20 fitur ter-cover, CTA ada). Screenshot 3 tab (auth login) OK, tsc clean. Existing app utuh (nav lengkap + Studio Video ditambahkan).
+- **Prinsip modular:** setiap scene punya id + editing independen; PUT mengirim daftar scene lengkap (per-scene edit tanpa regenerate seluruh video). Kredensial admin test TIDAK diekspos di UI/log/source.
+
+
+
 ### POST-FREEZE — HOMEPAGE BACKGROUND + HERO GEM PHOTOS CMS (2026-06)
 Client request "edit background dan foto di halaman Beranda" (chose A+B). No new Sprint/Phase. Production Candidate stays FROZEN. Validated: testing_agent iteration_21 — new `tests/test_home_bg_and_gems.py` 9/9 BE + FE flows pass, 0 console errors; freeze preserved (counter 14, collections 0). One MEDIUM UI bug (duplicate section-reset testid) fixed by main agent (renamed to `visuals-homebg-reset-all`/`visuals-loginbg-reset-all`; verified unique + tsc clean). Baseline drift on dashboard_bg/login_bg (left enabled by prior UI test flow) restored to defaults.
 - **Reuses the SAME `GET/PUT /api/admin/settings/visuals` + BusinessSettings + media/storage** (no new endpoint/CMS/uploader). New `site_settings` fields: `home_bg_enabled`/`home_bg_url`/`home_bg_opacity`(default 20)/`home_bg_fit`/`home_bg_blur`; and `home_gem_{diamond,ruby,sapphire,emerald}_url` (defaults = current bundled photo URLs, always non-empty). Exposed in public `/api/settings/public`. PUT clamp loop now covers dashboard_bg/login_bg/home_bg (opacity 4–24, blur 0–12, fit cover|center). RBAC unchanged.

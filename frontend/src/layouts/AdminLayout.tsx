@@ -1,5 +1,5 @@
 import { Link, Outlet, NavLink } from "react-router-dom";
-import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown, ShieldCheck, ArrowsLeftRight, IdentificationCard, Image as ImageIcon } from "@phosphor-icons/react";
+import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown, ShieldCheck, ArrowsLeftRight, IdentificationCard, Image as ImageIcon, FilmSlate } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
@@ -96,6 +96,10 @@ export default function AdminLayout() {
           <NavLink to="/admin/visuals" data-testid={TEST_IDS.admin.navVisuals} className={navLinkClass}>
             <ImageIcon size={18} weight="regular" />
             {t("adminVisuals.navTitle")}
+          </NavLink>
+          <NavLink to="/admin/video-studio" data-testid={TEST_IDS.admin.navVideoStudio} className={navLinkClass}>
+            <FilmSlate size={18} weight="regular" />
+            {t("adminVideoStudio.navTitle")}
           </NavLink>
           <NavLink to="/admin/settings" data-testid={TEST_IDS.admin.navSettings} className={navLinkClass}>
             <Gear size={18} weight="regular" />
