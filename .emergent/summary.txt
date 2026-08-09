@@ -1,27 +1,29 @@
 <analysis>**original_problem_statement**: 
-The user requested several non-destructive visual and UI enhancements during a production freeze phase:
-1. **Admin Certificate Demo Preview**: A way to preview the certificate design visually (with a DEMO watermark) from the Admin panel without mutating the database, keeping the certificate counter at  and all business collections empty.
-2. **Production Candidate v2 Freeze**: Update the project marker to AZURIS PRODUCTION CANDIDATE v2 — PRE-HOSTINGER MIGRATION.
-3. **CMS Visual Controls Expansion**: Extend  to control the background images (URL, enabled state, opacity, blur, fit) for the Dashboard, Login Page, and Homepage, as well as the 4 hero gem photos on the Homepage. All new CMS settings must reuse existing architecture and not introduce new storage paths or backend endpoints.
+The user requested multiple isolated tasks while strictly maintaining the PRODUCTION CANDIDATE v2 freeze:
+1. **AZURIS Blueprint**: Create a full application blueprint document.
+2. **AI Walkthrough Video Generator**: Build an isolated system to generate a 90-second TikTok walkthrough video (MP4) using real UI screen recording (Playwright) and AI voice-over (OpenAI TTS via Emergent Key), without modifying the existing app.
+3. **Mobile UI Optimization**: Fix mobile layout issues with minimum necessary changes, specifically adding an admin mobile navigation drawer and fixing the public mobile header/hamburger spacing. 
+4. **Full Functional Verification**: Test all existing user-facing functions for production readiness without mutating the locked database baseline.
+5. **WhatsApp Button Relocation**: Move the WhatsApp button on the Homepage from the Kontak section to beside the Proses Sertifikat heading.
 
 **User's preferred language**: **Indonesian (Bahasa Indonesia)**
 INSTRUCT NEXT AGENT: You MUST automatically detect the user's primary language from their messages inside the <trajectory> tag and INSTRUCT next agent to respond in the user's preferred language only (Bahasa Indonesia).
 
 **what currently exists?** 
-The application is in a strict **AZURIS PRODUCTION CANDIDATE v2 — PRE-HOSTINGER MIGRATION** freeze. The CMS has been extended with visual controls for the Dashboard, Login, and Homepage backgrounds (including blur/opacity/fit), along with editable homepage gem photos. An Admin Certificate Demo Preview was successfully implemented using a stateless PDF generation endpoint that applies a DEMO watermark without touching the database. The DB baseline remains perfectly clean and hermetic.
+The application is in a strict **AZURIS PRODUCTION CANDIDATE v2 — PRE-HOSTINGER MIGRATION** freeze. The codebase is fully optimized for mobile layouts (admin mobile drawer implemented, public header fixed). A standalone video generator pipeline resides safely outside the web application in . The DB baseline remains perfectly clean and hermetic.
 
 **Last working item**: 
-    - Last item agent was working: Implementing the CMS controls for the Homepage Background and 4 hero gem photos (Diamond, Ruby, Sapphire, Emerald) in  and .
+    - Last item agent was working: Moving the WhatsApp button on the public Homepage () to sit directly beside the Proses Sertifikat heading, and removing it from the Kontak section.
     - Status: COMPLETED
     - Agent Testing Done: Y
-    - Which testing method agent to use? NA (Testing agent  passed successfully. Baseline drift was restored,  is strictly 14)
+    - Which testing method agent to use? NA (Testing is already done via Playwright/DOM screenshot validations)
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:  
 None.
 
 **In progress Task List**: 
-None. 
+None.
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
@@ -30,11 +32,12 @@ None.
     - P1: Await client approval to lock provisional numbering formats ( and ).
 
 **Completed work in this session**
-- Admin Certificate Demo Preview (Stateless PDF, DEMO watermark, UI modal, Zero DB mutation) (DONE)
-- Re-freeze Production Candidate v2 marker in PRD (DONE)
-- Dashboard Background CMS Control (enabled, url, opacity, fit, blur) (DONE)
-- Login Page Background CMS Control (enabled, url, opacity, fit, blur) (DONE)
-- Homepage Background & 4 Gem Photos CMS Control (DONE)
+- Generated complete system documentation at  (DONE)
+- Built standalone TikTok AI Video Generator pipeline in  using , , and  TTS (DONE)
+- Added mobile drawer navigation to  for mobile admin users (DONE)
+- Fixed public mobile header layout spacing () for language selector and hamburger icon (DONE)
+- Full functional testing iteration 22 (23/23 PASS) via  and DB baseline restoration (DONE)
+- Moved WhatsApp button to Proses Sertifikat in  (DONE)
 
 **Earlier issues found/mentioned but not fixed**
 None.
@@ -48,71 +51,67 @@ None.
 
 
 **Key Technical Concepts**
-React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Append-only History, Role-Based Access Control (RBAC), PyMuPDF/ReportLab.
+React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Append-only History, Role-Based Access Control (RBAC), Playwright (UI automation), FFmpeg (Video processing), OpenAI TTS (via ).
 
 **key DB schema**
-  - : Single document configuration, now extended with , , , and  fields.
+  - : Single document configuration.
   - : Atomic increments. **MUST REMAIN untouched at **.
+  - All business collections (, , , , etc.) must remain empty ().
 
 **changes in tech stack**
-None.
+- Added  (system package) and  (Python) +  strictly for the isolated video generator. Web app stack remains unchanged.
 
 **All files of reference** 
-  -  (Updated to handle new CMS visual fields)
-  -  (Added  logic)
-  -  (Added Demo Preview Modal)
-  -  (Expanded with Dashboard, Login, and Homepage sections)
-  -  (Added dynamic bg styling for Dashboard)
-  -  (Added dynamic bg styling for Login)
-  -  (Added dynamic bg styling and gem photos rendering)
-  -  (Updated to AZURIS PRODUCTION CANDIDATE v2)
+  -  (New comprehensive system docs)
+  -  (Updated for mobile drawer)
+  -  (Updated flex layout for mobile header)
+  -  (Moved WhatsApp button)
+  -  (Continuously updated)
+  -  (Full functional test report)
 
 **Areas that need refactoring**: 
-None. The code is strictly frozen as a Production Candidate. 
+None. The app is strictly frozen. 
 
 **key api endpoints**
-  - 
-  - 
-  -  (New stateless preview)
+Standard existing endpoints. No new routes were permanently added (temporary video studio routes were reverted as requested).
 
 **Critical Info for New Agent**
 1. **PRODUCTION CANDIDATE v2 FREEZE**: The app is strictly locked. Do NOT introduce new features, design changes, schema migrations, or business logic alterations unless explicitly commanded by the client.
-2. **DB BASELINE INVARIANTS**: The certificate counter MUST rest at  (). All business collections (, , ,  [other than CMS docs], , , , ) MUST be strictly at  upon task completion. Any tests performed MUST be cleaned up completely.
+2. **DB BASELINE INVARIANTS**: The certificate counter MUST rest at  (). All business collections (, , ,  [other than CMS docs], , , , ) MUST be strictly at  upon task completion. 
 3. **LANGUAGE**: Always respond in Indonesian.
-4. **BUSINESS RULES LOCK**: Do not touch .
+4. **NO APP REBUILDS**: When fixing bugs or UI layout, strictly use the *minimum necessary change*. Do not refactor unrelated working code.
 
 **documents and test reports created in this job** 
   - 
   - 
   - 
-  - 
-  - 
 
 **Last 10 User Messages and any pending HUMAN messages** 
-1. **User**: EDIT BACKGROUND DAN FOTO DI HALAMAN BERANDA (Completed)
-2. **User**: Confirmed scope A+B for homepage editing (Completed)
-3. **User**: Requested Position & Blur controls for Dashboard and a separate Login Background (Completed)
-4. **User**: Requested DASHBOARD BACKGROUND CMS CONTROL (Completed)
-5. **User**: Commanded AZURIS PRODUCTION CANDIDATE v2 FREEZE / PRE-HOSTINGER MIGRATION (Completed)
-6. **User**: Bug reminder to use . (Acknowledged)
-7. **User**: Requested ADMIN CERTIFICATE DEMO PREVIEW (Completed)
-8. **User**: Confirmed plan for current session (Acknowledged)
-*(No pending human messages. Await instructions for Hostinger deployment or client approval)*
+1. **User**: Move the existing WhatsApp button to the Proses Sertifikat page/section. (Completed)
+2. **User**: Check all EXISTING user-facing functions in this project and make sure they work correctly for production use. (Completed via iteration 22 and baseline restore)
+3. **User**: Option A — Public mobile navigation/header fix. (Completed)
+4. **User**: Fix ONLY the mobile layout of the menu page (Clarified and routed to Option A above). (Completed)
+5. **User**: Optimize the existing frontend for mobile devices. (Completed - Admin drawer added)
+6. **User**: Hapus halaman admin studio video, buatkan video untuk di upload di tiktok. bukan di dalam web. (Completed - Reverted web features, built standalone Python video processor)
+7. **User**: Silakan lanjut dengan keputusan berikut (OpenAI TTS, real UI, Phase A only). (Completed)
+8. **User**: BUILD: AI WEB FEATURE WALKTHROUGH VIDEO GENERATOR. (Completed via iteration steps)
+*(No pending human messages. The application is completely updated and verified. Next step is strictly awaiting hostinger migration instruction or provisional number locks).*
 
 **Project Health Check:**
-Healthy. No broken or mocked integrations.
+Healthy.
 
 **3rd Party Integrations** 
 - JWT Auth (Internal)
+- OpenAI TTS (via  using Emergent Universal Key — isolated in video_gen script)
 
 **Testing status**
-  - Testing agent used after significant changes: YES (Iterations 18-21 covering Demo Preview, Dashboard CMS, Login CMS, Homepage CMS).
+  - Testing agent used after significant changes: YES (Iteration 22 completed with 23/23 backend pass and 100% functional coverage).
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: Handled internally by .
-  - Known regressions: None. (Baseline drift during tests was manually reset to 0/default by agent).
+  - Test files created: 
+  - Known regressions: None. (Any baseline drift caused by testing was restored successfully).
 
 **Credentials to test flow:**
 See  (e.g.,  / ).
 
 **What agent forgot to execute**
-Nothing. All tasks were executed, verified by the testing agent, and the pristine database baseline of 14 counter / 0 documents was successfully preserved.</analysis>
+Nothing. All tasks were correctly scoped, completed, verified, and the system cleanly restored to its baseline state.</analysis>

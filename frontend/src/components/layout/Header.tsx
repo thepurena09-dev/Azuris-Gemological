@@ -51,10 +51,11 @@ export default function Header() {
           <nav className="hidden items-center gap-2.5 lg:flex">
             {navItems.map((item) => {
               const base =
-                "rounded-lg border px-3.5 py-2 text-[0.66rem] uppercase tracking-[0.16em] transition-[color,background-color,border-color] duration-300";
+                "rounded-lg border border-gold/20 px-3.5 py-2 text-[0.66rem] uppercase tracking-[0.16em] transition-[color,box-shadow,transform,background-color] duration-300 will-change-transform";
               const normal =
-                "border-gold/35 bg-transparent text-muted-foreground hover:border-gold/60 hover:bg-gold/5 hover:text-foreground";
-              const active = "border-gold/70 bg-gold/10 text-foreground";
+                "bg-gradient-to-b from-white to-muted text-muted-foreground shadow-[0_1px_1px_rgba(24,42,64,0.04),0_2px_4px_rgba(24,42,64,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] hover:-translate-y-px hover:text-foreground hover:shadow-[0_2px_4px_rgba(24,42,64,0.06),0_5px_12px_rgba(24,42,64,0.09),inset_0_1px_0_rgba(255,255,255,0.95)] active:translate-y-0 active:shadow-[inset_0_2px_4px_rgba(24,42,64,0.10)]";
+              const active =
+                "border-gold/45 bg-gold/10 text-foreground shadow-[inset_0_1px_3px_rgba(24,42,64,0.12),inset_0_-1px_0_rgba(255,255,255,0.5)]";
               return item.type === "route" ? (
                 <NavLink
                   key={item.to}
@@ -110,7 +111,7 @@ export default function Header() {
                   to={item.to}
                   data-testid={`${item.testId}-mobile`}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-gold/30 px-4 py-3.5 text-sm uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-gold/55 hover:text-foreground"
+                  className="rounded-lg border border-gold/20 bg-gradient-to-b from-white to-muted px-4 py-3.5 text-sm uppercase tracking-[0.18em] text-muted-foreground shadow-[0_1px_1px_rgba(24,42,64,0.04),0_2px_4px_rgba(24,42,64,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] transition-[color,box-shadow] duration-300 hover:text-foreground active:shadow-[inset_0_2px_4px_rgba(24,42,64,0.10)]"
                 >
                   {t(item.key)}
                 </Link>
