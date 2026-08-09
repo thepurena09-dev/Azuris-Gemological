@@ -36,14 +36,15 @@ export default function Header() {
         data-testid={TEST_IDS.header.root}
         className="border-b border-border bg-background"
       >
-        <div className="mx-auto grid h-24 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-2 px-5 sm:px-6 md:h-24 md:px-10 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-0">
           {/* Logo left */}
           <Link
             to="/"
             data-testid={TEST_IDS.header.brand}
-            className="group flex w-fit items-center"
+            className="group flex w-fit shrink-0 items-center"
           >
-            <Logo size={46} />
+            <Logo size={38} className="sm:hidden" testId="azuris-logo-m" />
+            <Logo size={46} className="hidden sm:flex" />
           </Link>
 
           {/* Navigation center */}
@@ -78,7 +79,7 @@ export default function Header() {
           </nav>
 
           {/* Actions right */}
-          <div className="flex items-center justify-end gap-5">
+          <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3 lg:gap-5">
             <LanguageSwitcher />
             <Link
               to="/login"
@@ -92,7 +93,7 @@ export default function Header() {
               type="button"
               data-testid={TEST_IDS.header.mobileToggle}
               onClick={() => setOpen((v) => !v)}
-              className="text-foreground lg:hidden"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-gold/10 lg:hidden"
               aria-label="Toggle navigation"
             >
               {open ? <X size={24} weight="thin" /> : <List size={24} weight="thin" />}
@@ -101,7 +102,7 @@ export default function Header() {
         </div>
 
         {open && (
-          <div className="border-t border-border bg-background px-6 py-6 lg:hidden">
+          <div className="border-t border-border bg-background px-5 py-6 sm:px-6 md:px-10 lg:hidden">
             <nav className="flex flex-col gap-3">
               {navItems.map((item) => (
                 <Link
@@ -109,7 +110,7 @@ export default function Header() {
                   to={item.to}
                   data-testid={`${item.testId}-mobile`}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-gold/30 px-4 py-3 text-sm uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-gold/55 hover:text-foreground"
+                  className="rounded-lg border border-gold/30 px-4 py-3.5 text-sm uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-gold/55 hover:text-foreground"
                 >
                   {t(item.key)}
                 </Link>

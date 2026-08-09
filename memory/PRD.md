@@ -40,6 +40,11 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### MOBILE FIX — PUBLIC HEADER & HAMBURGER (2026-06, presentation-only, 1 file)
+Fix isu header publik mobile (logo berdesakan dengan ID/EN, alignment hamburger, muat viewport). Hanya `components/layout/Header.tsx`: bar responsif `flex justify-between` di mobile → tetap `lg:grid grid-cols-[1fr_auto_1fr]` (nav center) di desktop; logo mengecil di mobile (`Logo size 38 sm:hidden` + `46 hidden sm:flex`, testid mobile `azuris-logo-m`); jarak actions `gap-2 sm:gap-3 lg:gap-5`; hamburger diberi touch-target `h-11 w-11` + hover; padding drawer disejajarkan `px-5 sm:px-6 md:px-10` & item drawer `py-3.5`. Komponen `Logo` & `LanguageSwitcher` TIDAK diubah. Semua menu item/route/testid dipertahankan (`{testId}-mobile`). Verified: tsc clean; 0 overflow di 360 & 390px; menu buka rapi; desktop (1280px) tidak berubah (hamburger tersembunyi). Freeze bisnis tetap.
+
+
+
 ### MOBILE OPTIMIZATION — ADMIN NAV DRAWER (2026-06, presentation-only)
 Audit mobile (390px, Playwright): sisi publik SUDAH responsif (header hamburger + menu, hero/section stack, form muat, tanpa overflow); login & konten admin juga stack rapi. **Satu isu nyata:** panel admin tidak punya navigasi di mobile — `AdminLayout` sidebar `hidden md:flex` tanpa pengganti. **Fix minimal (1 file `layouts/AdminLayout.tsx`):** nav diekstrak ke `NAV_ITEMS` + `SidebarBody` yang dipakai ulang; ditambah tombol hamburger `admin-mobile-nav-toggle` (md:hidden) di topbar, drawer overlay `admin-mobile-nav` (reuse nav items yang sama, testid mobile bersuffix `-m`, tutup via backdrop/X, auto-close saat klik menu), dan kotak Search dekoratif disembunyikan di mobile. Tidak ada perubahan route/logic/desktop. Verified: tsc clean; mobile drawer buka+navigasi OK; desktop sidebar tetap tampil & hamburger tersembunyi; 0 overflow horizontal di seluruh route publik+admin (390px). Freeze bisnis tetap (counter 14, koleksi bisnis 0).
 
