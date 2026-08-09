@@ -40,6 +40,11 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### UI MOVE — WhatsApp button ke section "Proses Sertifikasi" (2026-06, 1 file)
+Pindahkan tombol WhatsApp yang ada dari section Kontak (`id="kontak"`) ke samping heading "Proses Sertifikasi" (`id="proses"`) di `pages/public/HomePage.tsx`. Reuse tombol yang sama (href `whatsappHref()`, teks `contact.whatsapp`, ikon), tanpa mengubah fungsi. Heading dibungkus flex `sm:flex-row sm:justify-between` → desktop tombol di kanan heading, mobile stack di bawah. Dihapus dari section Kontak (tanpa duplikat — DOM confirm 1 anchor wa.me di section proses). tsc clean; verified visual desktop 1280 & mobile 390. Tidak ada perubahan route/backend/logic.
+
+
+
 ### PRODUCTION FUNCTIONAL VERIFICATION (2026-06, no code change)
 Verifikasi menyeluruh fungsi user-facing via testing_agent (iteration_22): **backend 23/23 PASS, seluruh alur frontend terverifikasi, TIDAK ada bug fungsional**. Tercakup: nav/route publik, verifikasi sertifikat (roundtrip valid + invalid graceful), membership verify, legalitas, language switcher, auth (login valid/invalid, logout, redirect protected), 11 route admin, dashboard analytics, CRUD customers/gemstones, penerbitan sertifikat (format AZR-GEM-000015-26 + security code sekali + PDF A6 + demo preview), warranty, ownership assign+transfer+complete, membership issue+verify+QR, CMS visuals GET/PUT, settings WhatsApp, response envelope, tanpa 5xx/console error. Komentar reviewer = catatan non-bug (slug route Inggris disengaja, rate-limiter in-memory OK MVP, penamaan `certificate_uuid`, drift `*_bg_enabled` pra-ada). Sesuai instruksi, fungsi yang sudah bekerja TIDAK diubah. **Baseline FROZEN dipulihkan persis** setelah data test (counter=14, koleksi bisnis=0, log ditrim ke baseline; snapshot di `/app/memory/baseline_snapshot.json` & `baseline_docs.json`).
 
