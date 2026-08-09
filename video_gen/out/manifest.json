@@ -1,0 +1,244 @@
+{
+  "voice": "onyx",
+  "model": "tts-1-hd",
+  "scenes": [
+    {
+      "id": "scene-01",
+      "index": 1,
+      "segment": "HOOK",
+      "narration": "Punya batu mulia berharga? Pastikan keasliannya lewat sertifikasi digital dari Azuris.",
+      "visual": "Beranda — hero slide berlian dengan logo Azuris.",
+      "action": "Tampil hero, zoom-in ringan ke logo & judul.",
+      "route": "/",
+      "record_targets": [
+        "hero-logo",
+        "home-hero"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-01.mp3",
+      "gap_before": 0.0,
+      "audio_duration": 4.848,
+      "start": 0.0,
+      "end": 4.848
+    },
+    {
+      "id": "scene-02",
+      "index": 2,
+      "segment": "WHAT IS THIS",
+      "narration": "Azuris Gemological adalah platform pemeriksaan, dokumentasi, dan verifikasi batu mulia profesional, lengkap dengan panel admin untuk seluruh alur kerja.",
+      "visual": "Scroll beranda (empat pilar & proses) lalu kilas dashboard admin.",
+      "action": "Scroll halus di beranda, transisi cepat ke dashboard.",
+      "route": "/",
+      "record_targets": [
+        "home-page",
+        "admin-dashboard"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-02.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 8.496,
+      "start": 4.998,
+      "end": 13.494
+    },
+    {
+      "id": "scene-03",
+      "index": 3,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Pengunjung bisa langsung memverifikasi keaslian. Masukkan nomor sertifikat dan kode keamanan, atau pindai QR, dan pratinjau sertifikat resmi tampil seketika.",
+      "visual": "Bagian Verifikasi di beranda.",
+      "action": "Kursor mengisi nomor + kode, klik Verifikasi.",
+      "route": "/#verification",
+      "record_targets": [
+        "verify-section",
+        "verify-cert-input",
+        "verify-submit"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-03.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 8.664,
+      "start": 13.644,
+      "end": 22.308
+    },
+    {
+      "id": "scene-04",
+      "index": 4,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Halaman publik menjelaskan lima langkah proses sertifikasi, standar pemeriksaan, legalitas resmi, hingga kontak langsung via WhatsApp.",
+      "visual": "Scroll proses → standar → legalitas teaser → kontak; buka /legalitas sekilas.",
+      "action": "Scroll berurutan, sorot tombol WhatsApp, buka halaman Legalitas.",
+      "route": "/",
+      "record_targets": [
+        "home-process",
+        "home-standards",
+        "legality-teaser"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-04.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 7.248,
+      "start": 22.458,
+      "end": 29.706
+    },
+    {
+      "id": "scene-05",
+      "index": 5,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Keanggotaan Azuris pun dapat diverifikasi publik; identitas anggota tampil aman tanpa data pribadi.",
+      "visual": "Bagian keanggotaan beranda → buka portal /membership.",
+      "action": "Klik CTA keanggotaan, portal verifikasi terbuka.",
+      "route": "/membership",
+      "record_targets": [
+        "home-membership",
+        "home-membership-cta"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-05.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 5.616,
+      "start": 29.856,
+      "end": 35.472
+    },
+    {
+      "id": "scene-06",
+      "index": 6,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Di sisi admin, tim masuk dengan aman lewat autentikasi berbasis peran.",
+      "visual": "Halaman login admin, lalu masuk ke dashboard.",
+      "action": "Isi login (kredensial tidak ditampilkan), submit, dashboard muncul.",
+      "route": "/login",
+      "record_targets": [
+        "login-form",
+        "login-submit"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-06.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 3.816,
+      "start": 35.622,
+      "end": 39.438
+    },
+    {
+      "id": "scene-07",
+      "index": 7,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Dasbor menyajikan ringkasan aman-privasi: total data, tren verifikasi, rincian status, dan nomor sertifikat berikutnya secara otomatis.",
+      "visual": "Dashboard: kartu metrik, grafik tren verifikasi, bar status, panel nomor sertifikat.",
+      "action": "Sorot kartu metrik lalu grafik tren.",
+      "route": "/admin/dashboard",
+      "record_targets": [
+        "dash-metrics",
+        "dash-verify-chart"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-07.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 7.464,
+      "start": 39.588,
+      "end": 47.052
+    },
+    {
+      "id": "scene-08",
+      "index": 8,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Inti platform: penerbitan sertifikat. Catat data batu, terbitkan nomor unik, lalu dapatkan kode keamanan sekali pakai, kode QR, dan PDF A6 siap cetak, bahkan contoh sertifikatnya.",
+      "visual": "Halaman Sertifikat: form data batu, tombol Terbitkan, tampil kode + QR, Unduh PDF, modal Contoh Sertifikat.",
+      "action": "Isi form, klik Terbitkan, sorot kode+QR, klik Unduh PDF lalu Lihat Contoh Sertifikat.",
+      "route": "/admin/certificates",
+      "record_targets": [
+        "cert-issue-btn",
+        "cert-demo-preview-btn"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-08.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 9.936,
+      "start": 47.202,
+      "end": 57.138
+    },
+    {
+      "id": "scene-09",
+      "index": 9,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Kelola katalog batu beserta media dan status, susun perhiasan, dan simpan data pelanggan dengan persetujuan privasi.",
+      "visual": "Montase cepat: Batu Mulia → Perhiasan → Pelanggan.",
+      "action": "Transisi antar halaman, sorot elemen kunci tiap halaman.",
+      "route": "/admin/gemstones",
+      "record_targets": [
+        "admin-nav-gemstones",
+        "admin-nav-jewelry",
+        "admin-nav-customers"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-09.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 6.504,
+      "start": 57.288,
+      "end": 63.792
+    },
+    {
+      "id": "scene-10",
+      "index": 10,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Tambahkan garansi berversi, alur transfer kepemilikan yang tercatat, dan kartu anggota digital lengkap dengan QR.",
+      "visual": "Montase cepat: Garansi → Kepemilikan → Kartu Anggota (modal kartu digital).",
+      "action": "Transisi antar halaman, buka modal kartu anggota di akhir.",
+      "route": "/admin/warranties",
+      "record_targets": [
+        "admin-nav-warranties",
+        "admin-nav-ownership",
+        "admin-nav-membership"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-10.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 5.616,
+      "start": 63.942,
+      "end": 69.558
+    },
+    {
+      "id": "scene-11",
+      "index": 11,
+      "segment": "FEATURE WALKTHROUGH",
+      "narration": "Terakhir, atur tampilan publik lewat CMS visual, ubah kontak WhatsApp, dan publikasikan legalitas.",
+      "visual": "Montase cepat: Visual & Konten → Pengaturan → Legalitas admin.",
+      "action": "Transisi antar halaman, sorot kontrol utama tiap halaman.",
+      "route": "/admin/visuals",
+      "record_targets": [
+        "admin-nav-visuals",
+        "admin-nav-settings",
+        "admin-nav-legality"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-11.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 5.424,
+      "start": 69.708,
+      "end": 75.132
+    },
+    {
+      "id": "scene-12",
+      "index": 12,
+      "segment": "KEY BENEFIT / SUMMARY",
+      "narration": "Dari verifikasi publik, penerbitan sertifikat, hingga kepemilikan dan keanggotaan, semua alur gemologi berjalan dalam satu sistem yang rapi, aman, dan dapat diverifikasi.",
+      "visual": "Montase cepat beberapa fitur utama (beranda, verifikasi, sertifikat, kartu anggota).",
+      "action": "Potongan cepat berirama antar fitur utama.",
+      "route": "/",
+      "record_targets": [
+        "home-page"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-12.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 9.384,
+      "start": 75.282,
+      "end": 84.666
+    },
+    {
+      "id": "scene-13",
+      "index": 13,
+      "segment": "CTA",
+      "narration": "Azuris Gemological, sertifikasi batu mulia yang tepercaya. Verifikasi sertifikat Anda sekarang di situs kami.",
+      "visual": "Beranda hero + logo Azuris sebagai penutup kuat.",
+      "action": "Tahan pada hero + logo, teks CTA muncul.",
+      "route": "/",
+      "record_targets": [
+        "hero-logo"
+      ],
+      "audio": "/app/video_gen/out/audio/scene-13.mp3",
+      "gap_before": 0.15,
+      "audio_duration": 6.096,
+      "start": 84.816,
+      "end": 90.912
+    }
+  ],
+  "total_duration": 90.912
+}

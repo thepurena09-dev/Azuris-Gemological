@@ -299,9 +299,6 @@ const en = {
     gemSapphire: "Sapphire",
     gemEmerald: "Emerald",
   },
-  adminVideoStudio: {
-    navTitle: "Video Studio",
-  },
   adminCert: {
     navTitle: "Certificates",
     title: "Certificate Issuance",

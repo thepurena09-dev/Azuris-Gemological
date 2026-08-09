@@ -1,0 +1,42 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Sub,DejaVu Sans,52,&H00FFFFFF,&H00FFFFFF,&H00201810,&HB4000000,1,0,0,0,100,100,0,0,3,6,0,2,90,90,470,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:02.42,Sub,,0,0,0,,Punya batu mulia berharga?\NPastikan keasliannya lewat sertifikasi digital
+Dialogue: 0,0:00:02.42,0:00:04.85,Sub,,0,0,0,,dari Azuris.
+Dialogue: 0,0:00:04.93,0:00:07.76,Sub,,0,0,0,,Azuris Gemological adalah platform pemeriksaan,\Ndokumentasi, dan verifikasi batu
+Dialogue: 0,0:00:07.76,0:00:10.59,Sub,,0,0,0,,mulia profesional, lengkap\Ndengan panel admin untuk seluruh alur
+Dialogue: 0,0:00:10.59,0:00:13.42,Sub,,0,0,0,,kerja.
+Dialogue: 0,0:00:13.50,0:00:16.39,Sub,,0,0,0,,Pengunjung bisa langsung memverifikasi keaslian.\NMasukkan nomor sertifikat dan
+Dialogue: 0,0:00:16.39,0:00:19.28,Sub,,0,0,0,,kode keamanan, atau pindai\NQR, dan pratinjau sertifikat resmi
+Dialogue: 0,0:00:19.28,0:00:22.17,Sub,,0,0,0,,tampil seketika.
+Dialogue: 0,0:00:22.25,0:00:25.87,Sub,,0,0,0,,Halaman publik menjelaskan lima langkah proses\Nsertifikasi, standar pemeriksaan,
+Dialogue: 0,0:00:25.87,0:00:29.50,Sub,,0,0,0,,legalitas resmi, hingga\Nkontak langsung via WhatsApp.
+Dialogue: 0,0:00:29.58,0:00:32.38,Sub,,0,0,0,,Keanggotaan Azuris pun\Ndapat diverifikasi publik; identitas anggota tampil
+Dialogue: 0,0:00:32.38,0:00:35.19,Sub,,0,0,0,,aman tanpa data pribadi.
+Dialogue: 0,0:00:35.27,0:00:37.18,Sub,,0,0,0,,Di sisi admin, tim masuk\Ndengan aman lewat autentikasi
+Dialogue: 0,0:00:37.18,0:00:39.09,Sub,,0,0,0,,berbasis peran.
+Dialogue: 0,0:00:39.17,0:00:42.90,Sub,,0,0,0,,Dasbor menyajikan ringkasan aman-privasi:\Ntotal data, tren verifikasi, rincian
+Dialogue: 0,0:00:42.90,0:00:46.63,Sub,,0,0,0,,status, dan nomor\Nsertifikat berikutnya secara otomatis.
+Dialogue: 0,0:00:46.71,0:00:50.02,Sub,,0,0,0,,Inti platform: penerbitan\Nsertifikat. Catat data batu, terbitkan nomor
+Dialogue: 0,0:00:50.02,0:00:53.34,Sub,,0,0,0,,unik, lalu dapatkan kode\Nkeamanan sekali pakai, kode QR,
+Dialogue: 0,0:00:53.34,0:00:56.65,Sub,,0,0,0,,dan PDF A6 siap cetak,\Nbahkan contoh sertifikatnya.
+Dialogue: 0,0:00:56.73,0:00:59.98,Sub,,0,0,0,,Kelola katalog batu\Nbeserta media dan status, susun perhiasan,
+Dialogue: 0,0:00:59.98,0:01:03.23,Sub,,0,0,0,,dan simpan data pelanggan\Ndengan persetujuan privasi.
+Dialogue: 0,0:01:03.31,0:01:06.12,Sub,,0,0,0,,Tambahkan garansi berversi, alur transfer\Nkepemilikan yang tercatat, dan
+Dialogue: 0,0:01:06.12,0:01:08.93,Sub,,0,0,0,,kartu anggota digital\Nlengkap dengan QR.
+Dialogue: 0,0:01:09.01,0:01:11.72,Sub,,0,0,0,,Terakhir, atur tampilan\Npublik lewat CMS visual, ubah kontak
+Dialogue: 0,0:01:11.72,0:01:14.43,Sub,,0,0,0,,WhatsApp, dan publikasikan\Nlegalitas.
+Dialogue: 0,0:01:14.51,0:01:17.64,Sub,,0,0,0,,Dari verifikasi publik, penerbitan sertifikat,\Nhingga kepemilikan dan keanggotaan,
+Dialogue: 0,0:01:17.64,0:01:20.77,Sub,,0,0,0,,semua alur gemologi\Nberjalan dalam satu sistem yang rapi,
+Dialogue: 0,0:01:20.77,0:01:23.90,Sub,,0,0,0,,aman, dan dapat\Ndiverifikasi.
+Dialogue: 0,0:01:23.98,0:01:27.02,Sub,,0,0,0,,Azuris Gemological, sertifikasi batu mulia\Nyang tepercaya. Verifikasi sertifikat
+Dialogue: 0,0:01:27.02,0:01:30.07,Sub,,0,0,0,,Anda sekarang di situs\Nkami.

@@ -23,7 +23,6 @@ import WarrantiesPage from "@/pages/admin/WarrantiesPage";
 import OwnershipPage from "@/pages/admin/OwnershipPage";
 import MembershipPage from "@/pages/admin/MembershipPage";
 import VisualsPage from "@/pages/admin/VisualsPage";
-import VideoStudioPage from "@/pages/admin/VideoStudioPage";
 import MembershipVerifyPage from "@/pages/public/MembershipVerifyPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -78,7 +77,6 @@ function App() {
                 <Route path="ownership" element={<OwnershipPage />} />
                 <Route path="membership" element={<MembershipPage />} />
                 <Route path="visuals" element={<VisualsPage />} />
-                <Route path="video-studio" element={<VideoStudioPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 
