@@ -1,0 +1,26 @@
+{
+  "customers": 0,
+  "gemstones": 0,
+  "jewelry": 0,
+  "certificates": 0,
+  "warranties": 0,
+  "membership_cards": 0,
+  "ownership_transfers": 0,
+  "verification_tokens": 0,
+  "media": 50,
+  "site_settings": 1,
+  "legality": 0,
+  "admins": 4,
+  "audit_logs": 400,
+  "security_logs": 485,
+  "verification_logs": 36,
+  "counter_certificate": 14,
+  "counters_all": [
+    {
+      "year": 2026,
+      "name": "certificate",
+      "last_number": 14,
+      "updated_at": "2026-08-08T19:51:15.823863+00:00"
+    }
+  ]
+}
