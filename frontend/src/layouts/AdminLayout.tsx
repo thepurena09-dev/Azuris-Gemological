@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, Outlet, NavLink } from "react-router-dom";
-import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown, ShieldCheck, ArrowsLeftRight, IdentificationCard, Image as ImageIcon } from "@phosphor-icons/react";
+import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown, ShieldCheck, ArrowsLeftRight, IdentificationCard, Image as ImageIcon, List, X } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
@@ -14,10 +15,25 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-white/5 text-gold" : "text-primary-foreground/60 hover:text-primary-foreground"
   }`;
 
+const NAV_ITEMS = [
+  { to: "/admin/dashboard", id: TEST_IDS.admin.navDashboard, Icon: Gauge, label: "admin.dashboard" },
+  { to: "/admin/legalitas", id: TEST_IDS.admin.navLegality, Icon: Certificate, label: "adminNav.legality" },
+  { to: "/admin/certificates", id: TEST_IDS.admin.navCertificates, Icon: SealCheck, label: "adminCert.navTitle" },
+  { to: "/admin/customers", id: TEST_IDS.admin.navCustomers, Icon: Users, label: "adminNav.customers" },
+  { to: "/admin/gemstones", id: TEST_IDS.admin.navGemstones, Icon: Diamond, label: "adminNav.gemstones" },
+  { to: "/admin/jewelry", id: TEST_IDS.admin.navJewelry, Icon: Crown, label: "adminNav.jewelry" },
+  { to: "/admin/warranties", id: TEST_IDS.admin.navWarranties, Icon: ShieldCheck, label: "adminNav.warranties" },
+  { to: "/admin/ownership", id: TEST_IDS.admin.navOwnership, Icon: ArrowsLeftRight, label: "adminNav.ownership" },
+  { to: "/admin/membership", id: TEST_IDS.admin.navMembership, Icon: IdentificationCard, label: "adminNav.membership" },
+  { to: "/admin/visuals", id: TEST_IDS.admin.navVisuals, Icon: ImageIcon, label: "adminVisuals.navTitle" },
+  { to: "/admin/settings", id: TEST_IDS.admin.navSettings, Icon: Gear, label: "adminNav.settings" },
+] as const;
+
 export default function AdminLayout() {
   const { t } = useLanguage();
   const { logout } = useAuth();
   const { visuals } = useBusiness();
+  const [navOpen, setNavOpen] = useState(false);
 
   const useCustomBg = Boolean(visuals?.dashboard_bg_enabled && visuals?.dashboard_bg_url);
   const bgImage = useCustomBg ? mediaUrl(visuals!.dashboard_bg_url) : MARBLE_BG;
@@ -27,111 +43,107 @@ export default function AdminLayout() {
   const bgSize = useCustomBg && visuals!.dashboard_bg_fit === "center" ? "contain" : "cover";
   const bgBlur = useCustomBg ? Math.min(Math.max(visuals!.dashboard_bg_blur ?? 0, 0), 12) : 0;
 
+  // Shared sidebar body (brand + nav + logout). `idSuffix` keeps mobile testids
+  // unique from the always-in-DOM desktop sidebar. `onNavigate` closes the drawer.
+  const SidebarBody = ({ idSuffix = "", onNavigate }: { idSuffix?: string; onNavigate?: () => void }) => (
+    <>
+      <Link to="/" onClick={onNavigate} className="mb-10 flex items-center gap-3">
+        <img
+          src="/azuris-logo.png"
+          alt="Azuris Gemological"
+          width={34}
+          height={34}
+          className="h-[34px] w-[34px] object-contain"
+          data-testid={`admin-logo${idSuffix}`}
+        />
+        <span className="flex flex-col leading-none">
+          <span className="font-serif text-xl font-semibold tracking-tight">AZURIS</span>
+          <span className="mt-1.5 block text-[0.5rem] uppercase tracking-[0.4em] text-primary-foreground/50">
+            {t("admin.title")}
+          </span>
+        </span>
+      </Link>
+
+      <nav className="flex flex-col gap-1.5 border-t border-primary-foreground/10 pt-8">
+        {NAV_ITEMS.map(({ to, id, Icon, label }) => (
+          <NavLink key={to} to={to} data-testid={`${id}${idSuffix}`} className={navLinkClass} onClick={onNavigate}>
+            <Icon size={18} weight="regular" />
+            {t(label)}
+          </NavLink>
+        ))}
+      </nav>
+
+      <button
+        type="button"
+        data-testid={`${TEST_IDS.admin.logout}${idSuffix}`}
+        onClick={() => {
+          onNavigate?.();
+          logout();
+        }}
+        className="mt-auto flex items-center gap-2 pt-8 text-[0.7rem] uppercase tracking-[0.15em] text-primary-foreground/50 transition-colors hover:text-primary-foreground"
+      >
+        <SignOut size={16} weight="thin" />
+        {t("auth.logout")}
+      </button>
+    </>
+  );
+
   return (
-    <div
-      data-testid={TEST_IDS.admin.layout}
-      className="flex min-h-screen bg-secondary text-foreground"
-    >
-      {/* Deep Navy sidebar */}
+    <div data-testid={TEST_IDS.admin.layout} className="flex min-h-screen bg-secondary text-foreground">
+      {/* Deep Navy sidebar (desktop) */}
       <aside
         data-testid={TEST_IDS.admin.sidebar}
         className="hidden w-72 shrink-0 flex-col bg-primary p-7 text-primary-foreground md:flex"
       >
-        <Link to="/" className="mb-10 flex items-center gap-3">
-          <img
-            src="/azuris-logo.png"
-            alt="Azuris Gemological"
-            width={34}
-            height={34}
-            className="h-[34px] w-[34px] object-contain"
-            data-testid="admin-logo"
-          />
-          <span className="flex flex-col leading-none">
-            <span className="font-serif text-xl font-semibold tracking-tight">
-              AZURIS
-            </span>
-            <span className="mt-1.5 block text-[0.5rem] uppercase tracking-[0.4em] text-primary-foreground/50">
-              {t("admin.title")}
-            </span>
-          </span>
-        </Link>
-
-        <nav className="flex flex-col gap-1.5 border-t border-primary-foreground/10 pt-8">
-          <NavLink to="/admin/dashboard" data-testid={TEST_IDS.admin.navDashboard} className={navLinkClass}>
-            <Gauge size={18} weight="regular" />
-            {t("admin.dashboard")}
-          </NavLink>
-          <NavLink to="/admin/legalitas" data-testid={TEST_IDS.admin.navLegality} className={navLinkClass}>
-            <Certificate size={18} weight="regular" />
-            {t("adminNav.legality")}
-          </NavLink>
-          <NavLink to="/admin/certificates" data-testid={TEST_IDS.admin.navCertificates} className={navLinkClass}>
-            <SealCheck size={18} weight="regular" />
-            {t("adminCert.navTitle")}
-          </NavLink>
-          <NavLink to="/admin/customers" data-testid={TEST_IDS.admin.navCustomers} className={navLinkClass}>
-            <Users size={18} weight="regular" />
-            {t("adminNav.customers")}
-          </NavLink>
-          <NavLink to="/admin/gemstones" data-testid={TEST_IDS.admin.navGemstones} className={navLinkClass}>
-            <Diamond size={18} weight="regular" />
-            {t("adminNav.gemstones")}
-          </NavLink>
-          <NavLink to="/admin/jewelry" data-testid={TEST_IDS.admin.navJewelry} className={navLinkClass}>
-            <Crown size={18} weight="regular" />
-            {t("adminNav.jewelry")}
-          </NavLink>
-          <NavLink to="/admin/warranties" data-testid={TEST_IDS.admin.navWarranties} className={navLinkClass}>
-            <ShieldCheck size={18} weight="regular" />
-            {t("adminNav.warranties")}
-          </NavLink>
-          <NavLink to="/admin/ownership" data-testid={TEST_IDS.admin.navOwnership} className={navLinkClass}>
-            <ArrowsLeftRight size={18} weight="regular" />
-            {t("adminNav.ownership")}
-          </NavLink>
-          <NavLink to="/admin/membership" data-testid={TEST_IDS.admin.navMembership} className={navLinkClass}>
-            <IdentificationCard size={18} weight="regular" />
-            {t("adminNav.membership")}
-          </NavLink>
-          <NavLink to="/admin/visuals" data-testid={TEST_IDS.admin.navVisuals} className={navLinkClass}>
-            <ImageIcon size={18} weight="regular" />
-            {t("adminVisuals.navTitle")}
-          </NavLink>
-          <NavLink to="/admin/settings" data-testid={TEST_IDS.admin.navSettings} className={navLinkClass}>
-            <Gear size={18} weight="regular" />
-            {t("adminNav.settings")}
-          </NavLink>
-        </nav>
-
-        <button
-          type="button"
-          data-testid={TEST_IDS.admin.logout}
-          onClick={logout}
-          className="mt-auto flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.15em] text-primary-foreground/50 transition-colors hover:text-primary-foreground"
-        >
-          <SignOut size={16} weight="thin" />
-          {t("auth.logout")}
-        </button>
+        <SidebarBody />
       </aside>
+
+      {/* Mobile navigation drawer */}
+      {navOpen && (
+        <div className="fixed inset-0 z-50 md:hidden" data-testid="admin-mobile-nav">
+          <div
+            className="absolute inset-0 bg-black/50"
+            aria-hidden="true"
+            onClick={() => setNavOpen(false)}
+          />
+          <aside className="absolute left-0 top-0 flex h-full w-72 max-w-[82%] flex-col overflow-y-auto bg-primary p-7 text-primary-foreground shadow-2xl">
+            <button
+              type="button"
+              data-testid="admin-mobile-nav-close"
+              onClick={() => setNavOpen(false)}
+              aria-label="Tutup menu"
+              className="mb-4 self-end text-primary-foreground/70 hover:text-primary-foreground"
+            >
+              <X size={22} weight="thin" />
+            </button>
+            <SidebarBody idSuffix="-m" onNavigate={() => setNavOpen(false)} />
+          </aside>
+        </div>
+      )}
 
       {/* Workspace */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* White topbar */}
-        <header className="flex h-20 items-center justify-between gap-6 border-b border-border bg-background px-6 md:px-10">
-          <div className="flex max-w-md flex-1 items-center gap-3 rounded-lg border border-border bg-secondary px-4 py-2.5 text-muted-foreground">
-            <MagnifyingGlass size={16} weight="regular" />
-            <span className="text-sm">Search…</span>
+        <header className="flex h-20 items-center justify-between gap-4 border-b border-border bg-background px-4 md:px-10">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <button
+              type="button"
+              data-testid="admin-mobile-nav-toggle"
+              onClick={() => setNavOpen(true)}
+              aria-label="Buka menu"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border text-foreground md:hidden"
+            >
+              <List size={22} weight="regular" />
+            </button>
+            <div className="hidden max-w-md flex-1 items-center gap-3 rounded-lg border border-border bg-secondary px-4 py-2.5 text-muted-foreground md:flex">
+              <MagnifyingGlass size={16} weight="regular" />
+              <span className="text-sm">Search…</span>
+            </div>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex shrink-0 items-center gap-5">
             <Bell size={20} weight="regular" className="text-muted-foreground" />
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 bg-secondary">
-              <img
-                src="/azuris-logo.png"
-                alt="Azuris"
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
+              <img src="/azuris-logo.png" alt="Azuris" width={24} height={24} className="h-6 w-6 object-contain" />
             </span>
           </div>
         </header>

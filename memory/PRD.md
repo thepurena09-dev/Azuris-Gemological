@@ -40,6 +40,11 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### MOBILE OPTIMIZATION — ADMIN NAV DRAWER (2026-06, presentation-only)
+Audit mobile (390px, Playwright): sisi publik SUDAH responsif (header hamburger + menu, hero/section stack, form muat, tanpa overflow); login & konten admin juga stack rapi. **Satu isu nyata:** panel admin tidak punya navigasi di mobile — `AdminLayout` sidebar `hidden md:flex` tanpa pengganti. **Fix minimal (1 file `layouts/AdminLayout.tsx`):** nav diekstrak ke `NAV_ITEMS` + `SidebarBody` yang dipakai ulang; ditambah tombol hamburger `admin-mobile-nav-toggle` (md:hidden) di topbar, drawer overlay `admin-mobile-nav` (reuse nav items yang sama, testid mobile bersuffix `-m`, tutup via backdrop/X, auto-close saat klik menu), dan kotak Search dekoratif disembunyikan di mobile. Tidak ada perubahan route/logic/desktop. Verified: tsc clean; mobile drawer buka+navigasi OK; desktop sidebar tetap tampil & hamburger tersembunyi; 0 overflow horizontal di seluruh route publik+admin (390px). Freeze bisnis tetap (counter 14, koleksi bisnis 0).
+
+
+
 ### POST-FREEZE — TIKTOK WALKTHROUGH VIDEO (standalone MP4 generator, 2026-06)
 Client: buat **file video MP4** untuk diupload ke TikTok (bukan fitur/halaman di dalam web). Revisi: halaman admin "Studio Video" yang sempat dibuat **DIHAPUS**; aplikasi AZURIS dikembalikan persis ke kondisi FROZEN (counter=14, koleksi bisnis=0, koleksi `video_studio_projects` di-drop). Verified: `tsc` clean, backend health ok, tidak ada perubahan pada frontend/backend app (hanya 1 aset statis unduhan di `frontend/public/downloads/`).
 - **Pipeline mandiri di `/app/video_gen/`** (di luar app): `feature_map.py` (audit terverifikasi 19 halaman / 20 fitur / 13 scene script ID ~213 kata), `config.py`, `gen_audio.py` (OpenAI TTS via Emergent key, voice `onyx`, tts-1-hd, speed 1.12 → voice-over master 90.9s), `record.py` (Playwright rekam UI ASLI 1080×1920, kursor+ripple+highlight injeksi, login off-camera via storage_state → kredensial TIDAK pernah tampil), `render.py` (trim per-scene ke durasi audio, subtitle ASS Indonesia di safe-area TikTok, concat + mux ffmpeg).
