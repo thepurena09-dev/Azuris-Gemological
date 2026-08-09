@@ -40,6 +40,11 @@ attached to the job; executed from the detailed written direction.)
 
 ## Progress Log
 
+### PRODUCTION FUNCTIONAL VERIFICATION (2026-06, no code change)
+Verifikasi menyeluruh fungsi user-facing via testing_agent (iteration_22): **backend 23/23 PASS, seluruh alur frontend terverifikasi, TIDAK ada bug fungsional**. Tercakup: nav/route publik, verifikasi sertifikat (roundtrip valid + invalid graceful), membership verify, legalitas, language switcher, auth (login valid/invalid, logout, redirect protected), 11 route admin, dashboard analytics, CRUD customers/gemstones, penerbitan sertifikat (format AZR-GEM-000015-26 + security code sekali + PDF A6 + demo preview), warranty, ownership assign+transfer+complete, membership issue+verify+QR, CMS visuals GET/PUT, settings WhatsApp, response envelope, tanpa 5xx/console error. Komentar reviewer = catatan non-bug (slug route Inggris disengaja, rate-limiter in-memory OK MVP, penamaan `certificate_uuid`, drift `*_bg_enabled` pra-ada). Sesuai instruksi, fungsi yang sudah bekerja TIDAK diubah. **Baseline FROZEN dipulihkan persis** setelah data test (counter=14, koleksi bisnis=0, log ditrim ke baseline; snapshot di `/app/memory/baseline_snapshot.json` & `baseline_docs.json`).
+
+
+
 ### MOBILE FIX — PUBLIC HEADER & HAMBURGER (2026-06, presentation-only, 1 file)
 Fix isu header publik mobile (logo berdesakan dengan ID/EN, alignment hamburger, muat viewport). Hanya `components/layout/Header.tsx`: bar responsif `flex justify-between` di mobile → tetap `lg:grid grid-cols-[1fr_auto_1fr]` (nav center) di desktop; logo mengecil di mobile (`Logo size 38 sm:hidden` + `46 hidden sm:flex`, testid mobile `azuris-logo-m`); jarak actions `gap-2 sm:gap-3 lg:gap-5`; hamburger diberi touch-target `h-11 w-11` + hover; padding drawer disejajarkan `px-5 sm:px-6 md:px-10` & item drawer `py-3.5`. Komponen `Logo` & `LanguageSwitcher` TIDAK diubah. Semua menu item/route/testid dipertahankan (`{testId}-mobile`). Verified: tsc clean; 0 overflow di 360 & 390px; menu buka rapi; desktop (1280px) tidak berubah (hamburger tersembunyi). Freeze bisnis tetap.
 
