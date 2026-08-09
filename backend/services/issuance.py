@@ -25,7 +25,7 @@ from repositories.legality import (
 from services.security import gen_qr_token, gen_security_code
 
 PUBLIC_BASE_URL = os.environ.get(
-    "PUBLIC_BASE_URL", "https://cms-media-gallery-1.preview.emergentagent.com"
+    "PUBLIC_BASE_URL", "https://hero-gem-editor.preview.emergentagent.com"
 ).rstrip("/")
 
 

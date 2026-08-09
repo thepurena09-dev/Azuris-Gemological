@@ -2,7 +2,7 @@
 import os
 import requests
 
-BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") if os.environ.get("REACT_APP_BACKEND_URL") else "https://cms-media-gallery-1.preview.emergentagent.com"
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") if os.environ.get("REACT_APP_BACKEND_URL") else "https://hero-gem-editor.preview.emergentagent.com"
 
 
 def test_health_endpoint_returns_expected_payload():
