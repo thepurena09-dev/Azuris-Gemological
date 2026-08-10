@@ -13,6 +13,7 @@ snapshot so historical PDFs never change.
 """
 
 import base64
+import math
 import os
 from io import BytesIO
 from typing import Optional
@@ -567,23 +568,23 @@ def _agr_cover(c, w=A5W, h=A5H):
     _pattern(c, 0, w, 0, h, color=GOLD, alpha=0.05)
 
     # layered ornamental frame (outer + inner rule + corner diamonds)
-    _double_frame_rect(c, w, h, inset=11 * mm)
+    _double_frame_rect(c, w, h, inset=10 * mm)
 
-    # official Azuris logo (balanced size, preserved aspect ratio, clear space)
-    _draw_logo(c, _LOGO, cx, h - 60 * mm, 42 * mm)
+    # official Azuris emblem as a supporting seal (balanced, not oversized)
+    _draw_logo(c, _LOGO, cx, h - 52 * mm, 34 * mm)
 
-    _wordmark(c, cx, h - 88 * mm, size=27, tracking=5.6, color=NAVY)
-    _tracked(c, 0, h - 100 * mm, AGR_FULL.upper(), BODYB, 8, GOLD_DK, tracking=3.2, center=cx)
+    # deep-navy institutional plaque = primary brand header
+    _plaque(c, cx, h - 72 * mm, 68 * mm, 20 * mm, az_size=25, sub_size=6.4, sub=True)
 
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.5)
-    c.line(cx - 20 * mm, h - 108 * mm, cx + 20 * mm, h - 108 * mm)
-    _diamond(c, cx, h - 108 * mm, 0.8 * mm, GOLD)
+    c.line(cx - 20 * mm, h - 100 * mm, cx + 20 * mm, h - 100 * mm)
+    _diamond(c, cx, h - 100 * mm, 0.8 * mm, GOLD)
 
-    _tracked(c, 0, h - 126 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15.5, NAVY, tracking=1.4, center=cx)
-    _tracked(c, 0, h - 138 * mm, "CERTIFICATE", HEADB, 15.5, NAVY, tracking=5.0, center=cx)
+    _tracked(c, 0, h - 118 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15.5, NAVY, tracking=1.4, center=cx)
+    _tracked(c, 0, h - 130 * mm, "CERTIFICATE", HEADB, 15.5, NAVY, tracking=5.0, center=cx)
 
-    _tracked(c, 0, h - 150 * mm, "OFFICIAL GEMOLOGICAL DOCUMENT", BODY, 7, TAUPE, tracking=3.0, center=cx)
+    _tracked(c, 0, h - 142 * mm, "OFFICIAL GEMOLOGICAL DOCUMENT", BODY, 7, TAUPE, tracking=3.0, center=cx)
 
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.5)
@@ -597,7 +598,7 @@ def _agr_details(c, cert, snap, signature_reader=None):
     c.setFillColorRGB(*IVORY)
     c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
     _watermark(c, A5W / 2, A5H / 2, 58 * mm)
-    _double_frame_rect(c, A5W, A5H)
+    _double_frame_rect(c, A5W, A5H, inset=6.5 * mm, restrained=True)
     m = 12 * mm
     x = m
     w = A5W - 2 * m
@@ -696,7 +697,7 @@ def _agr_details(c, cert, snap, signature_reader=None):
     # right column — authorised signatory + signature image
     rx = x + w * 0.60
     rw = x + w - rx
-    sig_line_y = 30 * mm
+    sig_line_y = 34 * mm
     if signature_reader is not None:
         try:
             iw, ih = signature_reader.getSize()
@@ -719,13 +720,13 @@ def _agr_details(c, cert, snap, signature_reader=None):
     c.drawCentredString(rx + rw / 2, sig_line_y - 8.2 * mm, str(position))
 
     # issuance statement (full width, below both columns) + disclaimer (very bottom)
-    dy = 18 * mm
+    dy = 21 * mm
     c.setFillColorRGB(*GOLD_DK)
     for ln in _wrap(c, ISSUANCE_STATEMENT, BODY, 5.4, w)[:2]:
         c.setFont(BODY, 5.4)
         c.drawCentredString(cx, dy, ln)
         dy -= 2.9 * mm
-    dy -= 1.2 * mm
+    dy -= 1.4 * mm
     c.setFillColorRGB(*GREY)
     for ln in _wrap(c, DISCLAIMER_AGR, BODY, 4.8, w)[:2]:
         c.setFont(BODY, 4.8)
@@ -756,19 +757,138 @@ def _wordmark(c, cx, y, size=27, tracking=5.5, color=NAVY):
     return ry
 
 
-def _double_frame_rect(c, w, h, color1=GOLD, color2=GOLD_SOFT, inset=6 * mm):
-    """Layered ornamental frame: heavier outer rule, thin inner rule, corner diamonds."""
+def _bead_edges(c, x0, y0, x1, y1, r, gap, color):
+    """Row of tiny gold beads along all four edges (engraved-security look)."""
+    c.setFillColorRGB(*color)
+    n = max(1, int((x1 - x0) / gap))
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i / n
+        c.circle(x, y1, r, fill=1, stroke=0)
+        c.circle(x, y0, r, fill=1, stroke=0)
+    m = max(1, int((y1 - y0) / gap))
+    for j in range(m + 1):
+        y = y0 + (y1 - y0) * j / m
+        c.circle(x0, y, r, fill=1, stroke=0)
+        c.circle(x1, y, r, fill=1, stroke=0)
+
+
+def _plaque(c, cx, top, pw, ph, az_size, sub_size, sub=True):
+    """Deep-navy institutional cartouche with stepped bracket side edges + gold
+    outline and a refined gold AZURIS wordmark (visual direction from the reference,
+    no reference wording copied)."""
+    x0, x1 = cx - pw / 2, cx + pw / 2
+    y0, y1 = top - ph, top
+    t = ph * 0.22
+    u = ph * 0.16
+    w1, w2 = 1.5 * mm, 3.0 * mm
+    left = [
+        (x0, y1), (x0, y1 - t), (x0 - w1, y1 - t), (x0 - w1, y1 - t - u),
+        (x0 - w2, y1 - t - u), (x0 - w2, y0 + t + u), (x0 - w1, y0 + t + u),
+        (x0 - w1, y0 + t), (x0, y0 + t), (x0, y0),
+    ]
+    right = [
+        (x1, y0), (x1, y0 + t), (x1 + w1, y0 + t), (x1 + w1, y0 + t + u),
+        (x1 + w2, y0 + t + u), (x1 + w2, y1 - t - u), (x1 + w1, y1 - t - u),
+        (x1 + w1, y1 - t), (x1, y1 - t), (x1, y1),
+    ]
+    pts = left + right
+
     c.saveState()
-    c.setStrokeColorRGB(*color1)
-    c.setLineWidth(1.2)
-    c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
-    c.setStrokeColorRGB(*color2)
-    c.setLineWidth(0.4)
-    d = inset + 1.6 * mm
-    c.rect(d, d, w - 2 * d, h - 2 * d)
+    p = c.beginPath()
+    p.moveTo(*pts[0])
+    for pt in pts[1:]:
+        p.lineTo(*pt)
+    p.close()
+    c.setFillColorRGB(*NAVY)
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.8)
+    c.drawPath(p, fill=1, stroke=1)
+    # inner gold hairline within the body
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.35)
+    c.rect(x0 + 1.3 * mm, y0 + 1.3 * mm, pw - 2.6 * mm, ph - 2.6 * mm)
     c.restoreState()
-    for (dx, dy) in ((inset, inset), (w - inset, inset), (inset, h - inset), (w - inset, h - inset)):
-        _diamond(c, dx, dy, 1.1 * mm, color1)
+
+    if sub:
+        _tracked(c, 0, y0 + ph * 0.54, "AZURIS", HEADB, az_size, GOLD,
+                 tracking=az_size * 0.16, center=cx)
+        c.setStrokeColorRGB(*GOLD_SOFT)
+        c.setLineWidth(0.4)
+        c.line(cx - pw * 0.30, y0 + ph * 0.42, cx + pw * 0.30, y0 + ph * 0.42)
+        _tracked(c, 0, y0 + ph * 0.20, "AZURIS GEMOLOGICAL RESEARCH", BODYB, sub_size,
+                 GOLD_SOFT, tracking=1.4, center=cx)
+    else:
+        _tracked(c, 0, y0 + ph * 0.37, "AZURIS", HEADB, az_size, GOLD,
+                 tracking=az_size * 0.16, center=cx)
+    return y0
+
+
+def _wave_path(c, pts):
+    p = c.beginPath()
+    p.moveTo(*pts[0])
+    for pt in pts[1:]:
+        p.lineTo(*pt)
+    c.drawPath(p, stroke=1, fill=0)
+
+
+def _edge_wave(c, a, b, coord, amp, period, phase, horizontal):
+    """Sine wave from a..b at fixed 'coord'; horizontal=True → x varies (top/bottom)."""
+    n = max(6, int(abs(b - a) / 1.4))
+    pts = []
+    for i in range(n + 1):
+        t = a + (b - a) * i / n
+        off = amp * math.sin(2 * math.pi * (t - a) / period + phase)
+        pts.append((t, coord + off) if horizontal else (coord + off, t))
+    _wave_path(c, pts)
+
+
+def _double_frame_rect(c, w, h, color1=GOLD, color2=GOLD_SOFT, inset=6 * mm, restrained=False):
+    """Layered ornamental security frame (banknote/laboratory character):
+    thin outer gold boundary → braided guilloche wave band on all four edges →
+    navy hairline → inner muted-gold rule, with gold corner rosettes. A restrained
+    variant (single wave, thinner band) keeps dense pages readable."""
+    c.saveState()
+    # 1) thin outer gold boundary
+    c.setStrokeColorRGB(*color1)
+    c.setLineWidth(0.8)
+    c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
+
+    # 2) guilloche wave band (braided on full pages, single on restrained)
+    wy = inset + (1.9 * mm if restrained else 2.5 * mm)
+    amp = (0.55 if restrained else 1.0) * mm
+    period = (4.8 if restrained else 6.2) * mm
+    g = (wy - inset) + amp + 1.0 * mm
+    xa, xb = inset + g, w - inset - g
+    ya, yb = inset + g, h - inset - g
+    c.setStrokeColorRGB(*color1)
+    c.setLineWidth(0.4)
+    phases = [0.0] if restrained else [0.0, math.pi]
+    for ph in phases:
+        _edge_wave(c, xa, xb, wy, amp, period, ph, True)
+        _edge_wave(c, xa, xb, h - wy, amp, period, ph, True)
+        _edge_wave(c, ya, yb, wy, amp, period, ph, False)
+        _edge_wave(c, ya, yb, h - wy, amp, period, ph, False)
+
+    # 3) navy hairline
+    n_off = inset + (3.3 * mm if restrained else 4.2 * mm)
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(0.5)
+    c.rect(n_off, n_off, w - 2 * n_off, h - 2 * n_off)
+
+    # 4) inner muted-gold rule (full pages only, keeps restrained pages open)
+    if not restrained:
+        g_off = inset + 5.0 * mm
+        c.setStrokeColorRGB(*color2)
+        c.setLineWidth(0.35)
+        c.rect(g_off, g_off, w - 2 * g_off, h - 2 * g_off)
+    c.restoreState()
+
+    # 5) gold corner rosettes (refined symmetrical corner transitions)
+    for (dx, dy) in ((wy, wy), (w - wy, wy), (wy, h - wy), (w - wy, h - wy)):
+        c.setFillColorRGB(*color1)
+        c.circle(dx, dy, 0.75 * mm, fill=1, stroke=0)
+        c.setFillColorRGB(*IVORY)
+        c.circle(dx, dy, 0.32 * mm, fill=1, stroke=0)
 
 
 # ---------------------------------------------------------------- build (book)
@@ -788,7 +908,7 @@ def _demo_stamp_cover(c, w, h):
     c.translate(w / 2, 52 * mm)
     c.rotate(14)
     c.setFillColorRGB(0.80, 0.20, 0.22)
-    c.setFillAlpha(0.85)
+    c.setFillAlpha(0.55)
     c.setFont(HEADB, 22)
     c.drawCentredString(0, 2.4 * mm, "SAMPLE")
     c.setFont(BODYB, 8)
@@ -823,15 +943,17 @@ def _agr_presentation(c, cert, snap, photo_reader):
     c.setFillColorRGB(*IVORY)
     c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
     _pattern(c, 0, A5W, 0, A5H, color=GOLD, alpha=0.045)
-    _double_frame_rect(c, A5W, A5H)
+    _double_frame_rect(c, A5W, A5H, inset=8 * mm)
     cx = A5W / 2
 
-    _draw_logo(c, _LOGO, cx, A5H - 24 * mm, 26 * mm)
-    _tracked(c, 0, A5H - 40 * mm, "CERTIFIED GEMSTONE", BODY, 7.5, GOLD_DK, tracking=3.2, center=cx)
+    # compact emblem seal + navy AZURIS plaque header (unifies with the cover)
+    _draw_logo(c, _LOGO, cx, A5H - 15 * mm, 15 * mm)
+    _plaque(c, cx, A5H - 24 * mm, 58 * mm, 13 * mm, az_size=16, sub_size=5.2, sub=True)
+    _tracked(c, 0, A5H - 43 * mm, "CERTIFIED GEMSTONE", BODY, 6.6, GOLD_DK, tracking=3.0, center=cx)
 
-    box_w, box_h = 104 * mm, 90 * mm
+    box_w, box_h = 104 * mm, 84 * mm
     bx = cx - box_w / 2
-    by = A5H - 50 * mm - box_h
+    by = A5H - 49 * mm - box_h
     c.setFillColorRGB(*BEIGE_LT)
     c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm, fill=1, stroke=0)
     if photo_reader is not None:
@@ -875,28 +997,27 @@ def _agr_back(c, cert):
     c.setFillColorRGB(*IVORY)
     c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
     _pattern(c, 0, A5W, 0, A5H, color=GOLD, alpha=0.05)
-    _double_frame_rect(c, A5W, A5H, inset=11 * mm)
+    _double_frame_rect(c, A5W, A5H, inset=10 * mm)
 
     cx = A5W / 2
     my = A5H / 2
-    _draw_logo(c, _LOGO, cx, my + 24 * mm, 24 * mm)
-    _wordmark(c, cx, my + 4 * mm, size=16, tracking=3.2, color=NAVY)
-    _tracked(c, 0, my - 7 * mm, AGR_FULL.upper(), BODYB, 6, GOLD_DK, tracking=2.6, center=cx)
+    _draw_logo(c, _LOGO, cx, my + 28 * mm, 20 * mm)
+    _plaque(c, cx, my + 16 * mm, 60 * mm, 16 * mm, az_size=18, sub_size=5.4, sub=True)
     c.setFillColorRGB(*SLATE)
     c.setFont(BODYB, 5.4)
-    c.drawCentredString(cx, my - 15 * mm, "CERTIFICATE NUMBER")
+    c.drawCentredString(cx, my - 10 * mm, "CERTIFICATE NUMBER")
     c.setFillColorRGB(*NAVY)
     c.setFont(BODYB, 11)
-    c.drawCentredString(cx, my - 20 * mm, cert["certificate_number"])
+    c.drawCentredString(cx, my - 15 * mm, cert["certificate_number"])
 
     date = (cert.get("issued_at") or "")[:10]
     if date:
         c.setFillColorRGB(*SLATE)
         c.setFont(BODYB, 5.4)
-        c.drawCentredString(cx, my - 28 * mm, "DATE OF ISSUE")
+        c.drawCentredString(cx, my - 24 * mm, "DATE OF ISSUE")
         c.setFillColorRGB(*NAVY)
         c.setFont(BODY, 9)
-        c.drawCentredString(cx, my - 33 * mm, date)
+        c.drawCentredString(cx, my - 29 * mm, date)
 
 
 def build_certificate_pdf(
@@ -930,7 +1051,7 @@ def build_certificate_pdf(
 
     _agr_presentation(c, cert, snap, photo_reader)
     if demo:
-        _sample_ribbon(c, A5W, 20 * mm)
+        _demo_soft(c, A5W, A5H)
     c.showPage()
 
     _agr_back(c, cert)
