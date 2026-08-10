@@ -608,3 +608,14 @@ no fake certificate/gemstone/legality data introduced.
   Modal is a local `useState` overlay (avoids untyped .jsx Dialog in .tsx). New i18n keys:
   home.preview / previewBadge / previewTitle / previewSubtitle. New testids: cta-preview,
   certificate-preview-modal, certificate-preview-image, certificate-preview-close.
+
+## Login Fix & Nav Styling (2026-06 — fork continuation, freeze respected)
+- 2026-06: Fixed "cannot login / email atau kata sandi salah" report. Root cause: LoginPage.tsx
+  trimmed only the EMAIL, not the PASSWORD, so hidden leading/trailing whitespace from copy-paste
+  caused a 401. Fix (frontend-only, minimal): onSubmit now calls login(email.trim(), password.trim())
+  and added a show/hide password toggle (Eye/EyeSlash), testid 'login-password-toggle'.
+  Verified by testing_agent iteration_24 (7/7 PASS, no regression). Backend auth UNCHANGED.
+  Credentials confirmed working: admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN).
+- 2026-06: Public nav buttons (Header.tsx) restyled from flat outline to subtle premium raised/3D
+  (gradient surface + layered soft shadow + top highlight; active=inset). Visual only; size, text,
+  routes, spacing unchanged.

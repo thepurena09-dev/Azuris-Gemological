@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, CircleNotch } from "@phosphor-icons/react";
+import { ArrowLeft, Lock, CircleNotch, Eye, EyeSlash } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { TEST_IDS } from "@/constants/testIds";
@@ -29,6 +29,7 @@ export default function LoginPage() {
   const loginBgBlur = useLoginBg ? Math.min(Math.max(visuals!.login_bg_blur ?? 0, 0), 12) : 0;
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
 
@@ -41,7 +42,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      await login(email.trim(), password.trim());
       navigate("/admin/legalitas", { replace: true });
     } catch {
       setError(t("auth.error"));
@@ -133,15 +134,26 @@ export default function LoginPage() {
               <label htmlFor="login-password" className="mb-2 block text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">
                 {t("auth.password")}
               </label>
-              <input
-                id="login-password"
-                data-testid="login-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-gold"
-              />
+              <div className="relative">
+                <input
+                  id="login-password"
+                  data-testid="login-password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-border bg-background px-4 py-3 pr-12 text-sm text-foreground outline-none focus:border-gold"
+                />
+                <button
+                  type="button"
+                  data-testid="login-password-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {showPassword ? <EyeSlash size={18} weight="regular" /> : <Eye size={18} weight="regular" />}
+                </button>
+              </div>
             </div>
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             <button

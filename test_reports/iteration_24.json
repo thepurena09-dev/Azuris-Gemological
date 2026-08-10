@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only regression testing of the login whitespace-trim fix on /login. Verified via Playwright on the production preview URL. All 7 targeted scenarios PASSED: (1) whitespace-padded password '  AzurisDev@2026!  ' now logs in successfully and redirects to /admin/legalitas (previously reported bug is FIXED); (2) normal admin login works; (3) CM login works; (4) CS login works; (5) wrong password stays on /login and shows 'Email atau kata sandi salah.'; (6) whitespace-only password does NOT log in (backend returned 422 as post-trim empty string; UI stays on /login and shows the same generic error, acceptable); (7) show/hide password toggle (data-testid='login-password-toggle') switches input type password<->text and back correctly. No admin data was created/mutated/deleted; only read-only login flow exercised.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "LoginPage.tsx: On whitespace-only password, the trimmed value becomes empty and backend returns 422 (validation) instead of 401. UI still shows the generic 'Email atau kata sandi salah.' which is fine, but you could short-circuit client-side (e.g., if !password.trim()) to avoid the 422 network call.",
+    "Consider also trimming email/password on the auth context or backend as a defense-in-depth so future callers benefit from the same normalization."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (7/7 scenarios)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN); cm@azuris.local / CmDev@2026! (CM); cs@azuris.local / CsDev@2026! (CS)",
+  "seed_data_creation": "None. Read-only login flow only. No business data touched.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Login whitespace-trim fix in /app/frontend/src/pages/auth/LoginPage.tsx confirmed working. onSubmit calls login(email.trim(), password.trim()). Password visibility toggle button [data-testid='login-password-toggle'] toggles input type correctly (password<->text). Wrong-password error path (401) still shows Indonesian error string. Empty-after-trim password triggers backend 422 but UI behavior is correct (no navigation, generic error shown).",
+  "rca of the issue": "Original bug: user pasted password with surrounding whitespace; frontend only trimmed the email, so backend received a non-matching password and returned 401 ('Email atau kata sandi salah.'). Fix: trim password on submit and add a visibility toggle so users can verify the typed value. Verified fix by explicitly submitting '  AzurisDev@2026!  ' and observing successful redirect to /admin/legalitas."
+}
