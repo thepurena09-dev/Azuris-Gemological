@@ -1,0 +1,275 @@
+import * as React from "react";
+import { useLocation } from "react-router-dom";
+import {
+  ShieldCheck,
+  SealCheck,
+  WarningCircle,
+  CircleNotch,
+  MagnifyingGlass,
+  FileText,
+  X,
+} from "@phosphor-icons/react";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { apiFetch, unwrap } from "@/lib/api";
+import { appConfig } from "@/config";
+
+const CERT_RE = /^AZR-GEM-\d{6}-\d{2}$/;
+const API = appConfig.api.baseUrl;
+
+const STR = {
+  id: {
+    eyebrow: "Verifikasi Sertifikat",
+    title: "Verifikasi Keaslian Sertifikat AGR",
+    subtitle:
+      "Pindai kode QR pada kartu sertifikat, atau masukkan nomor registrasi untuk membuka pratinjau sertifikat resmi Azuris Gemological Research.",
+    searchLabel: "Nomor Registrasi Sertifikat",
+    searchPlaceholder: "AZR-GEM-000000-00",
+    searchBtn: "Buka Sertifikat",
+    formatError: "Format nomor registrasi tidak valid.",
+    notFound: "Sertifikat tidak ditemukan.",
+    authentic: "Sertifikat ini asli dan diterbitkan oleh Azuris Gemological Research (AGR).",
+    name: "Nama Batu Mulia",
+    date: "Tanggal Penerbitan",
+    loading: "Memeriksa…",
+    close: "Tutup",
+    pdfTitle: "Pratinjau Sertifikat (2 Halaman)",
+  },
+  en: {
+    eyebrow: "Certificate Verification",
+    title: "Verify AGR Certificate Authenticity",
+    subtitle:
+      "Scan the QR code on the certificate card, or enter the registration number to open the official Azuris Gemological Research certificate preview.",
+    searchLabel: "Certificate Registration Number",
+    searchPlaceholder: "AZR-GEM-000000-00",
+    searchBtn: "Open Certificate",
+    formatError: "Invalid registration number format.",
+    notFound: "Certificate not found.",
+    authentic: "This certificate is authentic and issued by Azuris Gemological Research (AGR).",
+    name: "Gemstone Name",
+    date: "Date of Issue",
+    loading: "Checking…",
+    close: "Close",
+    pdfTitle: "Certificate Preview (2 Pages)",
+  },
+};
+
+export default function VerifyPage() {
+  const { locale } = useLanguage();
+  const s = STR[locale === "en" ? "en" : "id"];
+  const { search } = useLocation();
+
+  const [qrLoading, setQrLoading] = React.useState(false);
+  const [qrResult, setQrResult] = React.useState<any>(null); // {status, certificate} | {notfound:true}
+
+  const [num, setNum] = React.useState("");
+  const [searchErr, setSearchErr] = React.useState<string | null>(null);
+  const [searching, setSearching] = React.useState(false);
+  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
+
+  // QR flow: /verify?t=<token>
+  React.useEffect(() => {
+    const token = new URLSearchParams(search).get("t");
+    if (!token) return;
+    setQrLoading(true);
+    apiFetch("/api/verify/qr", { method: "POST", body: JSON.stringify({ token }) })
+      .then((r) => unwrap(r))
+      .then((data: any) => setQrResult(data))
+      .catch(() => setQrResult({ status: "not_found" }))
+      .finally(() => setQrLoading(false));
+  }, [search]);
+
+  const openPdf = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchErr(null);
+    const normalized = num.trim().toUpperCase();
+    if (!CERT_RE.test(normalized)) {
+      setSearchErr(s.formatError);
+      return;
+    }
+    setSearching(true);
+    try {
+      const res = await apiFetch(`/api/verify/pdf/${encodeURIComponent(normalized)}`);
+      if (!res.ok) {
+        setSearchErr(s.notFound);
+        return;
+      }
+      const blob = await res.blob();
+      setPdfUrl(URL.createObjectURL(blob));
+    } catch {
+      setSearchErr(s.notFound);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const closePdf = () => {
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    setPdfUrl(null);
+  };
+
+  const cert = qrResult?.certificate;
+  const qrValid = qrResult && qrResult.status === "valid" && cert;
+  const qrNotFound = qrResult && !qrValid && !qrLoading;
+
+  return (
+    <div data-testid="verify-page" className="bg-background">
+      <section className="border-b border-border bg-secondary/40">
+        <div className="mx-auto max-w-4xl px-6 py-20 text-center md:px-10">
+          <div className="mx-auto mb-6 flex w-fit items-center gap-4">
+            <span className="h-px w-10 bg-gold" />
+            <span className="text-[0.68rem] uppercase tracking-[0.4em] text-gold">{s.eyebrow}</span>
+            <span className="h-px w-10 bg-gold" />
+          </div>
+          <h1 className="font-serif text-4xl font-normal leading-tight tracking-tight text-foreground md:text-6xl">
+            {s.title}
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            {s.subtitle}
+          </p>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-3xl px-6 py-16 md:px-10">
+        {/* QR verification result */}
+        {qrLoading && (
+          <div className="mb-8 flex items-center justify-center gap-3 rounded-2xl border border-border bg-card p-10 text-muted-foreground">
+            <CircleNotch size={20} className="animate-spin text-gold" /> {s.loading}
+          </div>
+        )}
+
+        {qrValid && (
+          <div
+            data-testid="verify-qr-result"
+            className="mb-10 overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50"
+          >
+            {cert.gemstone?.photo_url && (
+              <div className="aspect-[16/10] w-full overflow-hidden bg-secondary">
+                <img
+                  data-testid="verify-qr-photo"
+                  src={`${API}${cert.gemstone.photo_url}`}
+                  alt={cert.gemstone?.name || "Gemstone"}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+            <div className="p-8">
+              <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                <SealCheck size={20} weight="fill" /> {s.authentic}
+              </p>
+              <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.name}</dt>
+                  <dd data-testid="verify-qr-name" className="mt-1 font-serif text-xl text-foreground">
+                    {cert.gemstone?.name || "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.date}</dt>
+                  <dd data-testid="verify-qr-date" className="mt-1 text-base text-foreground">
+                    {cert.issue_date || "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                    {s.searchLabel}
+                  </dt>
+                  <dd className="mt-1 font-mono text-base text-foreground">{cert.certificate_number}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        )}
+
+        {qrNotFound && (
+          <div
+            data-testid="verify-qr-notfound"
+            className="mb-10 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-6"
+          >
+            <WarningCircle size={22} weight="regular" className="mt-0.5 shrink-0 text-red-600" />
+            <p className="text-sm font-medium text-foreground">{s.notFound}</p>
+          </div>
+        )}
+
+        {/* Registration-number search */}
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-[0_30px_70px_-45px_rgba(13,27,42,0.4)]">
+          <form data-testid="verify-search-form" onSubmit={openPdf} noValidate className="space-y-5">
+            <div>
+              <label
+                htmlFor="verify-number"
+                className="mb-2 block text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground"
+              >
+                {s.searchLabel}
+              </label>
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 focus-within:border-gold">
+                <MagnifyingGlass size={18} weight="regular" className="shrink-0 text-gold" />
+                <input
+                  id="verify-number"
+                  data-testid="verify-search-input"
+                  value={num}
+                  onChange={(e) => setNum(e.target.value)}
+                  placeholder={s.searchPlaceholder}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="w-full bg-transparent text-sm uppercase tracking-wide text-foreground outline-none placeholder:text-muted-foreground/60"
+                />
+              </div>
+            </div>
+            {searchErr && (
+              <p data-testid="verify-search-error" role="alert" className="text-sm text-red-600">
+                {searchErr}
+              </p>
+            )}
+            <button
+              type="submit"
+              data-testid="verify-search-submit"
+              disabled={searching}
+              className="inline-flex w-full items-center justify-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl disabled:opacity-70"
+            >
+              {searching ? (
+                <CircleNotch size={16} weight="bold" className="animate-spin" />
+              ) : (
+                <FileText size={16} weight="regular" className="text-gold" />
+              )}
+              {searching ? s.loading : s.searchBtn}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* 2-page PDF preview modal */}
+      {pdfUrl && (
+        <div
+          data-testid="verify-pdf-modal"
+          onClick={closePdf}
+          className="fixed inset-0 z-[100] flex flex-col bg-primary/85 p-4 backdrop-blur-sm md:p-8"
+        >
+          <div
+            className="mx-auto flex h-full w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-border p-4">
+              <div className="flex items-center gap-2 text-sm">
+                <ShieldCheck size={18} weight="fill" className="text-gold" />
+                <span className="font-medium text-foreground">{s.pdfTitle}</span>
+              </div>
+              <button
+                type="button"
+                data-testid="verify-pdf-close"
+                onClick={closePdf}
+                className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.15em] text-primary-foreground"
+              >
+                <X size={14} /> {s.close}
+              </button>
+            </div>
+            <iframe
+              data-testid="verify-pdf-iframe"
+              title="certificate-pdf"
+              src={pdfUrl}
+              className="w-full flex-1 bg-neutral-100"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

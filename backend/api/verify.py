@@ -15,8 +15,8 @@ from pydantic import BaseModel, Field
 
 from db.mongodb import get_database
 from errors import forbidden
-from repositories.legality import CertificateRepository
-from services.certificate_pdf import render_front_cover_png
+from repositories.legality import CertificateRepository, GemstonePhotoRepository
+from services.certificate_pdf import build_certificate_pdf, decode_photo, render_front_cover_png
 from services.preview import decode_preview_token
 from services.verification import resolve_qr, verify_manual, verify_qr
 
@@ -65,6 +65,46 @@ async def manual_verify(body: ManualVerifyRequest, request: Request, db=Depends(
 async def qr_resolve(token: str, request: Request, db=Depends(get_database)):
     _rate_limit(request)
     return await resolve_qr(db, token.strip())
+
+
+@router.get("/pdf/{number}")
+async def public_certificate_pdf(number: str, request: Request, db=Depends(get_database)):
+    """Public: open the two-page certificate PDF by registration number (no login/code).
+
+    Returns 404 for unknown, invalid-format, revoked, or archived certificates so the
+    public UI can show a generic "Certificate not found" state (no enumeration detail).
+    """
+    _rate_limit(request)
+    num = number.strip().upper()
+    if not CERT_RE.match(num):
+        return Response(status_code=404)
+    cert = await CertificateRepository(db).get_current_by_number(num)
+    if cert is None or cert.status == "revoked":
+        return Response(status_code=404)
+    snap = cert.gemstone_snapshot or {}
+    photo_bytes = None
+    if snap.get("photo_id"):
+        doc = await GemstonePhotoRepository(db).get_by_uuid(snap["photo_id"])
+        if doc:
+            photo_bytes = decode_photo(doc.data_b64)
+    payload = {
+        "certificate_number": cert.certificate_number,
+        "issued_at": cert.issued_at,
+        "version": cert.version,
+        "gemstone_snapshot": snap,
+    }
+    try:
+        pdf = build_certificate_pdf(payload, photo_bytes)
+    except Exception:
+        return Response(status_code=503)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{cert.certificate_number}.pdf"',
+            "Cache-Control": "public, max-age=300",
+        },
+    )
 
 
 @router.post("/qr", response_model_exclude_none=True)

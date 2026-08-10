@@ -24,7 +24,6 @@ import { useBusiness } from "@/lib/settings";
 import { mediaUrl } from "@/lib/api";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import VerificationForm from "@/components/home/VerificationForm";
-import { MembershipCardVisual } from "@/components/membership/MembershipCardVisual";
 
 const MARBLE_BG =
   "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/df3161b0cd73f56ca5ed2325b394244a0bc533006164f0b288a0bd38c33fcfef.jpeg";
@@ -72,18 +71,6 @@ export default function HomePage() {
   const processAlt =
     (locale === "en" ? visuals?.process_image_alt_en : visuals?.process_image_alt_id) ||
     t("process.title");
-
-  const showMembership = visuals?.membership_show !== false;
-  const memberTitle =
-    (locale === "en" ? visuals?.membership_title_en : visuals?.membership_title_id) ||
-    t("homeMembership.title");
-  const memberDesc =
-    (locale === "en" ? visuals?.membership_desc_en : visuals?.membership_desc_id) ||
-    t("homeMembership.desc");
-  const memberCta =
-    (locale === "en" ? visuals?.membership_cta_en : visuals?.membership_cta_id) ||
-    t("homeMembership.cta");
-  const memberLink = visuals?.membership_link || "/membership";
 
   // Homepage hero background (CMS) — marble default when custom disabled.
   const useHomeBg = Boolean(visuals?.home_bg_enabled && visuals?.home_bg_url);
@@ -426,56 +413,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* Membership showcase (Sprint 23A card, masked demo identity) */}
-      {showMembership && (
-        <section
-          id="keanggotaan"
-          data-testid="home-membership"
-          className="scroll-mt-28 border-t border-border bg-secondary/40"
-        >
-          <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 py-24 md:px-10 lg:grid-cols-[1fr_1fr]">
-            <div className="max-w-xl">
-              <Eyebrow label={t("homeMembership.eyebrow")} />
-              <h2 className="mt-6 font-serif text-4xl font-normal leading-[1.05] tracking-tight text-foreground md:text-6xl">
-                {memberTitle}
-              </h2>
-              <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-                {memberDesc}
-              </p>
-              <Link
-                to={memberLink}
-                data-testid="home-membership-cta"
-                className="mt-9 inline-flex items-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl"
-              >
-                <ShieldCheck size={16} weight="regular" className="text-gold" />
-                {memberCta}
-              </Link>
-            </div>
-
-            <div className="relative mx-auto w-full max-w-md">
-              {/* back card peeking behind */}
-              <div className="absolute -right-4 top-6 hidden w-full rotate-3 opacity-60 sm:block">
-                <MembershipCardVisual
-                  side="back"
-                  cardNumber="AZR-MEM-••••••-26"
-                  memberName="Andi Pra****"
-                  status="active"
-                />
-              </div>
-              <div className="relative">
-                <MembershipCardVisual
-                  side="front"
-                  cardNumber="AZR-MEM-••••••-26"
-                  memberName="Andi Pra****"
-                  memberSince="2026"
-                  status="active"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Legality & credibility teaser */}
       <section className="border-t border-border bg-primary text-primary-foreground">

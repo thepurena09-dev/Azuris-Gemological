@@ -19,12 +19,9 @@ const NAV_ITEMS = [
   { to: "/admin/dashboard", id: TEST_IDS.admin.navDashboard, Icon: Gauge, label: "admin.dashboard" },
   { to: "/admin/legalitas", id: TEST_IDS.admin.navLegality, Icon: Certificate, label: "adminNav.legality" },
   { to: "/admin/certificates", id: TEST_IDS.admin.navCertificates, Icon: SealCheck, label: "adminCert.navTitle" },
-  { to: "/admin/customers", id: TEST_IDS.admin.navCustomers, Icon: Users, label: "adminNav.customers" },
   { to: "/admin/gemstones", id: TEST_IDS.admin.navGemstones, Icon: Diamond, label: "adminNav.gemstones" },
   { to: "/admin/jewelry", id: TEST_IDS.admin.navJewelry, Icon: Crown, label: "adminNav.jewelry" },
   { to: "/admin/warranties", id: TEST_IDS.admin.navWarranties, Icon: ShieldCheck, label: "adminNav.warranties" },
-  { to: "/admin/ownership", id: TEST_IDS.admin.navOwnership, Icon: ArrowsLeftRight, label: "adminNav.ownership" },
-  { to: "/admin/membership", id: TEST_IDS.admin.navMembership, Icon: IdentificationCard, label: "adminNav.membership" },
   { to: "/admin/visuals", id: TEST_IDS.admin.navVisuals, Icon: ImageIcon, label: "adminVisuals.navTitle" },
   { to: "/admin/settings", id: TEST_IDS.admin.navSettings, Icon: Gear, label: "adminNav.settings" },
 ] as const;

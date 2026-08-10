@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 const footerLinks = [
-  { to: "/#verification", key: "nav.verification" },
+  { to: "/verify", key: "nav.verification" },
   { to: "/#proses", key: "nav.process" },
   { to: "/legalitas", key: "nav.legality" },
   { to: "/about", key: "nav.about" },
@@ -32,8 +32,8 @@ export default function Footer() {
             <p className="font-serif text-3xl font-light tracking-tighter">
               AZURIS
             </p>
-            <p className="mt-1 text-[0.6rem] uppercase tracking-[0.35em] text-muted-foreground">
-              Gemological
+            <p className="mt-1 text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground">
+              Gemological Research
             </p>
             <p className="mt-6 max-w-md text-sm leading-relaxed text-muted-foreground">
               {t("tagline")}

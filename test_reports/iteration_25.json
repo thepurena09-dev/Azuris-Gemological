@@ -1,0 +1,31 @@
+{
+  "summary": "Iteration 25 — Full backend + frontend regression for the AGR (Azuris Gemological Research) refocused app. Verified: admin login lands on /admin/legalitas; sidebar shows only Dasbor/Legalitas/Sertifikat/Batu Mulia/Perhiasan/Garansi/Visual & Konten/Pengaturan (no Pelanggan/Membership/Ownership); /admin/customers, /admin/membership, /admin/ownership all render NotFound (body ~71 chars with '404'/'Halaman'); public /membership and /verification redirect to /verify; public /verify?t=<valid> shows gemstone name (Test Sapphire), date (2026-08-10), and AGR authenticity banner via verify-qr-result; /verify?t=bogus shows verify-qr-notfound; number search: empty submit does not open modal, invalid format shows 'Format nomor registrasi tidak valid.', unknown valid-format shows 'Sertifikat tidak ditemukan.', valid AZR-GEM-000015-26 opens verify-pdf-modal with iframe pointing to blob url; verify-pdf-close removes the modal. Backend pytest: 9/9 passed — /api/verify/pdf/{number} returns exactly 2 pages with 'From AGR' on page 2 and 0 embedded images; /api/admin/certificates/{uuid}/pdf returns 2-page PDF; /api/admin/certificates/{uuid}/card returns 1-page PDF with QR image; end-to-end create gemstone + issue certificate produced AZR-GEM-000017-26; invalid/unknown public PDF 404s work. CMS pages /admin/visuals (76 inputs+btns), /admin/legalitas, /admin/settings, /admin/certificates all render without errors. Public header shows full brand 'AZURIS GEMOLOGICAL RESEARCH' with monogram. Admin certificates page gem-* form works (correct testids are gem-name_id, gem-name_en, gem-category, gem-gemstone_type, gem-weight_carat, gem-color, gem-clarity, gem-cut, gem-shape, gem-dimensions_mm, gem-origin, gem-treatment — NOT gem-name-id/gem-type/gem-weight as loosely stated in the request).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter25_agr_flow.py",
+    "/app/test_reports/pytest/iter25.xml"
+  ],
+  "action_items": [
+    "Documentation nit only: the review request lists admin gem testids as 'gem-name_id, gem-name_en, gem-category, gem-type, gem-weight' but the actual React code uses the raw model keys (gem-name_id, gem-name_en, gem-category, gem-gemstone_type, gem-weight_carat, gem-color, gem-clarity, gem-cut, gem-shape, gem-dimensions_mm, gem-origin, gem-treatment). Consider either updating the docs or aliasing 'gem-type'/'gem-weight' for consistency."
+  ],
+  "critical_code_review_comments": [
+    "verify.py public PDF endpoint correctly returns 404 for unknown/invalid format/revoked without enumeration — good.",
+    "CertificatesPage.tsx openPdf/openCard use URL.createObjectURL + window.open('_blank') — works, but consider revoking the blob URL after a delay to avoid memory leaks on repeated opens.",
+    "verify-pdf-modal iframe uses blob URL from GET /api/verify/pdf/{number}; ensure the blob is revoked in verify-pdf-close handler (VerifyPage.tsx) to prevent leaks."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter25_agr_flow.py"
+  ],
+  "success_rate": {"backend": "100% (9/9 pytest)", "frontend": "100% (all requested flows verified)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN)",
+  "seed_data_creation": "Created 1 test gemstone via API + 1 test gemstone via UI, each producing one certificate (AZR-GEM-000017-26 via API and one more via UI issue click). All prefixed TEST_ per convention. Main agent stated it will clean up test data and reset the counter.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "AGR refocus is stable. Certificate 2-page PDF (no QR, 'From AGR' on page 2) and 1-page card (with QR) both verified. Public /verify has three surfaces: QR token (t query param), registration number search (opens PDF modal), and error states. Legacy admin routes /admin/customers, /admin/membership, /admin/ownership are removed from React Router → render NotFound; nav no longer references them. Backend legacy endpoints still exist per requirements but are not exercised by UI. Use registration AZR-GEM-000015-26 and QR token '_xruGvliF1ltxRJr_-nOyId7lGhnh9ZaKeA4GHwZ_AM' for smoke tests. Real gem-* testids use underscores (name_id, gemstone_type, weight_carat, dimensions_mm).",
+  "rca of the issue": "N/A — no defects found in this iteration."
+}

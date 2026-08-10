@@ -27,8 +27,8 @@ from repositories.legality import (
     SettingsRepository,
     VerificationTokenRepository,
 )
-from services.certificate_pdf import build_certificate_pdf, decode_photo
-from services.issuance import issue_certificate, qr_url, reissue_certificate, revoke_certificate
+from services.certificate_pdf import build_card_pdf, build_certificate_pdf, decode_photo
+from services.issuance import PUBLIC_BASE_URL, issue_certificate, qr_url, reissue_certificate, revoke_certificate
 
 admin_router = APIRouter(prefix="/admin", tags=["certificates-admin"])
 public_router = APIRouter(prefix="/gemstone", tags=["gemstone-public"])
@@ -338,7 +338,34 @@ async def certificate_pdf(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(
     )
 
 
-# ---------- PUBLIC gemstone photo ----------
+@admin_router.get("/certificates/{uuid}/card")
+async def certificate_card(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
+    """Premium AGR certificate card (single printable page, with QR)."""
+    repo = CertificateRepository(db)
+    cert = await repo.get_by_uuid(uuid)
+    if cert is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    vt = await VerificationTokenRepository(db).get_by_uuid(cert.verification_uuid) if cert.verification_uuid else None
+    token = vt.token if vt else ""
+    verify_url = f"{PUBLIC_BASE_URL}/verify?t={token}"
+    snap = cert.gemstone_snapshot or {}
+    photo_bytes = None
+    if snap.get("photo_id"):
+        doc = await GemstonePhotoRepository(db).get_by_uuid(snap["photo_id"])
+        if doc:
+            photo_bytes = decode_photo(doc.data_b64)
+    payload = {
+        "certificate_number": cert.certificate_number,
+        "issued_at": cert.issued_at,
+        "version": cert.version,
+        "gemstone_snapshot": snap,
+    }
+    pdf = build_card_pdf(payload, photo_bytes, verify_url)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{cert.certificate_number}-card.pdf"'},
+    )
 @public_router.get("/photo/{doc_uuid}")
 async def gemstone_photo(doc_uuid: str, db=Depends(get_database)):
     doc = await GemstonePhotoRepository(db).get_by_uuid(doc_uuid)

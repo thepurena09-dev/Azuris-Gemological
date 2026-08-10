@@ -2,7 +2,7 @@
  * English locale — SECONDARY.
  */
 const en = {
-  brand: "Azuris Gemological",
+  brand: "Azuris Gemological Research",
   tagline: "Gemstone certification, identity documentation, and verification.",
   comingSoon: "This page will be implemented in a future stage.",
   sprintNotice: "A Trusted Gemological Institution",
@@ -312,7 +312,7 @@ const en = {
     issued: "Certificate issued.",
     securityCodeNote: "Save this security code — shown only once:",
     qrNote: "QR URL:", gemstones: "Registered Gemstones", certificates: "Certificates",
-    pdf: "Download PDF", revoke: "Revoke", revoked: "Revoked.",
+    pdf: "Download PDF", card: "Card", revoke: "Revoke", revoked: "Revoked.",
     noGem: "No gemstones yet.", issuedBadge: "Certified",
     demoPreview: "Preview Sample Certificate",
     demoTitle: "Sample Certificate (Demo Preview)",

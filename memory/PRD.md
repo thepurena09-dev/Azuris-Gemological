@@ -619,3 +619,30 @@ no fake certificate/gemstone/legality data introduced.
 - 2026-06: Public nav buttons (Header.tsx) restyled from flat outline to subtle premium raised/3D
   (gradient surface + layered soft shadow + top highlight; active=inset). Visual only; size, text,
   routes, spacing unchanged.
+
+## AGR Refocus — Certificate-only product (2026-06)
+Refocused the app to a single purpose: register a gemstone examination and issue a gemstone certificate for "Azuris Gemological Research (AGR)". Verified by testing_agent iteration_25 (backend 9/9 pytest, all frontend flows PASS, 0 defects).
+
+### Scope removed from active app (non-destructive)
+- Removed admin nav + routes + pages usage for **Customers (Pelanggan)**, **Membership**, **Ownership**. Public `/membership` + `/verification` now redirect to `/verify`. Legacy backend models/endpoints intentionally LEFT in place (unused, not reachable via UI).
+
+### Branding
+- Full name "Azuris Gemological Research" shown in header Logo + Footer; "AGR" used as monogram. i18n `brand` = "Azuris Gemological Research".
+
+### Certificate outputs (backend `services/certificate_pdf.py`)
+- `build_certificate_pdf()` → exactly **2 A5 pages, NO QR/barcode**. Page 1 = detailed gemstone report (only present fields, no invented data). Page 2 = gemstone photo + name + type + exact text "From AGR".
+- `build_card_pdf()` / `render_card_png()` → **1 printable landscape card (105×66mm) WITH QR**, AGR monogram + full name, photo, reg number under QR, fields (name/type/date/comment/origin), bottom authenticity statement. Layout adapted (not copied) from reference cards.
+
+### Endpoints
+- `GET /api/admin/certificates/{uuid}/card` (new) → card PDF (QR → `{PUBLIC_BASE_URL}/verify?t={token}`).
+- `GET /api/admin/certificates/{uuid}/pdf` → new 2-page book.
+- `GET /api/verify/pdf/{number}` (new, PUBLIC, no code) → 2-page PDF by registration number; 404 for unknown/invalid-format/revoked.
+- `POST /api/verify/qr {token}` (existing) → used by public verify page for QR details.
+
+### Public `/verify` (new page `pages/public/VerifyPage.tsx`)
+- QR flow `?t=token` → shows gemstone photo, name, creation date, AGR authenticity statement; invalid token → "Certificate not found".
+- Registration-number search → valid opens 2-page PDF preview modal; invalid format / unknown / empty → clear error; blob URL revoked on close.
+- Admin `CertificatesPage.tsx` gets a "Card"/"Kartu" button (`card-{uuid}`) alongside PDF.
+
+### Baseline (restored after testing)
+- All business collections = 0; certificate counter `last_number` = 14 (next issue → AZR-GEM-000015-26). Real gem-* testids use underscores: gem-name_id, gem-name_en, gem-category, gem-gemstone_type, gem-weight_carat, gem-color, gem-clarity, gem-cut, gem-shape, gem-dimensions_mm, gem-origin, gem-treatment.

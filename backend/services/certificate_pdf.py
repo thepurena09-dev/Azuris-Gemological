@@ -480,14 +480,229 @@ def _panel_gemstone(c, x0, x1, snap, photo_reader, number):
     c.drawRightString(x1 - SAFE, SAFE - 0.5 * mm, number)
 
 
-# ---------------------------------------------------------------- build
+# ============================================================================
+# AGR — Azuris Gemological Research  (certificate book: exactly 2 pages, NO QR)
+# ============================================================================
+AGR_FULL = "Azuris Gemological Research"
+AGR_ABBR = "AGR"
+GOLD_DK = (0.62, 0.49, 0.16)   # darker gold for legible text on ivory
+
+# A5 portrait book pages
+A5W = 148 * mm
+A5H = 210 * mm
+
+DISCLAIMER_AGR = (
+    "This report identifies and describes the gemstone examined by Azuris Gemological "
+    "Research (AGR). It is not a guarantee of price, investment value, or legal ownership."
+)
+
+
+def _agr_monogram(c, cx, cy, r):
+    """Original AGR monogram: gold ring + navy 'AGR' (not copied from any reference)."""
+    c.saveState()
+    c.setLineWidth(1.1)
+    c.setStrokeColorRGB(*GOLD)
+    c.setFillColorRGB(*NAVY)
+    c.circle(cx, cy, r, stroke=1, fill=1)
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.5)
+    c.circle(cx, cy, r - 1.4, stroke=1, fill=0)
+    c.setFillColorRGB(*GOLD)
+    c.setFont(HEADB, r * 0.9)
+    c.drawCentredString(cx, cy - r * 0.32, "AGR")
+    c.restoreState()
+
+
+def _agr_gem_glyph(c, cx, cy, s):
+    """Subtle premium decorative element (faceted diamond outline) upper-right."""
+    c.saveState()
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.6)
+    c.setStrokeAlpha(0.85)
+    top = cy + s
+    c.line(cx - s, cy, cx, top)
+    c.line(cx + s, cy, cx, top)
+    c.line(cx - s, cy, cx + s, cy)
+    c.line(cx - s, cy, cx, cy - s)
+    c.line(cx + s, cy, cx, cy - s)
+    c.line(cx - s * 0.4, cy, cx, top)
+    c.line(cx + s * 0.4, cy, cx, top)
+    c.restoreState()
+
+
+def _agr_head(c, cx, top_y, subtitle_en, subtitle_id=None, mono_r=8 * mm):
+    """Centered AGR institutional header used on both book pages."""
+    _agr_monogram(c, cx, top_y - mono_r, mono_r)
+    y = top_y - 2 * mono_r - 5 * mm
+    _tracked(c, 0, y, AGR_ABBR, HEADB, 20, NAVY, tracking=4.5, center=cx)
+    y -= 6.4 * mm
+    _tracked(c, 0, y, AGR_FULL.upper(), BODYB, 7.6, GOLD_DK, tracking=2.6, center=cx)
+    y -= 6 * mm
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.8)
+    c.line(cx - 22 * mm, y, cx + 22 * mm, y)
+    y -= 6 * mm
+    c.setFillColorRGB(*NAVY)
+    c.setFont(HEAD, 11)
+    c.drawCentredString(cx, y, subtitle_en)
+    if subtitle_id:
+        y -= 4.6 * mm
+        c.setFillColorRGB(*TAUPE)
+        c.setFont(HEAD, 8)
+        c.drawCentredString(cx, y, subtitle_id)
+        y -= 1 * mm
+    return y - 4 * mm
+
+
+def _agr_page1(c, cert, snap):
+    """Page 1 — detailed gemstone identification report (no QR)."""
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
+    _double_frame_rect(c, A5W, A5H)
+    cx = A5W / 2
+    m = 14 * mm
+    x = m
+    w = A5W - 2 * m
+
+    y = _agr_head(c, cx, A5H - 12 * mm, "Gemstone Identification Report",
+                  "Laporan Identifikasi Batu Mulia")
+
+    # Registration number plate
+    y -= 2 * mm
+    c.setFillColorRGB(*BEIGE_LT)
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.6)
+    c.rect(x, y - 9 * mm, w, 9 * mm, fill=1, stroke=1)
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODYB, 5.6)
+    c.drawString(x + 3 * mm, y - 3.6 * mm, "REGISTRATION NUMBER")
+    c.setFillColorRGB(*NAVY)
+    c.setFont(BODYB, 11)
+    c.drawRightString(x + w - 3 * mm, y - 6 * mm, cert["certificate_number"])
+    y -= 15 * mm
+
+    # Detail fields — only present values (no invented data)
+    pairs = [
+        ("Gemstone Name", snap.get("name")),
+        ("Object Type", snap.get("object_type")),
+        ("Species", snap.get("species")),
+        ("Variety", snap.get("variety")),
+        ("Carat Weight", f"{snap.get('carat')} ct" if snap.get("carat") else None),
+        ("Measurements", snap.get("dimensions")),
+        ("Shape", snap.get("shape")),
+        ("Cut", snap.get("cut")),
+        ("Colour", snap.get("color")),
+        ("Transparency", snap.get("transparency")),
+        ("Clarity", snap.get("clarity")),
+        ("Treatment", snap.get("treatment")),
+        ("Origin", snap.get("origin")),
+        ("Date of Issue", (cert.get("issued_at") or "")[:10] or None),
+        ("Examiner", snap.get("examiner")),
+        ("Signatory", snap.get("signatory") or "Azuris Gemological Research"),
+    ]
+    pairs = [(k, v) for k, v in pairs if v not in (None, "", "None")]
+
+    row_h = 6.3 * mm
+    for i, (label, val) in enumerate(pairs):
+        _field(c, x, w, y, label, val, val_size=8.2, zebra=(i % 2 == 0))
+        y -= row_h
+
+    # Comment / conclusion (flows directly under the field list)
+    comment = snap.get("conclusion") or snap.get("notes")
+    if comment:
+        y -= 2 * mm
+        yb = _section_bar(c, x, x + w, y, "Comment")
+        c.setFillColorRGB(*NAVY)
+        for ln in _wrap(c, str(comment), BODY, 8, w)[:3]:
+            c.setFont(BODY, 8)
+            c.drawString(x, yb, ln)
+            yb -= 4.2 * mm
+        y = yb
+
+    # Signature + disclaimer — fixed bottom band (never overlaps the field list)
+    sig_y = m + 15 * mm
+    c.setStrokeColorRGB(*SLATE)
+    c.setLineWidth(0.4)
+    c.line(x + w - 46 * mm, sig_y, x + w, sig_y)
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODY, 6)
+    c.drawRightString(x + w, sig_y - 3.4 * mm, "Authorised Signatory — AGR")
+
+    dy = m + 7 * mm
+    c.setFillColorRGB(*GREY)
+    for ln in _wrap(c, DISCLAIMER_AGR, BODY, 6, w)[:3]:
+        c.setFont(BODY, 6)
+        c.drawCentredString(cx, dy, ln)
+        dy -= 3.2 * mm
+
+
+def _agr_page2(c, snap, photo_reader):
+    """Page 2 — gemstone photo, name, type, and 'From AGR' (no QR)."""
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
+    _double_frame_rect(c, A5W, A5H)
+    cx = A5W / 2
+
+    y = _agr_head(c, cx, A5H - 16 * mm, "Certified Gemstone")
+
+    # Large centered photo (aspect preserved, gold-framed beige mat)
+    box_w, box_h = 92 * mm, 80 * mm
+    bx, by = cx - box_w / 2, y - box_h - 6 * mm
+    c.setFillColorRGB(*BEIGE_LT)
+    c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm, fill=1, stroke=0)
+    if photo_reader is not None:
+        try:
+            iw, ih = photo_reader.getSize()
+            ratio = min(box_w / iw, box_h / ih)
+            dw, dh = iw * ratio, ih * ratio
+            c.drawImage(photo_reader, cx - dw / 2, by + (box_h - dh) / 2,
+                        width=dw, height=dh, mask="auto")
+        except Exception:
+            pass
+    else:
+        c.setFillColorRGB(*TAUPE)
+        c.setFont(BODY, 8)
+        c.drawCentredString(cx, by + box_h / 2, "No photograph on record")
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.8)
+    c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm)
+
+    ty = by - 12 * mm
+    name = snap.get("name") or snap.get("name_en") or snap.get("name_id") or "Gemstone"
+    c.setFillColorRGB(*NAVY)
+    c.setFont(HEADB, 20)
+    c.drawCentredString(cx, ty, str(name))
+    gtype = snap.get("variety") or snap.get("species") or snap.get("object_type")
+    if gtype:
+        ty -= 8 * mm
+        _tracked(c, 0, ty, str(gtype).upper(), BODY, 8.5, GOLD_DK, tracking=2.4, center=cx)
+
+    # 'From AGR' — exact text
+    ty -= 16 * mm
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.7)
+    c.line(cx - 16 * mm, ty + 5 * mm, cx + 16 * mm, ty + 5 * mm)
+    c.setFillColorRGB(*NAVY)
+    c.setFont(HEAD, 14)
+    c.drawCentredString(cx, ty - 2 * mm, "From AGR")
+
+
+def _double_frame_rect(c, w, h, color1=GOLD, color2=GOLD_SOFT, inset=6 * mm):
+    c.saveState()
+    c.setStrokeColorRGB(*color1)
+    c.setLineWidth(1.0)
+    c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
+    c.setStrokeColorRGB(*color2)
+    c.setLineWidth(0.35)
+    d = inset + 1.5 * mm
+    c.rect(d, d, w - 2 * d, h - 2 * d)
+    c.restoreState()
+
+
+# ---------------------------------------------------------------- build (book)
 def build_certificate_pdf(cert: dict, photo_bytes: Optional[bytes], demo: bool = False) -> bytes:
+    """Exactly two A5 pages. Page 1 = detailed report, Page 2 = photo/name/type/'From AGR'. No QR/barcode."""
     snap = cert.get("gemstone_snapshot") or {}
-    number = cert["certificate_number"]
-    year = (cert.get("issued_at") or "")[:4] or ""
-    token_url = cert["qr_url"]
-    website = cert.get("website") or "azuris-gemological.com"
-    contact = _fmt_phone(cert.get("whatsapp") or "")
 
     photo_reader = None
     if photo_bytes:
@@ -495,31 +710,18 @@ def build_certificate_pdf(cert: dict, photo_bytes: Optional[bytes], demo: bool =
             photo_reader = ImageReader(BytesIO(photo_bytes))
         except Exception:
             photo_reader = None
-    qr_reader = _qr_image(token_url)
 
     buf = BytesIO()
-    c = canvas.Canvas(buf, pagesize=(PAGE_W, PAGE_H))
+    c = canvas.Canvas(buf, pagesize=(A5W, A5H))
 
-    # Page 1 — outside spread: back (left) | front (right)
-    c.setFillColorRGB(*IVORY)
-    c.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
-    _panel_back(c, 0, FOLD_X, cert.get("version"), website, contact)
-    _panel_front(c, FOLD_X, PAGE_W, number, year)
+    _agr_page1(c, cert, snap)
     if demo:
-        _demo_stamp(c, 0, FOLD_X)
-        _demo_stamp(c, FOLD_X, PAGE_W)
-    _fold_guide(c)
+        _demo_stamp(c, 0, A5W)
     c.showPage()
 
-    # Page 2 — inside spread: info (left) | gemstone (right)
-    c.setFillColorRGB(*IVORY)
-    c.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
-    _panel_info(c, 0, FOLD_X, cert, snap, qr_reader)
-    _panel_gemstone(c, FOLD_X, PAGE_W, snap, photo_reader, number)
+    _agr_page2(c, snap, photo_reader)
     if demo:
-        _demo_stamp(c, 0, FOLD_X)
-        _demo_stamp(c, FOLD_X, PAGE_W)
-    _fold_guide(c)
+        _demo_stamp(c, 0, A5W)
     c.showPage()
 
     c.save()
@@ -563,6 +765,137 @@ def render_front_cover_png(cert: dict, zoom: float = 3.0) -> bytes:
     try:
         page = doc[0]
         pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
+        return pix.tobytes("png")
+    finally:
+        doc.close()
+
+
+# ============================================================================
+# AGR premium certificate CARD — one printable landscape card, WITH QR
+# Layout hierarchy adapted (not copied) from the supplied card references.
+# ============================================================================
+CARD_W = 105 * mm
+CARD_H = 66 * mm
+
+
+def _card_field(c, x, w, y, label, value, size=7.2):
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODYB, 5.0)
+    c.drawString(x, y, label.upper())
+    c.setFillColorRGB(*NAVY)
+    c.setFont(BODY, size)
+    val = str(value)
+    # wrap long comment onto a second line
+    lines = _wrap(c, val, BODY, size, w)[:2]
+    yy = y - 3.2 * mm
+    for ln in lines:
+        c.drawString(x, yy, ln)
+        yy -= 3.2 * mm
+    return yy
+
+
+def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str) -> bytes:
+    """One-page premium AGR certificate card (105 x 66 mm) with a scannable QR."""
+    snap = cert.get("gemstone_snapshot") or {}
+    number = cert["certificate_number"]
+    qr_reader = _qr_image(verify_url)
+
+    photo_reader = None
+    if photo_bytes:
+        try:
+            photo_reader = ImageReader(BytesIO(photo_bytes))
+        except Exception:
+            photo_reader = None
+
+    buf = BytesIO()
+    c = canvas.Canvas(buf, pagesize=(CARD_W, CARD_H))
+
+    # base + gold border
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
+    _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.05)
+
+    # --- Top band (navy) ---
+    band_h = 15 * mm
+    c.setFillColorRGB(*NAVY)
+    c.rect(0, CARD_H - band_h, CARD_W, band_h, fill=1, stroke=0)
+    c.setFillColorRGB(*GOLD)
+    c.rect(0, CARD_H - band_h, CARD_W, 0.8 * mm, fill=1, stroke=0)
+    _agr_monogram(c, 9 * mm, CARD_H - band_h / 2, 5.4 * mm)
+    cx = CARD_W / 2
+    _tracked(c, 0, CARD_H - 6.4 * mm, "AGR", HEADB, 12, IVORY, tracking=3.0, center=cx)
+    _tracked(c, 0, CARD_H - 11.4 * mm, AGR_FULL.upper(), BODYB, 5.0, GOLD_SOFT, tracking=1.6, center=cx)
+    _agr_gem_glyph(c, CARD_W - 9 * mm, CARD_H - band_h / 2 - 1 * mm, 2.6 * mm)
+
+    # --- Middle ---
+    top = CARD_H - band_h - 3 * mm
+    lx = 6 * mm
+
+    # photo (left)
+    ph_w, ph_h = 24 * mm, 18 * mm
+    py = top - ph_h
+    c.setFillColorRGB(*BEIGE_LT)
+    c.rect(lx - 1 * mm, py - 1 * mm, ph_w + 2 * mm, ph_h + 2 * mm, fill=1, stroke=0)
+    if photo_reader is not None:
+        try:
+            iw, ih = photo_reader.getSize()
+            r = min(ph_w / iw, ph_h / ih)
+            dw, dh = iw * r, ih * r
+            c.drawImage(photo_reader, lx + (ph_w - dw) / 2, py + (ph_h - dh) / 2,
+                        width=dw, height=dh, mask="auto")
+        except Exception:
+            pass
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.6)
+    c.rect(lx - 1 * mm, py - 1 * mm, ph_w + 2 * mm, ph_h + 2 * mm)
+
+    # QR directly under the photo, then the registration number under the QR
+    qr_s = 13 * mm
+    qy = py - 2.5 * mm - qr_s
+    c.drawImage(qr_reader, lx, qy, width=qr_s, height=qr_s, mask="auto")
+    c.setFillColorRGB(*NAVY)
+    c.setFont(BODYB, 6.4)
+    c.drawString(lx, qy - 3.4 * mm, number)
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODY, 4.0)
+    c.drawString(lx, qy - 6.2 * mm, "Scan QR to verify authenticity")
+
+    # right column fields (compact, never crossing into the QR/photo column)
+    rx = lx + ph_w + 5 * mm
+    rw = CARD_W - rx - 6 * mm
+    fy = top - 1 * mm
+    for label, val in [
+        ("Gemstone Name", snap.get("name")),
+        ("Type", snap.get("variety") or snap.get("species") or snap.get("object_type")),
+        ("Date", (cert.get("issued_at") or "")[:10]),
+        ("Comment", snap.get("conclusion") or snap.get("notes")),
+        ("Origin", snap.get("origin")),
+    ]:
+        if val in (None, "", "None"):
+            continue
+        fy = _card_field(c, rx, rw, fy, label, val) - 1.0 * mm
+
+    # --- Bottom authenticity strip ---
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.4)
+    c.line(6 * mm, 6.5 * mm, CARD_W - 6 * mm, 6.5 * mm)
+    c.setFillColorRGB(*GOLD_DK)
+    c.setFont(BODYB, 4.6)
+    c.drawCentredString(cx, 3.6 * mm,
+                        "AUTHENTIC GEMSTONE CERTIFICATE — ISSUED BY AZURIS GEMOLOGICAL RESEARCH (AGR)")
+
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return buf.read()
+
+
+def render_card_png(cert: dict, photo_bytes: Optional[bytes], verify_url: str, zoom: float = 3.0) -> bytes:
+    import pymupdf
+    pdf = build_card_pdf(cert, photo_bytes, verify_url)
+    doc = pymupdf.open(stream=pdf, filetype="pdf")
+    try:
+        pix = doc[0].get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
         return pix.tobytes("png")
     finally:
         doc.close()

@@ -8,7 +8,7 @@ import { Logo } from "@/components/common/Logo";
 
 const navItems = [
   { to: "/", key: "nav.home", testId: TEST_IDS.header.navHome, type: "route" as const, end: true },
-  { to: "/#verification", key: "nav.verification", testId: TEST_IDS.header.navVerification, type: "hash" as const },
+  { to: "/verify", key: "nav.verification", testId: TEST_IDS.header.navVerification, type: "route" as const },
   { to: "/#proses", key: "nav.process", testId: TEST_IDS.header.navProcess, type: "hash" as const },
   { to: "/legalitas", key: "nav.legality", testId: TEST_IDS.header.navLegality, type: "route" as const },
   { to: "/about", key: "nav.about", testId: TEST_IDS.header.navAbout, type: "route" as const },

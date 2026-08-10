@@ -2,7 +2,7 @@
  * Indonesian locale — DEFAULT.
  */
 const id = {
-  brand: "Azuris Gemological",
+  brand: "Azuris Gemological Research",
   tagline: "Sertifikasi, dokumentasi identitas, dan verifikasi batu mulia.",
   comingSoon: "Halaman ini akan diimplementasikan pada tahap berikutnya.",
   sprintNotice: "Institusi Gemologi Tepercaya",
@@ -313,7 +313,7 @@ const id = {
     issued: "Sertifikat diterbitkan.",
     securityCodeNote: "Simpan kode keamanan ini — hanya ditampilkan sekali:",
     qrNote: "URL QR:", gemstones: "Batu Terdaftar", certificates: "Sertifikat",
-    pdf: "Unduh PDF", revoke: "Cabut", revoked: "Dicabut.",
+    pdf: "Unduh PDF", card: "Kartu", revoke: "Cabut", revoked: "Dicabut.",
     noGem: "Belum ada batu.", issuedBadge: "Bersertifikat",
     demoPreview: "Lihat Contoh Sertifikat",
     demoTitle: "Contoh Sertifikat (Pratinjau Demo)",

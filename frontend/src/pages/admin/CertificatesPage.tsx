@@ -106,6 +106,14 @@ export default function CertificatesPage() {
     });
   };
 
+  const openCard = (uuid: string) => {
+    apiFetch(`/api/admin/certificates/${uuid}/card`).then(async (r) => {
+      if (!r.ok) return;
+      const blob = await r.blob();
+      window.open(URL.createObjectURL(blob), "_blank");
+    });
+  };
+
   const openDemo = async () => {
     setDemoBusy(true);
     try {
@@ -244,6 +252,9 @@ export default function CertificatesPage() {
                       <p className="text-xs text-muted-foreground">v{c.version} · {c.status}{c.is_current ? "" : " · archived"}</p>
                     </div>
                     <div className="flex items-center gap-3">
+                      <button data-testid={`card-${c.uuid}`} onClick={() => openCard(c.uuid)} className="inline-flex items-center gap-1 text-[0.62rem] uppercase tracking-[0.16em] text-gold hover:underline">
+                        <SealCheck size={14} /> {t("adminCert.card")}
+                      </button>
                       <button data-testid={`pdf-${c.uuid}`} onClick={() => openPdf(c.uuid)} className="inline-flex items-center gap-1 text-[0.62rem] uppercase tracking-[0.16em] text-royal hover:underline">
                         <FilePdf size={14} /> {t("adminCert.pdf")}
                       </button>

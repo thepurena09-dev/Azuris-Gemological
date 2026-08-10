@@ -16,14 +16,11 @@ import DashboardPage from "@/pages/admin/DashboardPage";
 import LegalityAdminPage from "@/pages/admin/LegalityAdminPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
 import CertificatesPage from "@/pages/admin/CertificatesPage";
-import CustomersPage from "@/pages/admin/CustomersPage";
 import GemstonesPage from "@/pages/admin/GemstonesPage";
 import JewelryPage from "@/pages/admin/JewelryPage";
 import WarrantiesPage from "@/pages/admin/WarrantiesPage";
-import OwnershipPage from "@/pages/admin/OwnershipPage";
-import MembershipPage from "@/pages/admin/MembershipPage";
 import VisualsPage from "@/pages/admin/VisualsPage";
-import MembershipVerifyPage from "@/pages/public/MembershipVerifyPage";
+import VerifyPage from "@/pages/public/VerifyPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -46,9 +43,10 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/legalitas" element={<LegalityPage />} />
-                <Route path="/membership" element={<MembershipVerifyPage />} />
+                <Route path="/verify" element={<VerifyPage />} />
 
-                <Route path="/verification" element={<Navigate to="/#verification" replace />} />
+                <Route path="/verification" element={<Navigate to="/verify" replace />} />
+                <Route path="/membership" element={<Navigate to="/verify" replace />} />
                 <Route path="/catalog" element={<Navigate to="/" replace />} />
                 <Route path="/catalog/gemstones" element={<Navigate to="/" replace />} />
                 <Route path="/catalog/jewelry" element={<Navigate to="/" replace />} />
@@ -70,12 +68,9 @@ function App() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="legalitas" element={<LegalityAdminPage />} />
                 <Route path="certificates" element={<CertificatesPage />} />
-                <Route path="customers" element={<CustomersPage />} />
                 <Route path="gemstones" element={<GemstonesPage />} />
                 <Route path="jewelry" element={<JewelryPage />} />
                 <Route path="warranties" element={<WarrantiesPage />} />
-                <Route path="ownership" element={<OwnershipPage />} />
-                <Route path="membership" element={<MembershipPage />} />
                 <Route path="visuals" element={<VisualsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>

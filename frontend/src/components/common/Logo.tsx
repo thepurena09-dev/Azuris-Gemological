@@ -31,8 +31,8 @@ export function Logo({
           <span className={`font-serif text-[1.5rem] font-semibold tracking-tight ${textColor}`}>
             AZURIS
           </span>
-          <span className={`mt-1 text-[0.5rem] uppercase tracking-[0.45em] ${subColor}`}>
-            Gemological
+          <span className={`mt-1 text-[0.5rem] uppercase tracking-[0.32em] ${subColor}`}>
+            Gemological Research
           </span>
         </span>
       )}
