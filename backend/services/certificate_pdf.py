@@ -604,12 +604,13 @@ def _agr_details(c, cert, snap, signature_reader=None):
     w = A5W - 2 * m
     cx = A5W / 2
 
-    # header — official logo + institution
-    _draw_logo(c, _LOGO, x + 7 * mm, A5H - 21 * mm, 15 * mm)
-    c.setFillColorRGB(*NAVY)
-    c.setFont(HEADB, 13)
-    c.drawString(x + 17 * mm, A5H - 18 * mm, AGR_FULL)
-    _tracked(c, x + 17 * mm, A5H - 23 * mm, CERT_TITLE, BODYB, 5.4, GOLD_DK, tracking=1.0)
+    # header — compact navy AZURIS plaque lockup (emblem seal + plaque), centered
+    grp_emb, grp_gap, grp_pw = 12 * mm, 3 * mm, 46 * mm
+    grp_left = cx - (grp_emb + grp_gap + grp_pw) / 2
+    emb_cx = grp_left + grp_emb / 2
+    plq_cx = grp_left + grp_emb + grp_gap + grp_pw / 2
+    _draw_logo(c, _LOGO, emb_cx, A5H - 17 * mm, grp_emb)
+    _plaque(c, plq_cx, A5H - 11 * mm, grp_pw, 12 * mm, az_size=12.5, sub_size=4.2, sub=True)
     c.setStrokeColorRGB(*GOLD)
     c.setLineWidth(0.9)
     c.line(x, A5H - 27 * mm, x + w, A5H - 27 * mm)
@@ -831,64 +832,59 @@ def _wave_path(c, pts):
     c.drawPath(p, stroke=1, fill=0)
 
 
-def _edge_wave(c, a, b, coord, amp, period, phase, horizontal):
-    """Sine wave from a..b at fixed 'coord'; horizontal=True → x varies (top/bottom)."""
-    n = max(6, int(abs(b - a) / 1.4))
+def _edge_wave(c, a, b, coord, amp, period, horizontal, off_perp=0.0, phase=0.0):
+    """Continuous sine wave from a..b at fixed 'coord' (+perpendicular offset).
+    horizontal=True → x varies (top/bottom edges)."""
+    n = max(10, int(abs(b - a) / 1.1))
     pts = []
     for i in range(n + 1):
         t = a + (b - a) * i / n
-        off = amp * math.sin(2 * math.pi * (t - a) / period + phase)
-        pts.append((t, coord + off) if horizontal else (coord + off, t))
+        val = coord + off_perp + amp * math.sin(2 * math.pi * (t - a) / period + phase)
+        pts.append((t, val) if horizontal else (val, t))
     _wave_path(c, pts)
 
 
 def _double_frame_rect(c, w, h, color1=GOLD, color2=GOLD_SOFT, inset=6 * mm, restrained=False):
-    """Layered ornamental security frame (banknote/laboratory character):
-    thin outer gold boundary → braided guilloche wave band on all four edges →
-    navy hairline → inner muted-gold rule, with gold corner rosettes. A restrained
-    variant (single wave, thinner band) keeps dense pages readable."""
+    """Continuous layered ornamental band (laboratory/banknote character):
+    thin outer gold rule → thin navy rule → a continuous double-line guilloche
+    wave ribbon on all four edges → thin inner gold rule. Vector-only, no dotted
+    or disconnected marks. A restrained variant (thinner band) keeps dense pages
+    open while staying visually consistent."""
+    if restrained:
+        navy_off, wy, amp, sep, period, inner_off = 1.0, 2.15, 0.5, 0.4, 5.0, 3.4
+        lw_out, lw_navy, lw_wave, lw_in = 0.8, 0.45, 0.45, 0.6
+    else:
+        navy_off, wy, amp, sep, period, inner_off = 1.3, 2.7, 0.85, 0.7, 6.0, 4.4
+        lw_out, lw_navy, lw_wave, lw_in = 0.9, 0.5, 0.5, 0.7
+    navy_off, wy, inner_off = navy_off * mm, wy * mm, inner_off * mm
+    amp, sep, period = amp * mm, sep * mm, period * mm
+
     c.saveState()
-    # 1) thin outer gold boundary
+    # outer gold rule
     c.setStrokeColorRGB(*color1)
-    c.setLineWidth(0.8)
+    c.setLineWidth(lw_out)
     c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
-
-    # 2) guilloche wave band (braided on full pages, single on restrained)
-    wy = inset + (1.9 * mm if restrained else 2.5 * mm)
-    amp = (0.55 if restrained else 1.0) * mm
-    period = (4.8 if restrained else 6.2) * mm
-    g = (wy - inset) + amp + 1.0 * mm
-    xa, xb = inset + g, w - inset - g
-    ya, yb = inset + g, h - inset - g
-    c.setStrokeColorRGB(*color1)
-    c.setLineWidth(0.4)
-    phases = [0.0] if restrained else [0.0, math.pi]
-    for ph in phases:
-        _edge_wave(c, xa, xb, wy, amp, period, ph, True)
-        _edge_wave(c, xa, xb, h - wy, amp, period, ph, True)
-        _edge_wave(c, ya, yb, wy, amp, period, ph, False)
-        _edge_wave(c, ya, yb, h - wy, amp, period, ph, False)
-
-    # 3) navy hairline
-    n_off = inset + (3.3 * mm if restrained else 4.2 * mm)
+    # navy supporting rule
     c.setStrokeColorRGB(*NAVY)
-    c.setLineWidth(0.5)
-    c.rect(n_off, n_off, w - 2 * n_off, h - 2 * n_off)
-
-    # 4) inner muted-gold rule (full pages only, keeps restrained pages open)
-    if not restrained:
-        g_off = inset + 5.0 * mm
-        c.setStrokeColorRGB(*color2)
-        c.setLineWidth(0.35)
-        c.rect(g_off, g_off, w - 2 * g_off, h - 2 * g_off)
+    c.setLineWidth(lw_navy)
+    c.rect(inset + navy_off, inset + navy_off, w - 2 * (inset + navy_off), h - 2 * (inset + navy_off))
+    # continuous double-line guilloche wave ribbon (stops short of corners)
+    cg = period + amp + 1.0 * mm
+    xa, xb = inset + cg, w - inset - cg
+    ya, yb = inset + cg, h - inset - cg
+    c.setStrokeColorRGB(*color1)
+    c.setLineWidth(lw_wave)
+    for off in (sep / 2, -sep / 2):
+        _edge_wave(c, xa, xb, inset + wy, amp, period, True, off)
+        _edge_wave(c, xa, xb, h - inset - wy, amp, period, True, off)
+        _edge_wave(c, ya, yb, inset + wy, amp, period, False, off)
+        _edge_wave(c, ya, yb, h - inset - wy, amp, period, False, off)
+    # inner gold rule
+    c.setStrokeColorRGB(*color1)
+    c.setLineWidth(lw_in)
+    c.rect(inset + inner_off, inset + inner_off,
+           w - 2 * (inset + inner_off), h - 2 * (inset + inner_off))
     c.restoreState()
-
-    # 5) gold corner rosettes (refined symmetrical corner transitions)
-    for (dx, dy) in ((wy, wy), (w - wy, wy), (wy, h - wy), (w - wy, h - wy)):
-        c.setFillColorRGB(*color1)
-        c.circle(dx, dy, 0.75 * mm, fill=1, stroke=0)
-        c.setFillColorRGB(*IVORY)
-        c.circle(dx, dy, 0.32 * mm, fill=1, stroke=0)
 
 
 # ---------------------------------------------------------------- build (book)
@@ -901,40 +897,16 @@ def _reader(data: Optional[bytes]) -> Optional[ImageReader]:
         return None
 
 
-def _demo_stamp_cover(c, w, h):
-    """Restrained diagonal SAMPLE stamp placed in the cover's lower empty band,
-    clear of the logo, wordmark, and title."""
+def _sample_stamp(c, cx, cy, text_size, alpha, angle=18):
+    """One consistent semi-transparent diagonal document stamp (muted red),
+    placed in negative space so it never obscures key content."""
     c.saveState()
-    c.translate(w / 2, 52 * mm)
-    c.rotate(14)
-    c.setFillColorRGB(0.80, 0.20, 0.22)
-    c.setFillAlpha(0.55)
-    c.setFont(HEADB, 22)
-    c.drawCentredString(0, 2.4 * mm, "SAMPLE")
-    c.setFont(BODYB, 8)
-    c.drawCentredString(0, -4.8 * mm, "NOT A VALID CERTIFICATE")
-    c.restoreState()
-
-
-def _demo_soft(c, w, h):
-    """Very faint diagonal SAMPLE mark that does not obscure the details page."""
-    c.saveState()
-    c.translate(w / 2, h / 2)
-    c.rotate(35)
-    c.setFillColorRGB(0.83, 0.16, 0.16)
-    c.setFillAlpha(0.07)
-    c.setFont(HEADB, 62)
-    c.drawCentredString(0, 0, "SAMPLE")
-    c.restoreState()
-
-
-def _sample_ribbon(c, w, y):
-    """Small SAMPLE ribbon that does not cover important content."""
-    c.saveState()
-    pw = 58 * mm
-    c.setFillColorRGB(0.83, 0.16, 0.16)
-    c.roundRect(w / 2 - pw / 2, y - 6 * mm, pw, 6 * mm, 1.5 * mm, fill=1, stroke=0)
-    _tracked(c, 0, y - 4.1 * mm, "SAMPLE — NOT VALID", BODYB, 7, (1, 1, 1), tracking=1.2, center=w / 2)
+    c.translate(cx, cy)
+    c.rotate(angle)
+    c.setFillColorRGB(0.72, 0.22, 0.24)
+    c.setFillAlpha(alpha)
+    c.setFont(HEADB, text_size)
+    c.drawCentredString(0, 0, "SAMPLE — NOT VALID")
     c.restoreState()
 
 
@@ -1041,22 +1013,22 @@ def build_certificate_pdf(
 
     _agr_cover(c)
     if demo:
-        _demo_stamp_cover(c, A5W, A5H)
+        _sample_stamp(c, A5W / 2, 50 * mm, 15, 0.5)
     c.showPage()
 
     _agr_details(c, cert, snap, signature_reader)
     if demo:
-        _demo_soft(c, A5W, A5H)
+        _sample_stamp(c, A5W / 2, 66 * mm, 13, 0.42, 12)
     c.showPage()
 
     _agr_presentation(c, cert, snap, photo_reader)
     if demo:
-        _demo_soft(c, A5W, A5H)
+        _sample_stamp(c, A5W / 2, 24 * mm, 14, 0.5)
     c.showPage()
 
     _agr_back(c, cert)
     if demo:
-        _demo_soft(c, A5W, A5H)
+        _sample_stamp(c, A5W / 2, 48 * mm, 16, 0.5)
     c.showPage()
 
     c.save()
