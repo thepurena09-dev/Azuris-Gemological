@@ -1020,18 +1020,6 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     c.setFillColorRGB(*NAVY)
     c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
     _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.06)
-    # faint low-contrast gem emblem (security-style), never over key content
-    c.saveState()
-    c.setStrokeColorRGB(*GOLD)
-    c.setStrokeAlpha(0.10)
-    for r in (13 * mm, 9.5 * mm, 6 * mm):
-        c.saveState()
-        c.translate(CARD_W - 22 * mm, CARD_H / 2 - 2 * mm)
-        c.rotate(45)
-        c.setLineWidth(0.5)
-        c.rect(-r, -r, 2 * r, 2 * r, fill=0, stroke=1)
-        c.restoreState()
-    c.restoreState()
 
     # thin gold frame
     c.setStrokeColorRGB(*GOLD)
@@ -1041,28 +1029,28 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     c.setLineWidth(0.3)
     c.rect(3.4 * mm, 3.4 * mm, CARD_W - 6.8 * mm, CARD_H - 6.8 * mm)
 
-    # --- Header: official logo + AZURIS serif wordmark ---
-    _draw_logo(c, _LOGO, 9 * mm, CARD_H - 8 * mm, 10 * mm)
+    # --- Header: official logo + AZURIS serif wordmark (single baseline grid) ---
+    _draw_logo(c, _LOGO, 9 * mm, CARD_H - 8 * mm, 9.5 * mm)
     c.setFillColorRGB(*IVORY)
-    c.setFont(HEADB, 11.5)
-    c.drawString(15.5 * mm, CARD_H - 7 * mm, "AZURIS")
-    _tracked(c, 15.5 * mm, CARD_H - 10.6 * mm, AGR_FULL.upper(), BODYB, 4.2, GOLD_SOFT, tracking=1.2)
+    c.setFont(HEADB, 11)
+    c.drawString(15 * mm, CARD_H - 7.2 * mm, "AZURIS")
+    _tracked(c, 15 * mm, CARD_H - 10.6 * mm, AGR_FULL.upper(), BODYB, 4.0, GOLD_SOFT, tracking=1.1)
     c.setStrokeColorRGB(*GOLD)
     c.setLineWidth(0.5)
-    c.line(5 * mm, CARD_H - 13.4 * mm, CARD_W - 5 * mm, CARD_H - 13.4 * mm)
+    c.line(5.5 * mm, CARD_H - 13.2 * mm, CARD_W - 5.5 * mm, CARD_H - 13.2 * mm)
 
     if sample:
-        cw2 = 21 * mm
-        c.setFillColorRGB(0.80, 0.20, 0.22)
-        c.roundRect(CARD_W - 5 * mm - cw2, CARD_H - 11 * mm, cw2, 5.4 * mm, 1.2 * mm, fill=1, stroke=0)
-        _tracked(c, 0, CARD_H - 7.6 * mm, "SAMPLE - NOT VALID", BODYB, 4.8, (1, 1, 1),
-                 tracking=0.4, center=CARD_W - 5 * mm - cw2 / 2)
+        cw2 = 16.5 * mm
+        c.setFillColorRGB(0.78, 0.22, 0.24)
+        c.roundRect(CARD_W - 5.5 * mm - cw2, CARD_H - 10.4 * mm, cw2, 4.6 * mm, 1.0 * mm, fill=1, stroke=0)
+        _tracked(c, 0, CARD_H - 7.5 * mm, "SAMPLE - NOT VALID", BODYB, 4.0, (1, 1, 1),
+                 tracking=0.3, center=CARD_W - 5.5 * mm - cw2 / 2)
 
     top = CARD_H - 16.5 * mm
     lx = 5.5 * mm
 
     # --- Gemstone photograph (primary focus, left) ---
-    ph_w, ph_h = 40 * mm, 32 * mm
+    ph_w, ph_h = 40 * mm, 30 * mm
     py = top - ph_h
     c.setFillColorRGB(*NAVY_LT)
     c.rect(lx - 1 * mm, py - 1 * mm, ph_w + 2 * mm, ph_h + 2 * mm, fill=1, stroke=0)
@@ -1081,7 +1069,7 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
 
     # --- Right column: certificate number + fields ---
     rx = lx + ph_w + 5 * mm
-    rw = CARD_W - rx - 5 * mm
+    rw = CARD_W - rx - 6 * mm
     fy = top
     c.setFillColorRGB(*GOLD_SOFT)
     c.setFont(BODYB, 4.2)
@@ -1107,25 +1095,28 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
         fy = _card_field(c, rx, rw, fy, label, val, label_color=LABEL, value_color=IVORY) - 0.4 * mm
 
     # --- QR (discreet, on an ivory tile so it stays scannable) ---
-    qr_s = 11 * mm
-    pad = 1.0 * mm
-    qx = lx
-    qy = 4.8 * mm
+    qr_s = 9 * mm
+    pad = 0.9 * mm
+    tile = qr_s + 2 * pad
+    tile_x = lx - 1 * mm            # aligned with the gemstone-photo frame left edge
+    tile_y = 5.5 * mm               # inside safe print margins
     c.setFillColorRGB(*IVORY)
-    c.roundRect(qx - pad, qy - pad, qr_s + 2 * pad, qr_s + 2 * pad, 0.8 * mm, fill=1, stroke=0)
-    c.drawImage(qr_reader, qx, qy, width=qr_s, height=qr_s, mask="auto")
+    c.roundRect(tile_x, tile_y, tile, tile, 0.8 * mm, fill=1, stroke=0)
+    c.drawImage(qr_reader, tile_x + pad, tile_y + pad, width=qr_s, height=qr_s, mask="auto")
+    tile_cy = tile_y + tile / 2
+    tx = tile_x + tile + 2.6 * mm
     c.setFillColorRGB(*LABEL)
     c.setFont(BODY, 3.6)
-    c.drawString(qx + qr_s + 2.6 * mm, qy + qr_s - 3.4 * mm, "Scan to verify")
-    c.drawString(qx + qr_s + 2.6 * mm, qy + qr_s - 6.4 * mm, "authenticity")
+    c.drawString(tx, tile_cy + 1.4 * mm, "Scan to verify")
+    c.drawString(tx, tile_cy - 1.6 * mm, "authenticity")
 
-    # --- Authenticity statement (bottom-right) ---
+    # --- Authenticity footer (aligned to the right information grid) ---
     c.setFillColorRGB(*GOLD_SOFT)
     c.setFont(BODYB, 4.4)
-    c.drawRightString(CARD_W - 5.5 * mm, 7.4 * mm, "AUTHENTIC GEMSTONE CERTIFICATE")
+    c.drawRightString(CARD_W - 6 * mm, 8.4 * mm, "AUTHENTIC GEMSTONE CERTIFICATE")
     c.setFillColorRGB(*LABEL)
     c.setFont(BODY, 3.8)
-    c.drawRightString(CARD_W - 5.5 * mm, 4.6 * mm, "Issued by Azuris Gemological Research (AGR)")
+    c.drawRightString(CARD_W - 6 * mm, 5.6 * mm, "Issued by Azuris Gemological Research (AGR)")
 
     c.showPage()
     c.save()
