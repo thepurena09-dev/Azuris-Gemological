@@ -599,8 +599,8 @@ def _agr_cover(c, w=A5W, h=A5H):
     _tracked(c, 0, 26 * mm, "TRUSTED GEMOLOGICAL INSTITUTION", BODY, 5.6, SLATE, tracking=2.6, center=cx)
 
 
-def _agr_details(c, cert, snap, photo_reader, signature_reader=None):
-    """Page 2 — English certificate details + legality & signature (no QR)."""
+def _agr_details(c, cert, snap, signature_reader=None):
+    """Page 2 — English certificate details + legality & signature (no QR/photo)."""
     c.setFillColorRGB(*IVORY)
     c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
     _watermark(c, A5W / 2, A5H / 2, 58 * mm)
@@ -635,26 +635,7 @@ def _agr_details(c, cert, snap, photo_reader, signature_reader=None):
     c.drawRightString(x + w - 3 * mm, y - 6 * mm, cert["certificate_number"])
     y -= 14 * mm
 
-    # gemstone photograph (top-right, aspect preserved, gold-framed beige mat)
-    box_w, box_h = 46 * mm, 40 * mm
-    px = x + w - box_w
-    py = y - box_h
-    if photo_reader is not None:
-        c.setFillColorRGB(*BEIGE_LT)
-        c.rect(px - 1.2 * mm, py - 1.2 * mm, box_w + 2.4 * mm, box_h + 2.4 * mm, fill=1, stroke=0)
-        try:
-            iw, ih = photo_reader.getSize()
-            r = min(box_w / iw, box_h / ih)
-            dw, dh = iw * r, ih * r
-            c.drawImage(photo_reader, px + (box_w - dw) / 2, py + (box_h - dh) / 2,
-                        width=dw, height=dh, mask="auto")
-        except Exception:
-            pass
-        c.setStrokeColorRGB(*GOLD)
-        c.setLineWidth(0.7)
-        c.rect(px - 1.2 * mm, py - 1.2 * mm, box_w + 2.4 * mm, box_h + 2.4 * mm)
-
-    # detail fields — only present values (no invented data)
+    # detail fields — full width, only present values (no invented data)
     pairs = [
         ("Gemstone Name", snap.get("name")),
         ("Object Type", snap.get("object_type")),
@@ -674,17 +655,10 @@ def _agr_details(c, cert, snap, photo_reader, signature_reader=None):
     ]
     pairs = [(k, v) for k, v in pairs if v not in (None, "", "None")]
 
-    photo_bottom = py - 3 * mm if photo_reader is not None else -1
-    narrow_w = (px - x - 4 * mm) if photo_reader is not None else w
-    row_h = 5.8 * mm
-    idx = 0
-    for k, v in pairs:
-        full = y < photo_bottom
-        fw = w if full else max(narrow_w, 40 * mm)
-        _field(c, x, fw, y, k, v, val_size=7.6, zebra=(full and idx % 2 == 0))
+    row_h = 6.0 * mm
+    for i, (k, v) in enumerate(pairs):
+        _field(c, x, w, y, k, v, val_size=7.8, zebra=(i % 2 == 0))
         y -= row_h
-        if full:
-            idx += 1
 
     # comment / conclusion
     comment = snap.get("conclusion") or snap.get("notes")
@@ -814,14 +788,117 @@ def _demo_soft(c, w, h):
     c.restoreState()
 
 
+def _sample_ribbon(c, w, y):
+    """Small SAMPLE ribbon that does not cover important content."""
+    c.saveState()
+    pw = 58 * mm
+    c.setFillColorRGB(0.83, 0.16, 0.16)
+    c.roundRect(w / 2 - pw / 2, y - 6 * mm, pw, 6 * mm, 1.5 * mm, fill=1, stroke=0)
+    _tracked(c, 0, y - 4.1 * mm, "SAMPLE — NOT VALID", BODYB, 7, (1, 1, 1), tracking=1.2, center=w / 2)
+    c.restoreState()
+
+
+def _agr_presentation(c, cert, snap, photo_reader):
+    """Page 3 — gemstone presentation: large photograph + name + type + 'From AGR'."""
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
+    _pattern(c, 0, A5W, 0, A5H, color=GOLD, alpha=0.045)
+    _double_frame_rect(c, A5W, A5H)
+    cx = A5W / 2
+
+    _draw_logo(c, _LOGO, cx, A5H - 24 * mm, 26 * mm)
+    _tracked(c, 0, A5H - 40 * mm, "CERTIFIED GEMSTONE", BODY, 7.5, GOLD_DK, tracking=3.2, center=cx)
+
+    box_w, box_h = 104 * mm, 90 * mm
+    bx = cx - box_w / 2
+    by = A5H - 50 * mm - box_h
+    c.setFillColorRGB(*BEIGE_LT)
+    c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm, fill=1, stroke=0)
+    if photo_reader is not None:
+        try:
+            iw, ih = photo_reader.getSize()
+            r = min(box_w / iw, box_h / ih)
+            dw, dh = iw * r, ih * r
+            c.drawImage(photo_reader, cx - dw / 2, by + (box_h - dh) / 2,
+                        width=dw, height=dh, mask="auto")
+        except Exception:
+            pass
+    else:
+        c.setFillColorRGB(*TAUPE)
+        c.setFont(BODY, 8)
+        c.drawCentredString(cx, by + box_h / 2, "No photograph on record")
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.9)
+    c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm)
+
+    ty = by - 14 * mm
+    name = snap.get("name") or snap.get("name_en") or snap.get("name_id") or "Gemstone"
+    c.setFillColorRGB(*NAVY)
+    c.setFont(HEADB, 22)
+    c.drawCentredString(cx, ty, str(name))
+    gtype = snap.get("variety") or snap.get("species") or snap.get("object_type")
+    if gtype:
+        ty -= 8 * mm
+        _tracked(c, 0, ty, str(gtype).upper(), BODY, 8.5, GOLD_DK, tracking=2.4, center=cx)
+
+    ty -= 16 * mm
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.7)
+    c.line(cx - 16 * mm, ty + 5 * mm, cx + 16 * mm, ty + 5 * mm)
+    c.setFillColorRGB(*NAVY)
+    c.setFont(HEAD, 14)
+    c.drawCentredString(cx, ty - 2 * mm, "From AGR")
+
+
+def _agr_back(c, cert):
+    """Page 4 — minimal back cover: small logo, date, certificate number (no QR)."""
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
+    _pattern(c, 0, A5W, 0, A5H, color=GOLD, alpha=0.05)
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(1.2)
+    c.rect(11 * mm, 11 * mm, A5W - 22 * mm, A5H - 22 * mm)
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.5)
+    c.rect(13.2 * mm, 13.2 * mm, A5W - 26.4 * mm, A5H - 26.4 * mm)
+
+    cx = A5W / 2
+    my = A5H / 2
+    _draw_logo(c, _LOGO, cx, my + 22 * mm, 24 * mm)
+    _tracked(c, 0, my + 4 * mm, "AZURIS GEMOLOGICAL RESEARCH", BODYB, 7, GOLD_DK, tracking=3.0, center=cx)
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.6)
+    c.line(cx - 18 * mm, my - 3 * mm, cx + 18 * mm, my - 3 * mm)
+
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODYB, 5.4)
+    c.drawCentredString(cx, my - 13 * mm, "CERTIFICATE NUMBER")
+    c.setFillColorRGB(*NAVY)
+    c.setFont(BODYB, 11)
+    c.drawCentredString(cx, my - 18 * mm, cert["certificate_number"])
+
+    date = (cert.get("issued_at") or "")[:10]
+    if date:
+        c.setFillColorRGB(*SLATE)
+        c.setFont(BODYB, 5.4)
+        c.drawCentredString(cx, my - 28 * mm, "DATE OF ISSUE")
+        c.setFillColorRGB(*NAVY)
+        c.setFont(BODY, 9)
+        c.drawCentredString(cx, my - 33 * mm, date)
+
+
 def build_certificate_pdf(
     cert: dict,
     photo_bytes: Optional[bytes],
     signature_bytes: Optional[bytes] = None,
     demo: bool = False,
 ) -> bytes:
-    """Exactly two A5 pages. Page 1 = premium detail-free cover, Page 2 = English
-    certificate details + legality/signature block. No QR / barcode."""
+    """Exactly FOUR A5 pages, in order:
+    1) detail-free premium front cover
+    2) English certificate details + legality/signature block
+    3) gemstone presentation (large photograph)
+    4) minimal back cover (date + number).
+    No QR / barcode on any page."""
     snap = cert.get("gemstone_snapshot") or {}
     photo_reader = _reader(photo_bytes)
     signature_reader = _reader(signature_bytes)
@@ -834,7 +911,17 @@ def build_certificate_pdf(
         _demo_stamp_cover(c, A5W, A5H)
     c.showPage()
 
-    _agr_details(c, cert, snap, photo_reader, signature_reader)
+    _agr_details(c, cert, snap, signature_reader)
+    if demo:
+        _demo_soft(c, A5W, A5H)
+    c.showPage()
+
+    _agr_presentation(c, cert, snap, photo_reader)
+    if demo:
+        _sample_ribbon(c, A5W, A5H - 12 * mm)
+    c.showPage()
+
+    _agr_back(c, cert)
     if demo:
         _demo_soft(c, A5W, A5H)
     c.showPage()
