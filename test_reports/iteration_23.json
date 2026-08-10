@@ -1,0 +1,33 @@
+{
+  "summary": "Frontend-only E2E verification of the AZURIS admin login flow at /login against the external preview URL. Ran 6 read-only login scenarios via Playwright (no writes to any collection). All three seeded credentials (SUPER_ADMIN, CONTENT_MANAGER, CUSTOMER_SERVICE) authenticate successfully and land on /admin/legalitas. Wrong password stays on /login and displays the Indonesian error 'Email atau kata sandi salah.'. Email trimming works (leading/trailing spaces on email still succeed). Password is transmitted exactly as typed (case-sensitive: lowercased password of the same admin returns 401 as expected). Conclusion: the login flow is functionally correct end-to-end; the user's reported 'email atau kata sandi salah' is an input/credential issue, not a code bug.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_scenarios_executed": [
+    {"case": "SUPER_ADMIN valid login (admin@azuris.local / AzurisDev@2026!)", "result": "PASS - redirected to /admin/legalitas"},
+    {"case": "CONTENT_MANAGER valid login (cm@azuris.local / CmDev@2026!)", "result": "PASS - redirected to /admin/legalitas (some sidebar routes return 403 for this role, which is expected RBAC behavior, not a login bug)"},
+    {"case": "CUSTOMER_SERVICE valid login (cs@azuris.local / CsDev@2026!)", "result": "PASS - redirected to /admin/legalitas (some sidebar routes return 403, expected RBAC)"},
+    {"case": "Wrong password (admin@azuris.local / WrongPassword123!)", "result": "PASS - remained on /login, error 'Email atau kata sandi salah.' displayed, backend returned 401"},
+    {"case": "Email with surrounding whitespace ('  admin@azuris.local  ')", "result": "PASS - email trimmed, login succeeded"},
+    {"case": "Password case-sensitivity (azurisdev@2026! for admin)", "result": "PASS - 401 as expected, password sent exactly as typed with '@' and '!' preserved"}
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "No code fix required for the login flow. Advise the Indonesian user to double-check: (1) exact password 'AzurisDev@2026!' with capital A, capital D, symbols '@' and '!', digits 2026 (not 2025/2026 confusion); (2) no invisible characters when copy-pasting; (3) correct account for their role. As a UX enhancement (optional), consider adding a password visibility toggle on /login to help users self-diagnose typos."
+  ],
+  "critical_code_review_comments": [
+    "Login flow is minimal and correct: email trimmed client + lowercased server side, password unmodified, argon2 verification, generic 401 with i18n message. No lockout may be intentional for admin panel but consider rate-limiting per-IP to mitigate brute force.",
+    "Some admin routes return 403 for CM/CS roles after login - this is expected RBAC and not a login bug, but ensure the UI hides menu items the user cannot access to avoid confusion (currently sidebar shows all items for all roles)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (6/6 login scenarios)"},
+  "test_credentials": "admin@azuris.local/AzurisDev@2026!, cm@azuris.local/CmDev@2026!, cs@azuris.local/CsDev@2026! - all verified working",
+  "seed_data_creation": "None. Read-only login testing only, no business data mutated. Certificate counter and collections untouched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Login flow is confirmed working end-to-end for all three seeded roles. The user's reported error is an input problem (likely mistyped password). If the user still cannot log in, ask them to (a) type password manually rather than paste, (b) confirm caps-lock off, (c) check they are on the correct preview URL.",
+  "rca of the issue": "No code bug. Backend /api/auth/login returns 200 for all three seeded credentials and 401 only when password is genuinely wrong; frontend correctly stores auth, redirects to /admin/legalitas on success and renders 'Email atau kata sandi salah.' on failure. Root cause of user's report is credential-input error on their side (typo, wrong casing, or extra whitespace in the password field - note that only the EMAIL is trimmed, not the password, so leading/trailing spaces in the password will cause a 401)."
+}
