@@ -566,27 +566,14 @@ def _agr_cover(c, w=A5W, h=A5H):
     c.rect(0, 0, w, h, fill=1, stroke=0)
     _pattern(c, 0, w, 0, h, color=GOLD, alpha=0.05)
 
-    # ornamental double gold frame
-    c.saveState()
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(1.5)
-    fm = 11 * mm
-    c.rect(fm, fm, w - 2 * fm, h - 2 * fm)
-    c.setStrokeColorRGB(*GOLD_SOFT)
-    c.setLineWidth(0.5)
-    fd = fm + 2.2 * mm
-    c.rect(fd, fd, w - 2 * fd, h - 2 * fd)
-    c.restoreState()
+    # layered ornamental frame (outer + inner rule + corner diamonds)
+    _double_frame_rect(c, w, h, inset=11 * mm)
 
-    # official Azuris logo
+    # official Azuris logo (balanced size, preserved aspect ratio, clear space)
     _draw_logo(c, _LOGO, cx, h - 56 * mm, 44 * mm)
 
-    _tracked(c, 0, h - 84 * mm, "AZURIS", HEADB, 27, NAVY, tracking=5.5, center=cx)
-    _tracked(c, 0, h - 91 * mm, AGR_FULL.upper(), BODYB, 8, GOLD_DK, tracking=3.2, center=cx)
-
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.9)
-    c.line(cx - 28 * mm, h - 99 * mm, cx + 28 * mm, h - 99 * mm)
+    _wordmark(c, cx, h - 84 * mm, size=28, tracking=6.0, color=NAVY)
+    _tracked(c, 0, h - 92 * mm, AGR_FULL.upper(), BODYB, 8, GOLD_DK, tracking=3.4, center=cx)
 
     _tracked(c, 0, h - 116 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15.5, NAVY, tracking=1.4, center=cx)
     _tracked(c, 0, h - 126 * mm, "CERTIFICATE", HEADB, 15.5, NAVY, tracking=5.0, center=cx)
@@ -596,6 +583,7 @@ def _agr_cover(c, w=A5W, h=A5H):
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.5)
     c.line(cx - 16 * mm, 32 * mm, cx + 16 * mm, 32 * mm)
+    _diamond(c, cx, 32 * mm, 0.9 * mm, GOLD)
     _tracked(c, 0, 26 * mm, "TRUSTED GEMOLOGICAL INSTITUTION", BODY, 5.6, SLATE, tracking=2.6, center=cx)
 
 
@@ -740,16 +728,42 @@ def _agr_details(c, cert, snap, signature_reader=None):
         dy -= 2.7 * mm
 
 
+def _diamond(c, cx, cy, r, color=GOLD):
+    """Small rotated-square gold ornament (corner / flanking detail)."""
+    c.saveState()
+    c.translate(cx, cy)
+    c.rotate(45)
+    c.setFillColorRGB(*color)
+    c.rect(-r, -r, 2 * r, 2 * r, fill=1, stroke=0)
+    c.restoreState()
+
+
+def _wordmark(c, cx, y, size=27, tracking=5.5, color=NAVY):
+    """Uppercase AZURIS wordmark with a refined gold underline flanked by diamonds."""
+    right = _tracked(c, 0, y, "AZURIS", HEADB, size, color, tracking=tracking, center=cx)
+    half = right - cx
+    ry = y - size * 0.16 * mm - 2.6 * mm
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.9)
+    c.line(cx - half + 2.4 * mm, ry, cx + half - 2.4 * mm, ry)
+    _diamond(c, cx - half, ry, 0.9 * mm, GOLD)
+    _diamond(c, cx + half, ry, 0.9 * mm, GOLD)
+    return ry
+
+
 def _double_frame_rect(c, w, h, color1=GOLD, color2=GOLD_SOFT, inset=6 * mm):
+    """Layered ornamental frame: heavier outer rule, thin inner rule, corner diamonds."""
     c.saveState()
     c.setStrokeColorRGB(*color1)
-    c.setLineWidth(1.0)
+    c.setLineWidth(1.2)
     c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
     c.setStrokeColorRGB(*color2)
-    c.setLineWidth(0.35)
-    d = inset + 1.5 * mm
+    c.setLineWidth(0.4)
+    d = inset + 1.6 * mm
     c.rect(d, d, w - 2 * d, h - 2 * d)
     c.restoreState()
+    for (dx, dy) in ((inset, inset), (w - inset, inset), (inset, h - inset), (w - inset, h - inset)):
+        _diamond(c, dx, dy, 1.1 * mm, color1)
 
 
 # ---------------------------------------------------------------- build (book)
@@ -855,21 +869,13 @@ def _agr_back(c, cert):
     c.setFillColorRGB(*IVORY)
     c.rect(0, 0, A5W, A5H, fill=1, stroke=0)
     _pattern(c, 0, A5W, 0, A5H, color=GOLD, alpha=0.05)
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(1.2)
-    c.rect(11 * mm, 11 * mm, A5W - 22 * mm, A5H - 22 * mm)
-    c.setStrokeColorRGB(*GOLD_SOFT)
-    c.setLineWidth(0.5)
-    c.rect(13.2 * mm, 13.2 * mm, A5W - 26.4 * mm, A5H - 26.4 * mm)
+    _double_frame_rect(c, A5W, A5H, inset=11 * mm)
 
     cx = A5W / 2
     my = A5H / 2
-    _draw_logo(c, _LOGO, cx, my + 22 * mm, 24 * mm)
-    _tracked(c, 0, my + 4 * mm, "AZURIS GEMOLOGICAL RESEARCH", BODYB, 7, GOLD_DK, tracking=3.0, center=cx)
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.6)
-    c.line(cx - 18 * mm, my - 3 * mm, cx + 18 * mm, my - 3 * mm)
-
+    _draw_logo(c, _LOGO, cx, my + 24 * mm, 24 * mm)
+    _wordmark(c, cx, my + 4 * mm, size=16, tracking=3.2, color=NAVY)
+    _tracked(c, 0, my - 3 * mm, AGR_FULL.upper(), BODYB, 6, GOLD_DK, tracking=2.6, center=cx)
     c.setFillColorRGB(*SLATE)
     c.setFont(BODYB, 5.4)
     c.drawCentredString(cx, my - 13 * mm, "CERTIFICATE NUMBER")
