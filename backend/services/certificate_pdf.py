@@ -570,21 +570,26 @@ def _agr_cover(c, w=A5W, h=A5H):
     _double_frame_rect(c, w, h, inset=11 * mm)
 
     # official Azuris logo (balanced size, preserved aspect ratio, clear space)
-    _draw_logo(c, _LOGO, cx, h - 56 * mm, 44 * mm)
+    _draw_logo(c, _LOGO, cx, h - 60 * mm, 42 * mm)
 
-    _wordmark(c, cx, h - 84 * mm, size=28, tracking=6.0, color=NAVY)
-    _tracked(c, 0, h - 92 * mm, AGR_FULL.upper(), BODYB, 8, GOLD_DK, tracking=3.4, center=cx)
-
-    _tracked(c, 0, h - 116 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15.5, NAVY, tracking=1.4, center=cx)
-    _tracked(c, 0, h - 126 * mm, "CERTIFICATE", HEADB, 15.5, NAVY, tracking=5.0, center=cx)
-
-    _tracked(c, 0, h - 138 * mm, "OFFICIAL GEMOLOGICAL DOCUMENT", BODY, 7, TAUPE, tracking=3.0, center=cx)
+    _wordmark(c, cx, h - 88 * mm, size=27, tracking=5.6, color=NAVY)
+    _tracked(c, 0, h - 100 * mm, AGR_FULL.upper(), BODYB, 8, GOLD_DK, tracking=3.2, center=cx)
 
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.5)
-    c.line(cx - 16 * mm, 32 * mm, cx + 16 * mm, 32 * mm)
-    _diamond(c, cx, 32 * mm, 0.9 * mm, GOLD)
-    _tracked(c, 0, 26 * mm, "TRUSTED GEMOLOGICAL INSTITUTION", BODY, 5.6, SLATE, tracking=2.6, center=cx)
+    c.line(cx - 20 * mm, h - 108 * mm, cx + 20 * mm, h - 108 * mm)
+    _diamond(c, cx, h - 108 * mm, 0.8 * mm, GOLD)
+
+    _tracked(c, 0, h - 126 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15.5, NAVY, tracking=1.4, center=cx)
+    _tracked(c, 0, h - 138 * mm, "CERTIFICATE", HEADB, 15.5, NAVY, tracking=5.0, center=cx)
+
+    _tracked(c, 0, h - 150 * mm, "OFFICIAL GEMOLOGICAL DOCUMENT", BODY, 7, TAUPE, tracking=3.0, center=cx)
+
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.5)
+    c.line(cx - 16 * mm, 46 * mm, cx + 16 * mm, 46 * mm)
+    _diamond(c, cx, 46 * mm, 0.9 * mm, GOLD)
+    _tracked(c, 0, 40 * mm, "TRUSTED GEMOLOGICAL INSTITUTION", BODY, 5.6, SLATE, tracking=2.6, center=cx)
 
 
 def _agr_details(c, cert, snap, signature_reader=None):
@@ -643,7 +648,7 @@ def _agr_details(c, cert, snap, signature_reader=None):
     ]
     pairs = [(k, v) for k, v in pairs if v not in (None, "", "None")]
 
-    row_h = 6.0 * mm
+    row_h = 5.8 * mm
     for i, (k, v) in enumerate(pairs):
         _field(c, x, w, y, k, v, val_size=7.8, zebra=(i % 2 == 0))
         y -= row_h
@@ -661,7 +666,7 @@ def _agr_details(c, cert, snap, signature_reader=None):
 
     # ---------------- Legality & authorised signatory (fixed bottom band) ----------------
     leg = cert.get("legality_snapshot") or {}
-    by = 56 * mm
+    by = 60 * mm
     _section_bar(c, x, x + w, by, "Legality & Authorised Signatory")
 
     # left column — legality / accreditation
@@ -684,18 +689,18 @@ def _agr_details(c, cert, snap, signature_reader=None):
         c.setFillColorRGB(*NAVY)
         c.setFont(BODY, 7.0)
         for ln in _wrap(c, str(v), BODY, 7.0, lw)[:2]:
-            ly -= 3.6 * mm
+            ly -= 3.5 * mm
             c.drawString(x, ly, ln)
-        ly -= 4.4 * mm
+        ly -= 4.2 * mm
 
     # right column — authorised signatory + signature image
     rx = x + w * 0.60
     rw = x + w - rx
-    sig_line_y = 27 * mm
+    sig_line_y = 30 * mm
     if signature_reader is not None:
         try:
             iw, ih = signature_reader.getSize()
-            r = min(rw / iw, (13 * mm) / ih)
+            r = min(rw / iw, (12 * mm) / ih)
             dw, dh = iw * r, ih * r
             c.drawImage(signature_reader, rx + (rw - dw) / 2, sig_line_y + 1.5 * mm,
                         width=dw, height=dh, mask="auto")
@@ -708,19 +713,19 @@ def _agr_details(c, cert, snap, signature_reader=None):
     position = leg.get("signatory_position") or "Authorised Signatory"
     c.setFillColorRGB(*NAVY)
     c.setFont(BODYB, 7.2)
-    c.drawCentredString(rx + rw / 2, sig_line_y - 4.2 * mm, str(signatory))
+    c.drawCentredString(rx + rw / 2, sig_line_y - 4.4 * mm, str(signatory))
     c.setFillColorRGB(*SLATE)
     c.setFont(BODY, 5.8)
-    c.drawCentredString(rx + rw / 2, sig_line_y - 8.0 * mm, str(position))
+    c.drawCentredString(rx + rw / 2, sig_line_y - 8.2 * mm, str(position))
 
-    # issuance statement + disclaimer (very bottom)
-    dy = 17 * mm
+    # issuance statement (full width, below both columns) + disclaimer (very bottom)
+    dy = 18 * mm
     c.setFillColorRGB(*GOLD_DK)
     for ln in _wrap(c, ISSUANCE_STATEMENT, BODY, 5.4, w)[:2]:
         c.setFont(BODY, 5.4)
         c.drawCentredString(cx, dy, ln)
         dy -= 2.9 * mm
-    dy -= 0.8 * mm
+    dy -= 1.2 * mm
     c.setFillColorRGB(*GREY)
     for ln in _wrap(c, DISCLAIMER_AGR, BODY, 4.8, w)[:2]:
         c.setFont(BODY, 4.8)
@@ -777,16 +782,17 @@ def _reader(data: Optional[bytes]) -> Optional[ImageReader]:
 
 
 def _demo_stamp_cover(c, w, h):
-    """Strong diagonal SAMPLE stamp for the (data-free) cover page."""
+    """Restrained diagonal SAMPLE stamp placed in the cover's lower empty band,
+    clear of the logo, wordmark, and title."""
     c.saveState()
-    c.translate(w / 2, h / 2)
-    c.rotate(32)
-    c.setFillColorRGB(0.83, 0.16, 0.16)
-    c.setFillAlpha(0.30)
-    c.setFont(HEADB, 46)
-    c.drawCentredString(0, 6 * mm, "SAMPLE")
-    c.setFont(BODYB, 15)
-    c.drawCentredString(0, -8 * mm, "NOT A VALID CERTIFICATE")
+    c.translate(w / 2, 52 * mm)
+    c.rotate(14)
+    c.setFillColorRGB(0.80, 0.20, 0.22)
+    c.setFillAlpha(0.85)
+    c.setFont(HEADB, 22)
+    c.drawCentredString(0, 2.4 * mm, "SAMPLE")
+    c.setFont(BODYB, 8)
+    c.drawCentredString(0, -4.8 * mm, "NOT A VALID CERTIFICATE")
     c.restoreState()
 
 
@@ -875,13 +881,13 @@ def _agr_back(c, cert):
     my = A5H / 2
     _draw_logo(c, _LOGO, cx, my + 24 * mm, 24 * mm)
     _wordmark(c, cx, my + 4 * mm, size=16, tracking=3.2, color=NAVY)
-    _tracked(c, 0, my - 3 * mm, AGR_FULL.upper(), BODYB, 6, GOLD_DK, tracking=2.6, center=cx)
+    _tracked(c, 0, my - 7 * mm, AGR_FULL.upper(), BODYB, 6, GOLD_DK, tracking=2.6, center=cx)
     c.setFillColorRGB(*SLATE)
     c.setFont(BODYB, 5.4)
-    c.drawCentredString(cx, my - 13 * mm, "CERTIFICATE NUMBER")
+    c.drawCentredString(cx, my - 15 * mm, "CERTIFICATE NUMBER")
     c.setFillColorRGB(*NAVY)
     c.setFont(BODYB, 11)
-    c.drawCentredString(cx, my - 18 * mm, cert["certificate_number"])
+    c.drawCentredString(cx, my - 20 * mm, cert["certificate_number"])
 
     date = (cert.get("issued_at") or "")[:10]
     if date:
@@ -924,7 +930,7 @@ def build_certificate_pdf(
 
     _agr_presentation(c, cert, snap, photo_reader)
     if demo:
-        _sample_ribbon(c, A5W, A5H - 12 * mm)
+        _sample_ribbon(c, A5W, 20 * mm)
     c.showPage()
 
     _agr_back(c, cert)
