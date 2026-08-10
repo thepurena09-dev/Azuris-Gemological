@@ -298,7 +298,7 @@ export default function HomePage() {
             </p>
             <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card px-4 py-2 text-[0.64rem] uppercase tracking-[0.18em] text-foreground">
               <Certificate size={14} weight="fill" className="text-gold" />
-              AZR-GEM-000015-26
+              AGR-ZMD-000015-26
             </p>
           </div>
           <VerificationForm initialCert={qrCert} qrToken={qrToken} />
@@ -316,10 +316,11 @@ export default function HomePage() {
             href={whatsappHref()}
             target="_blank"
             rel="noopener noreferrer"
+            data-testid="home-whatsapp-process"
             className="inline-flex shrink-0 items-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl"
           >
             <WhatsappLogo size={18} weight="fill" className="text-gold" />
-            {t("contact.whatsapp")}
+            {t("contact.moreInfo")}
           </a>
         </div>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
@@ -447,6 +448,18 @@ export default function HomePage() {
         <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
           {t("contact.subtitle")}
         </p>
+        <div className="mt-8 flex justify-center">
+          <a
+            href={whatsappHref()}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="home-whatsapp-contact"
+            className="inline-flex items-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl"
+          >
+            <WhatsappLogo size={18} weight="fill" className="text-gold" />
+            {t("contact.moreInfo")}
+          </a>
+        </div>
       </section>
     </div>
   );

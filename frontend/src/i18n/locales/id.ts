@@ -174,6 +174,7 @@ const id = {
     subtitle:
       "Hubungi tim Azuris untuk pertanyaan seputar pemeriksaan, sertifikasi, dan verifikasi batu mulia.",
     whatsapp: "Hubungi via WhatsApp",
+    moreInfo: "INFORMASI LEBIH LANJUT",
   },
   homeMembership: {
     eyebrow: "Keanggotaan",
@@ -243,6 +244,13 @@ const id = {
     save: "Simpan", publish: "Publikasikan", unpublish: "Batalkan Publikasi", delete: "Hapus",
     published: "Dipublikasikan", draft: "Draf", empty: "Belum ada kredensial legalitas.",
     saved: "Tersimpan.", uploaded: "Dokumen terunggah.",
+    signatoryName: "Nama Penanda Tangan Berwenang", signatoryPosition: "Jabatan",
+    activeForCerts: "Aktif untuk Sertifikat Baru", activeBadge: "Aktif untuk Sertifikat",
+    signature: "Gambar Tanda Tangan", uploadSignature: "Unggah Tanda Tangan", replaceSignature: "Ganti Tanda Tangan",
+    removeSignature: "Hapus Tanda Tangan", signaturePreview: "Pratinjau Tanda Tangan",
+    signatureHint: "PNG dengan latar transparan lebih disarankan (JPG/WebP juga didukung, maks 5MB).",
+    signatureUploaded: "Tanda tangan terunggah.", signatureRemoved: "Tanda tangan dihapus.",
+    saveFirst: "Simpan kredensial terlebih dahulu, lalu unggah tanda tangan.",
   },
   adminSettings: {
     title: "Pengaturan Kontak",

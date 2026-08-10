@@ -5,6 +5,18 @@
   document versioning, 3 log collections, metadata-rich media). Sprint Book: Sprints 1–30.
 - Delivery model: one sprint at a time, approval-gated, no rewrite/rename of prior work.
 
+## CHANGELOG — 2026-06 (Certificate Presentation Refinement, fork; Preview only, NOT deployed)
+- **Public default language = ENGLISH**; admin shell forced INDONESIAN (`App.tsx` wraps `/login` + `/admin` in `<LanguageProvider forceLocale="id">`; `config/index.ts` defaultLocale="en"; `LanguageContext` gained `forceLocale` prop).
+- **2-page certificate PDF redesigned (cover-first)** in `services/certificate_pdf.py`: Page 1 = premium detail-free FRONT COVER (official logo, ornamental gold frame, "GEMSTONE IDENTIFICATION CERTIFICATE"); Page 2 = English details + gemstone photo + **Legality & Authorised Signatory block** (accreditation, signatory name/position, signature image, issuance statement). NO QR/barcode anywhere. A5.
+- **Certificate card (105×66mm) redesigned**: official Azuris logo, gemstone photo as primary focus, discreet 10mm QR, English fields + authenticity statement, subtle security pattern, thin gold rules. SAMPLE chip only in previews.
+- **Official logo** (`backend/assets/azuris-logo.png`) now used on card, PDF cover, PDF inner page, and the public verification cover (replaced the old handcrafted AGR monogram).
+- **Public verification (/verify)** rewritten cover-first: registration-number-only form → GET `/api/verify/cover/{number}` shows the book COVER first → "View Certificate Details" opens the 2-page PDF (GET `/api/verify/pdf/{number}`). New endpoint `GET /api/verify/cover/{number}`. QR flow resolves then shows cover-first. (Homepage `#verification` section left unchanged per user choice.)
+- **Admin Legality page** extended (`api/legality.py`, `models/legality.py`, `LegalityAdminPage.tsx`): Authorized Signatory Name, Position/Title, signature upload/preview/remove (immutable copies via `legality_documents`), and "Active for New Certificates" toggle with single-active enforcement.
+- **Issuance snapshot** (`services/issuance.py`): certificates now store an immutable `legality_snapshot` of the active legality + signatory; editing legality later never alters issued certs. `Certificate.legality_snapshot` added.
+- **Homepage**: two WhatsApp "MORE INFORMATION" buttons (`home-whatsapp-process`, `home-whatsapp-contact`); stale `AZR-GEM` example chip fixed to `AGR-ZMD-000015-26`.
+- **Testing**: iteration_27 — 10/10 backend + 14/14 frontend flows PASS, no defects. DB baseline preserved: counter `last_number=14`, all business collections `0` (temp test cert `AGR-TST-000001-26` seeded for E2E then fully purged).
+
+
 ## Product Summary
 Luxury gemological certification & verification platform: premium bilingual (Indonesian default + English)
 public catalog (no prices, WhatsApp CTA), certificate issuance with QR verification, public verification

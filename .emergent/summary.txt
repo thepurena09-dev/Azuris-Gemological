@@ -1,22 +1,23 @@
 <analysis>**original_problem_statement**: 
-The user requested multiple isolated tasks while strictly maintaining the PRODUCTION CANDIDATE v2 freeze:
-1. **AZURIS Blueprint**: Create a full application blueprint document.
-2. **AI Walkthrough Video Generator**: Build an isolated system to generate a 90-second TikTok walkthrough video (MP4) using real UI screen recording (Playwright) and AI voice-over (OpenAI TTS via Emergent Key), without modifying the existing app.
-3. **Mobile UI Optimization**: Fix mobile layout issues with minimum necessary changes, specifically adding an admin mobile navigation drawer and fixing the public mobile header/hamburger spacing. 
-4. **Full Functional Verification**: Test all existing user-facing functions for production readiness without mutating the locked database baseline.
-5. **WhatsApp Button Relocation**: Move the WhatsApp button on the Homepage from the Kontak section to beside the Proses Sertifikat heading.
+The user requested multiple significant updates while strictly preserving the existing database baseline (collections at 0, counter at 14). The requirements were:
+1. **Refocus Scope & Branding**: Remove all Customer, Membership, and Ownership functionality from the active UI. Rebrand the application strictly to Azuris Gemological Research (AGR). 
+2. **Public Verification & Search**: Implement a public  page where users can scan a QR code or search a registration number to verify a certificate without requiring a security code or login.
+3. **Certificate Outputs**: Generate a premium 1-page Certificate Card (with QR code) and a strictly 2-page Certificate PDF book (with NO QR code or barcodes). 
+4. **Login Bug Fix**: Fix an issue where admin login failed due to copy-pasting trailing spaces in the password.
+5. **Certificate Numbering & Kode Batu**: Add a manual 3-letter Kode Batu (gemstone code) field to the admin form. Update the atomic certificate number format to .
+6. **Non-Persistent Sample Previews**: Create a safe, visual-only SAMPLE preview mode (Card, PDF, and  UI) displaying a demo emerald () without incrementing the actual database counter or creating permanent records.
 
 **User's preferred language**: **Indonesian (Bahasa Indonesia)**
 INSTRUCT NEXT AGENT: You MUST automatically detect the user's primary language from their messages inside the <trajectory> tag and INSTRUCT next agent to respond in the user's preferred language only (Bahasa Indonesia).
 
 **what currently exists?** 
-The application is in a strict **AZURIS PRODUCTION CANDIDATE v2 — PRE-HOSTINGER MIGRATION** freeze. The codebase is fully optimized for mobile layouts (admin mobile drawer implemented, public header fixed). A standalone video generator pipeline resides safely outside the web application in . The DB baseline remains perfectly clean and hermetic.
+The application is a strictly refocused, premium gemstone certification portal for **Azuris Gemological Research (AGR)**. All legacy customer/membership/ownership UI features have been removed. The application successfully generates premium certificate cards and 2-page PDFs. The system is in a strict **PRODUCTION CANDIDATE v2 FREEZE**. The database is hermetic: all business collections are at , and the atomic certificate counter is strictly locked at  (so the first production certificate will automatically be ).
 
 **Last working item**: 
-    - Last item agent was working: Moving the WhatsApp button on the public Homepage () to sit directly beside the Proses Sertifikat heading, and removing it from the Kontak section.
+    - Last item agent was working: Implementing the manual Kode Batu field, updating the certificate number format to , and generating non-persistent SAMPLE previews for visual review without altering the DB baseline.
     - Status: COMPLETED
     - Agent Testing Done: Y
-    - Which testing method agent to use? NA (Testing is already done via Playwright/DOM screenshot validations)
+    - Which testing method agent to use?  (Iteration 26) + Backend bash verification.
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:  
@@ -27,20 +28,22 @@ None.
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - P0: Wait for client instruction regarding the Hostinger production migration/deployment.
-    Future Tasks:
-    - P1: Await client approval to lock provisional numbering formats ( and ).
+    - P0: Await client instruction regarding the Hostinger production migration/deployment.
 
 **Completed work in this session**
-- Generated complete system documentation at  (DONE)
-- Built standalone TikTok AI Video Generator pipeline in  using , , and  TTS (DONE)
-- Added mobile drawer navigation to  for mobile admin users (DONE)
-- Fixed public mobile header layout spacing () for language selector and hamburger icon (DONE)
-- Full functional testing iteration 22 (23/23 PASS) via  and DB baseline restoration (DONE)
-- Moved WhatsApp button to Proses Sertifikat in  (DONE)
+- Added premium 3D styling to public navigation menu buttons (DONE)
+- Fixed admin login bug by trimming password whitespace on submit and adding a password visibility toggle (DONE)
+- Refocused application on Certificates: removed Customer, Membership, and Ownership pages/menus from the UI (DONE)
+- Updated branding across the application to Azuris Gemological Research (AGR) (DONE)
+- Built public  page with QR parsing and registration number search (DONE)
+- Redesigned Certificate PDF to exactly 2 pages with NO QR/barcodes (DONE)
+- Created premium 1-page Certificate Card layout containing the QR code (DONE)
+- Implemented manual 3-letter Kode Batu field with strict uppercase alphabetical validation (DONE)
+- Updated atomic certificate number generator to format:  (DONE)
+- Created non-persistent SAMPLE certificate previews (Card, PDF,  UI) for visual review using a placeholder  without consuming the DB sequence (DONE)
 
 **Earlier issues found/mentioned but not fixed**
-None.
+None. 
 
 **Known issue recurrence from previous fork**
   - Issue recurrence in previous fork: None
@@ -51,67 +54,71 @@ None.
 
 
 **Key Technical Concepts**
-React 19, TypeScript, FastAPI, MongoDB, Factory/Adapter Pattern, Append-only History, Role-Based Access Control (RBAC), Playwright (UI automation), FFmpeg (Video processing), OpenAI TTS (via ).
+React 19, TypeScript, FastAPI, MongoDB, PyMuPDF (PDF generation), Playwright (E2E testing), Atomic MongoDB Counters (), Non-persistent synthetic data mocking.
 
 **key DB schema**
-  - : Single document configuration.
-  - : Atomic increments. **MUST REMAIN untouched at **.
-  - All business collections (, , , , etc.) must remain empty ().
+  - : Atomic increments. **MUST REMAIN UNTOUCHED AT **.
+  - : Added  (string, exactly 3 uppercase letters).
+  - All business collections (, , , etc.) must remain empty ().
 
 **changes in tech stack**
-- Added  (system package) and  (Python) +  strictly for the isolated video generator. Web app stack remains unchanged.
+- None. (Gemini-3.1-flash-image was utilized via  strictly to generate the synthetic  asset for the previews).
 
 **All files of reference** 
-  -  (New comprehensive system docs)
-  -  (Updated for mobile drawer)
-  -  (Updated flex layout for mobile header)
-  -  (Moved WhatsApp button)
+  -  (Updated endpoints, gated issuance, added sample demo routes)
+  -  (Added )
+  -  (Updated  generator format)
+  -  (Refactored to 2-page book and 1-page card generators)
+  -  (New verify UI &  presentation)
+  -  (Kode Batu form field & sample button)
+  -  (Password whitespace trim & eye toggle)
   -  (Continuously updated)
-  -  (Full functional test report)
 
 **Areas that need refactoring**: 
-None. The app is strictly frozen. 
+None. The application is in a strict freeze. Do not refactor anything unless explicitly requested.
 
 **key api endpoints**
-Standard existing endpoints. No new routes were permanently added (temporary video studio routes were reverted as requested).
+  -  (Serves sample 2-page PDF)
+  -  (Serves sample 1-page Card PDF)
+  -  (Retrieves valid PDF without security code)
+  -  (Verifies QR)
 
 **Critical Info for New Agent**
-1. **PRODUCTION CANDIDATE v2 FREEZE**: The app is strictly locked. Do NOT introduce new features, design changes, schema migrations, or business logic alterations unless explicitly commanded by the client.
-2. **DB BASELINE INVARIANTS**: The certificate counter MUST rest at  (). All business collections (, , ,  [other than CMS docs], , , , ) MUST be strictly at  upon task completion. 
-3. **LANGUAGE**: Always respond in Indonesian.
-4. **NO APP REBUILDS**: When fixing bugs or UI layout, strictly use the *minimum necessary change*. Do not refactor unrelated working code.
+1. **PRODUCTION CANDIDATE v2 FREEZE**: The app is strictly locked. Do NOT introduce new features, alter working architecture, or delete legacy DB models (Customer/Membership schemas remain in backend for safety, but are detached from the UI).
+2. **DATA SAFETY / DB BASELINE**: The  collection MUST rest at . All business collections MUST rest at . Any test data you generate during bug fixing must be completely purged (, etc.) before finishing your task.
+3. **CERTIFICATE NUMBERS**: The next real certificate issued will automatically be .
+4. **BRANDING**: The app is strictly Azuris Gemological Research (AGR). It no longer acts as a membership or ownership portal.
+5. **LANGUAGE**: Always communicate with the user in **Indonesian**.
 
 **documents and test reports created in this job** 
-  - 
-  - 
+  -  to 
   - 
 
 **Last 10 User Messages and any pending HUMAN messages** 
-1. **User**: Move the existing WhatsApp button to the Proses Sertifikat page/section. (Completed)
-2. **User**: Check all EXISTING user-facing functions in this project and make sure they work correctly for production use. (Completed via iteration 22 and baseline restore)
-3. **User**: Option A — Public mobile navigation/header fix. (Completed)
-4. **User**: Fix ONLY the mobile layout of the menu page (Clarified and routed to Option A above). (Completed)
-5. **User**: Optimize the existing frontend for mobile devices. (Completed - Admin drawer added)
-6. **User**: Hapus halaman admin studio video, buatkan video untuk di upload di tiktok. bukan di dalam web. (Completed - Reverted web features, built standalone Python video processor)
-7. **User**: Silakan lanjut dengan keputusan berikut (OpenAI TTS, real UI, Phase A only). (Completed)
-8. **User**: BUILD: AI WEB FEATURE WALKTHROUGH VIDEO GENERATOR. (Completed via iteration steps)
-*(No pending human messages. The application is completely updated and verified. Next step is strictly awaiting hostinger migration instruction or provisional number locks).*
+1. **User**: *Provided reference images and instructions to remove membership/customer flows, update brand to AGR, and build specific 2-page PDF & Card outputs.* (Completed)
+2. **User**: Do not make any changes yet. Perform a read-only verification... why counter is 14 while DB is 0... (Completed - Agent explained it is the agreed-upon locked baseline)
+3. **User**: email pasword apa ? (Completed - Agent provided  / )
+4. **User**: Continue the EXISTING Azuris Gemological Research project. Update the certificate-number format (), add 3-letter Kode Batu, and generate safe non-production sample previews for review. (Completed via Iteration 26).
+*(No pending human messages).*
 
 **Project Health Check:**
 Healthy.
 
 **3rd Party Integrations** 
 - JWT Auth (Internal)
-- OpenAI TTS (via  using Emergent Universal Key — isolated in video_gen script)
+- OpenAI TTS (via emergentintegrations - in isolated video gen script)
 
 **Testing status**
-  - Testing agent used after significant changes: YES (Iteration 22 completed with 23/23 backend pass and 100% functional coverage).
+  - Testing agent used after significant changes: YES (Iteration 26 passed with 9/9 backend & frontend checks).
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: 
-  - Known regressions: None. (Any baseline drift caused by testing was restored successfully).
+  - Known regressions: None. (Database baseline was strictly preserved).
 
 **Credentials to test flow:**
-See  (e.g.,  / ).
+See  
+- **Admin**:  / 
+- **Content Manager**:  / 
+- **Customer Service**:  / 
 
 **What agent forgot to execute**
-Nothing. All tasks were correctly scoped, completed, verified, and the system cleanly restored to its baseline state.</analysis>
+Nothing. All tasks were comprehensively tested and the DB baseline was flawlessly preserved.</analysis>

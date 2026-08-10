@@ -21,17 +21,37 @@ from repositories.counter import CounterRepository
 from repositories.legality import (
     CertificateRepository,
     GemstoneRepository,
+    LegalityRepository,
     VerificationTokenRepository,
 )
 from services.security import gen_qr_token, gen_security_code
 
 PUBLIC_BASE_URL = os.environ.get(
-    "PUBLIC_BASE_URL", "https://cert-processor.preview.emergentagent.com"
+    "PUBLIC_BASE_URL", "https://azuris-preview-build.preview.emergentagent.com"
 ).rstrip("/")
 
 
 def qr_url(token: str) -> str:
     return f"{PUBLIC_BASE_URL}/?qr={token}#verification"
+
+
+async def _legality_snapshot(db) -> Optional[dict]:
+    """Immutable snapshot of the legality record marked active for certificates."""
+    rec = await LegalityRepository(db).find_one({"active_for_certificates": True})
+    rec = LegalityRepository(db).model.from_mongo(rec) if rec else None
+    if rec is None:
+        return None
+    snap = {
+        "certificate_name": rec.certificate_name,
+        "certificate_number": rec.certificate_number,
+        "issuer": rec.issuer,
+        "issue_date": rec.issue_date,
+        "expiry_date": rec.expiry_date,
+        "signatory_name": rec.signatory_name,
+        "signatory_position": rec.signatory_position,
+        "signature_document_id": rec.signature_document_id,
+    }
+    return {k: v for k, v in snap.items() if v not in (None, "")}
 
 
 def _snapshot(gem: Gemstone, extra: dict) -> dict:
@@ -76,6 +96,7 @@ async def issue_certificate(db, admin, gemstone_uuid: str, extra: dict) -> dict:
 
     number = await CounterRepository(db).next_certificate_number(code=code)
     snapshot = _snapshot(gem, extra)
+    legality_snap = await _legality_snapshot(db)
 
     cert = Certificate(
         certificate_number=number,
@@ -94,6 +115,7 @@ async def issue_certificate(db, admin, gemstone_uuid: str, extra: dict) -> dict:
         comments_id=extra.get("conclusion"),
         comments_en=extra.get("conclusion"),
         gemstone_snapshot=snapshot,
+        legality_snapshot=legality_snap,
         created_by=admin.uuid,
         updated_by=admin.uuid,
     )
@@ -169,6 +191,7 @@ async def reissue_certificate(db, admin, cert_uuid: str, extra: dict) -> dict:
         comments_id=extra.get("conclusion"),
         comments_en=extra.get("conclusion"),
         gemstone_snapshot=snapshot,
+        legality_snapshot=old.legality_snapshot,
         created_by=admin.uuid,
         updated_by=admin.uuid,
     )

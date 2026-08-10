@@ -18,6 +18,11 @@ interface Credential {
   publication_status: string;
   document_id?: string;
   document_url?: string;
+  signatory_name?: string;
+  signatory_position?: string;
+  signature_document_id?: string;
+  signature_url?: string;
+  active_for_certificates?: boolean;
 }
 
 const EMPTY = {
@@ -30,6 +35,9 @@ const EMPTY = {
   status: "aktif",
   short_description: "",
   public_download_allowed: false,
+  signatory_name: "",
+  signatory_position: "",
+  active_for_certificates: false,
 };
 
 export default function LegalityAdminPage() {
@@ -39,6 +47,21 @@ export default function LegalityAdminPage() {
   const [editing, setEditing] = React.useState<string | null>(null);
   const [msg, setMsg] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [sigPreview, setSigPreview] = React.useState<string | null>(null);
+  const [sigBusy, setSigBusy] = React.useState(false);
+
+  const loadSignature = React.useCallback(async (uuid: string) => {
+    const res = await apiFetch(`/api/admin/legality/${uuid}/signature`);
+    if (!res.ok) {
+      setSigPreview(null);
+      return;
+    }
+    const blob = await res.blob();
+    setSigPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(blob);
+    });
+  }, []);
 
   const load = React.useCallback(async () => {
     const data = await apiJson<{ items: Credential[] }>("/api/admin/legality");
@@ -79,12 +102,20 @@ export default function LegalityAdminPage() {
       status: c.status || "aktif",
       short_description: c.short_description || "",
       public_download_allowed: !!c.public_download_allowed,
+      signatory_name: c.signatory_name || "",
+      signatory_position: c.signatory_position || "",
+      active_for_certificates: !!c.active_for_certificates,
     });
+    setMsg(null);
+    if (c.signature_document_id) loadSignature(c.uuid);
+    else setSigPreview(null);
   };
 
   const resetForm = () => {
     setEditing(null);
     setForm(EMPTY);
+    setSigPreview(null);
+    setMsg(null);
   };
 
   const publish = async (uuid: string, pub: boolean) => {
@@ -107,6 +138,37 @@ export default function LegalityAdminPage() {
     if (res.ok) setMsg(t("adminLegality.uploaded"));
     setBusy(false);
     await load();
+  };
+
+  const uploadSignature = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setSigBusy(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await apiFetch(`/api/admin/legality/${editing}/signature`, { method: "POST", body: fd });
+    if (res.ok) {
+      setMsg(t("adminLegality.signatureUploaded"));
+      await loadSignature(editing);
+      await load();
+    }
+    setSigBusy(false);
+    e.target.value = "";
+  };
+
+  const removeSignature = async () => {
+    if (!editing) return;
+    setSigBusy(true);
+    const res = await apiFetch(`/api/admin/legality/${editing}/signature`, { method: "DELETE" });
+    if (res.ok) {
+      setSigPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setMsg(t("adminLegality.signatureRemoved"));
+      await load();
+    }
+    setSigBusy(false);
   };
 
   const field = (k: string, label: string, type = "text") => (
@@ -173,6 +235,60 @@ export default function LegalityAdminPage() {
             />
           </div>
 
+          {/* Authorised signatory + signature */}
+          <div className="mt-6 rounded-xl border border-gold/40 bg-secondary/30 p-4">
+            <p className="mb-3 text-[0.62rem] uppercase tracking-[0.2em] text-gold">
+              {t("adminLegality.signatoryName")} · {t("adminLegality.signature")}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {field("signatory_name", t("adminLegality.signatoryName"))}
+              {field("signatory_position", t("adminLegality.signatoryPosition"))}
+            </div>
+            <label className="mt-4 flex items-center gap-2 text-sm text-foreground">
+              <input
+                data-testid="legality-active"
+                type="checkbox"
+                checked={form.active_for_certificates}
+                onChange={(e) => set("active_for_certificates", e.target.checked)}
+              />
+              {t("adminLegality.activeForCerts")}
+            </label>
+
+            <div className="mt-4">
+              <label className="mb-1.5 block text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+                {t("adminLegality.signaturePreview")}
+              </label>
+              {sigPreview ? (
+                <div className="flex items-center gap-4">
+                  <div className="flex h-20 w-48 items-center justify-center rounded-lg border border-border bg-white p-2">
+                    <img data-testid="legality-signature-preview" src={sigPreview} alt="signature" className="max-h-full max-w-full object-contain" />
+                  </div>
+                  {editing && (
+                    <div className="flex flex-col gap-2">
+                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gold px-4 py-2 text-[0.62rem] uppercase tracking-[0.18em] text-foreground">
+                        <UploadSimple size={14} className="text-gold" />
+                        {t("adminLegality.replaceSignature")}
+                        <input data-testid="legality-signature-upload-replace" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={uploadSignature} />
+                      </label>
+                      <button type="button" data-testid="legality-signature-remove" onClick={removeSignature} disabled={sigBusy} className="inline-flex items-center gap-1 text-[0.62rem] uppercase tracking-[0.18em] text-red-600 hover:underline disabled:opacity-60">
+                        <Trash size={12} /> {t("adminLegality.removeSignature")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : editing ? (
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gold px-5 py-3 text-[0.62rem] uppercase tracking-[0.18em] text-foreground">
+                  {sigBusy ? <CircleNotch size={14} className="animate-spin text-gold" /> : <UploadSimple size={14} className="text-gold" />}
+                  {t("adminLegality.uploadSignature")}
+                  <input data-testid="legality-signature-upload" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={uploadSignature} />
+                </label>
+              ) : (
+                <p className="text-xs text-muted-foreground">{t("adminLegality.saveFirst")}</p>
+              )}
+              <p className="mt-2 text-[0.66rem] leading-relaxed text-muted-foreground">{t("adminLegality.signatureHint")}</p>
+            </div>
+          </div>
+
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button
               type="submit"
@@ -212,9 +328,16 @@ export default function LegalityAdminPage() {
                       <p className="font-serif text-lg tracking-tight text-foreground">{c.certificate_name}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{c.certificate_number || "—"} · {c.issuer || "—"}</p>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-[0.55rem] uppercase tracking-[0.18em] ${c.publication_status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-secondary text-muted-foreground"}`}>
-                      {c.publication_status === "published" ? t("adminLegality.published") : t("adminLegality.draft")}
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className={`rounded-full px-3 py-1 text-[0.55rem] uppercase tracking-[0.18em] ${c.publication_status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-secondary text-muted-foreground"}`}>
+                        {c.publication_status === "published" ? t("adminLegality.published") : t("adminLegality.draft")}
+                      </span>
+                      {c.active_for_certificates && (
+                        <span data-testid={`legality-active-badge-${c.uuid}`} className="rounded-full bg-gold/20 px-3 py-1 text-[0.55rem] uppercase tracking-[0.18em] text-gold">
+                          {t("adminLegality.activeBadge")}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-3">
                     <button onClick={() => edit(c)} className="text-[0.62rem] uppercase tracking-[0.18em] text-royal hover:underline">Edit</button>

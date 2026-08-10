@@ -32,8 +32,8 @@ export const appConfig = {
     ? "production"
     : "development") as Environment,
 
-  // Internationalization
-  defaultLocale: "id" as Locale,
+  // Internationalization — public default is English (admin forces Indonesian).
+  defaultLocale: "en" as Locale,
   supportedLocales: ["id", "en"] as Locale[],
 
   // API

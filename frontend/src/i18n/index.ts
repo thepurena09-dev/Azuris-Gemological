@@ -6,4 +6,4 @@ export const dictionaries = { id, en } as const;
 
 export type Dictionary = typeof id;
 
-export const defaultLocale: Locale = "id";
+export const defaultLocale: Locale = "en";

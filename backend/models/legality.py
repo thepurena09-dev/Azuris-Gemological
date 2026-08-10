@@ -35,6 +35,13 @@ class LegalityCredential(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin)
     document_content_type: Optional[str] = None
     public_download_allowed: bool = False
 
+    # Authorised signatory (used on issued certificates)
+    signatory_name: Optional[str] = Field(default=None, max_length=200)
+    signatory_position: Optional[str] = Field(default=None, max_length=200)
+    signature_document_id: Optional[str] = None  # legality_documents uuid (image)
+    # Exactly one legality record may be active for new certificates at a time.
+    active_for_certificates: bool = False
+
     # draft | published
     publication_status: str = Field(default="draft", max_length=20)
     published_at: Optional[str] = None

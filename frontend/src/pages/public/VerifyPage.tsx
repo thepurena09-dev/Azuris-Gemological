@@ -22,36 +22,36 @@ const STR = {
     eyebrow: "Verifikasi Sertifikat",
     title: "Verifikasi Keaslian Sertifikat AGR",
     subtitle:
-      "Pindai kode QR pada kartu sertifikat, atau masukkan nomor registrasi untuk membuka pratinjau sertifikat resmi Azuris Gemological Research.",
+      "Pindai kode QR pada kartu sertifikat, atau masukkan nomor registrasi untuk membuka sampul sertifikat resmi Azuris Gemological Research.",
     searchLabel: "Nomor Registrasi Sertifikat",
     searchPlaceholder: "AGR-ZMD-000015-26",
-    searchBtn: "Buka Sertifikat",
-    formatError: "Format nomor registrasi tidak valid.",
+    searchBtn: "Verifikasi Sertifikat",
+    formatError: "Sertifikat tidak ditemukan.",
     notFound: "Sertifikat tidak ditemukan.",
     authentic: "Sertifikat ini asli dan diterbitkan oleh Azuris Gemological Research (AGR).",
-    name: "Nama Batu Mulia",
-    date: "Tanggal Penerbitan",
+    coverHeading: "Sampul Sertifikat",
+    viewDetails: "Lihat Detail Sertifikat",
     loading: "Memeriksa…",
     close: "Tutup",
-    pdfTitle: "Pratinjau Sertifikat (2 Halaman)",
+    pdfTitle: "Sertifikat (2 Halaman)",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
   en: {
     eyebrow: "Certificate Verification",
     title: "Verify AGR Certificate Authenticity",
     subtitle:
-      "Scan the QR code on the certificate card, or enter the registration number to open the official Azuris Gemological Research certificate preview.",
+      "Scan the QR code on the certificate card, or enter the registration number to open the official Azuris Gemological Research certificate cover.",
     searchLabel: "Certificate Registration Number",
     searchPlaceholder: "AGR-ZMD-000015-26",
-    searchBtn: "Open Certificate",
-    formatError: "Invalid registration number format.",
+    searchBtn: "Verify Certificate",
+    formatError: "Certificate not found.",
     notFound: "Certificate not found.",
     authentic: "This certificate is authentic and issued by Azuris Gemological Research (AGR).",
-    name: "Gemstone Name",
-    date: "Date of Issue",
+    coverHeading: "Certificate Cover",
+    viewDetails: "View Certificate Details",
     loading: "Checking…",
     close: "Close",
-    pdfTitle: "Certificate Preview (2 Pages)",
+    pdfTitle: "Certificate (2 Pages)",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
 };
@@ -63,28 +63,54 @@ export default function VerifyPage() {
   const isSample = new URLSearchParams(search).get("sample") === "1";
 
   const [qrLoading, setQrLoading] = React.useState(false);
-  const [qrResult, setQrResult] = React.useState<any>(null); // {status, certificate} | {notfound:true}
 
   const [num, setNum] = React.useState("");
   const [searchErr, setSearchErr] = React.useState<string | null>(null);
   const [searching, setSearching] = React.useState(false);
+
+  // Cover-first verification result
+  const [resultNumber, setResultNumber] = React.useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = React.useState<string | null>(null);
+  const [notFound, setNotFound] = React.useState(false);
+
+  // 2-page PDF modal (opened via "View Certificate Details")
   const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
+  const [pdfErr, setPdfErr] = React.useState<string | null>(null);
+
+  const showCover = async (number: string): Promise<boolean> => {
+    const res = await apiFetch(`/api/verify/cover/${encodeURIComponent(number)}`);
+    if (!res.ok) return false;
+    const blob = await res.blob();
+    setCoverUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(blob);
+    });
+    setResultNumber(number);
+    return true;
+  };
 
   // QR flow: /verify?t=<token>
   React.useEffect(() => {
     const token = new URLSearchParams(search).get("t");
     if (!token) return;
     setQrLoading(true);
+    setNotFound(false);
     apiFetch("/api/verify/qr", { method: "POST", body: JSON.stringify({ token }) })
       .then((r) => unwrap(r))
-      .then((data: any) => setQrResult(data))
-      .catch(() => setQrResult({ status: "not_found" }))
+      .then(async (data: any) => {
+        const number = data?.status === "valid" && data?.certificate?.certificate_number;
+        if (number && (await showCover(number))) return;
+        setNotFound(true);
+      })
+      .catch(() => setNotFound(true))
       .finally(() => setQrLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  const openPdf = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSearchErr(null);
+    setNotFound(false);
     const normalized = num.trim().toUpperCase();
     if (!CERT_RE.test(normalized)) {
       setSearchErr(s.formatError);
@@ -92,13 +118,11 @@ export default function VerifyPage() {
     }
     setSearching(true);
     try {
-      const res = await apiFetch(`/api/verify/pdf/${encodeURIComponent(normalized)}`);
-      if (!res.ok) {
+      const ok = await showCover(normalized);
+      if (!ok) {
+        setResultNumber(null);
         setSearchErr(s.notFound);
-        return;
       }
-      const blob = await res.blob();
-      setPdfUrl(URL.createObjectURL(blob));
     } catch {
       setSearchErr(s.notFound);
     } finally {
@@ -106,14 +130,26 @@ export default function VerifyPage() {
     }
   };
 
+  const openPdf = async () => {
+    if (!resultNumber) return;
+    setPdfErr(null);
+    try {
+      const res = await apiFetch(`/api/verify/pdf/${encodeURIComponent(resultNumber)}`);
+      if (!res.ok) {
+        setPdfErr(s.notFound);
+        return;
+      }
+      const blob = await res.blob();
+      setPdfUrl(URL.createObjectURL(blob));
+    } catch {
+      setPdfErr(s.notFound);
+    }
+  };
+
   const closePdf = () => {
     if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     setPdfUrl(null);
   };
-
-  const cert = qrResult?.certificate;
-  const qrValid = qrResult && qrResult.status === "valid" && cert;
-  const qrNotFound = qrResult && !qrValid && !qrLoading;
 
   return (
     <div data-testid="verify-page" className="bg-background">
@@ -158,14 +194,6 @@ export default function VerifyPage() {
                 </p>
                 <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.name}</dt>
-                    <dd data-testid="verify-sample-name" className="mt-1 font-serif text-xl text-foreground">Zamrud</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.date}</dt>
-                    <dd className="mt-1 text-base text-foreground">2026-08-11</dd>
-                  </div>
-                  <div>
                     <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.searchLabel}</dt>
                     <dd data-testid="verify-sample-number" className="mt-1 font-mono text-base text-foreground">{SAMPLE_NUMBER}</dd>
                   </div>
@@ -175,59 +203,68 @@ export default function VerifyPage() {
           </div>
         )}
 
-        {/* QR verification result */}
+        {/* Loading (QR) */}
         {qrLoading && (
           <div className="mb-8 flex items-center justify-center gap-3 rounded-2xl border border-border bg-card p-10 text-muted-foreground">
             <CircleNotch size={20} className="animate-spin text-gold" /> {s.loading}
           </div>
         )}
 
-        {qrValid && (
+        {/* Cover-first verification result */}
+        {resultNumber && coverUrl && (
           <div
-            data-testid="verify-qr-result"
-            className="mb-10 overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50"
+            data-testid="verify-result"
+            className="mb-10 overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50/60 p-6 shadow-[0_30px_70px_-45px_rgba(13,27,42,0.4)] md:p-8"
           >
-            {cert.gemstone?.photo_url && (
-              <div className="aspect-[16/10] w-full overflow-hidden bg-secondary">
-                <img
-                  data-testid="verify-qr-photo"
-                  src={`${API}${cert.gemstone.photo_url}`}
-                  alt={cert.gemstone?.name || "Gemstone"}
-                  className="h-full w-full object-cover"
-                />
+            <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+              <SealCheck size={20} weight="fill" /> {s.authentic}
+            </p>
+            <div className="mt-6 grid gap-6 md:grid-cols-[minmax(0,240px)_1fr] md:items-center">
+              <div className="mx-auto w-full max-w-[240px]">
+                <p className="mb-2 text-center text-[0.56rem] uppercase tracking-[0.28em] text-gold">
+                  {s.coverHeading}
+                </p>
+                <div
+                  className="overflow-hidden rounded-xl border border-gold/40 bg-white shadow-[0_20px_50px_-35px_rgba(13,27,42,0.6)]"
+                  style={{ aspectRatio: "148 / 210" }}
+                >
+                  <img
+                    data-testid="verify-cover-image"
+                    src={coverUrl}
+                    alt={s.coverHeading}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
               </div>
-            )}
-            <div className="p-8">
-              <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
-                <SealCheck size={20} weight="fill" /> {s.authentic}
-              </p>
-              <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.name}</dt>
-                  <dd data-testid="verify-qr-name" className="mt-1 font-serif text-xl text-foreground">
-                    {cert.gemstone?.name || "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.date}</dt>
-                  <dd data-testid="verify-qr-date" className="mt-1 text-base text-foreground">
-                    {cert.issue_date || "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                    {s.searchLabel}
-                  </dt>
-                  <dd className="mt-1 font-mono text-base text-foreground">{cert.certificate_number}</dd>
-                </div>
-              </dl>
+              <div>
+                <p className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                  {s.searchLabel}
+                </p>
+                <p data-testid="verify-result-number" className="mt-1 font-mono text-lg text-foreground">
+                  {resultNumber}
+                </p>
+                <button
+                  type="button"
+                  data-testid="verify-view-details"
+                  onClick={openPdf}
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gold bg-primary px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.2em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl sm:w-auto"
+                >
+                  <FileText size={16} weight="regular" className="text-gold" />
+                  {s.viewDetails}
+                </button>
+                {pdfErr && (
+                  <p data-testid="verify-pdf-error" role="alert" className="mt-3 text-sm text-red-600">
+                    {pdfErr}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {qrNotFound && (
+        {notFound && (
           <div
-            data-testid="verify-qr-notfound"
+            data-testid="verify-notfound"
             className="mb-10 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-6"
           >
             <WarningCircle size={22} weight="regular" className="mt-0.5 shrink-0 text-red-600" />
@@ -237,7 +274,7 @@ export default function VerifyPage() {
 
         {/* Registration-number search */}
         <div className="rounded-2xl border border-border bg-card p-8 shadow-[0_30px_70px_-45px_rgba(13,27,42,0.4)]">
-          <form data-testid="verify-search-form" onSubmit={openPdf} noValidate className="space-y-5">
+          <form data-testid="verify-search-form" onSubmit={submit} noValidate className="space-y-5">
             <div>
               <label
                 htmlFor="verify-number"
@@ -273,7 +310,7 @@ export default function VerifyPage() {
               {searching ? (
                 <CircleNotch size={16} weight="bold" className="animate-spin" />
               ) : (
-                <FileText size={16} weight="regular" className="text-gold" />
+                <ShieldCheck size={16} weight="regular" className="text-gold" />
               )}
               {searching ? s.loading : s.searchBtn}
             </button>
@@ -281,7 +318,7 @@ export default function VerifyPage() {
         </div>
       </div>
 
-      {/* 2-page PDF preview modal */}
+      {/* 2-page PDF modal */}
       {pdfUrl && (
         <div
           data-testid="verify-pdf-modal"

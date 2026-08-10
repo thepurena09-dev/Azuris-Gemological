@@ -48,6 +48,10 @@ class Certificate(
     # the live gemstone record is later edited.
     gemstone_snapshot: Optional[dict] = None
 
+    # Immutable snapshot of the active legality + authorised signatory at issue
+    # time. Editing the admin Legality record later never alters issued PDFs.
+    legality_snapshot: Optional[dict] = None
+
 
 class Warranty(
     BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin, VersionMixin

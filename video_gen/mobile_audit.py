@@ -1,7 +1,7 @@
 import asyncio, sys
 from playwright.async_api import async_playwright
 
-URL = "https://cert-processor.preview.emergentagent.com"
+URL = "https://azuris-preview-build.preview.emergentagent.com"
 EMAIL, PW = "admin@azuris.local", "AzurisDev@2026!"
 
 async def overflow(page):

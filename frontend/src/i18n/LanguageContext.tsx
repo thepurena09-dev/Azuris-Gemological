@@ -37,14 +37,21 @@ function resolveKey(dict: unknown, key: string): string {
   return typeof value === "string" ? value : key;
 }
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [locale, setLocaleState] = useState<Locale>(appConfig.defaultLocale);
+export const LanguageProvider: React.FC<{
+  children: React.ReactNode;
+  forceLocale?: Locale;
+}> = ({ children, forceLocale }) => {
+  const [localeState, setLocaleState] = useState<Locale>(
+    forceLocale ?? appConfig.defaultLocale
+  );
+  const locale = forceLocale ?? localeState;
 
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-  }, []);
+  const setLocale = useCallback(
+    (next: Locale) => {
+      if (!forceLocale) setLocaleState(next);
+    },
+    [forceLocale]
+  );
 
   useEffect(() => {
     document.documentElement.lang = locale;

@@ -3,6 +3,7 @@ import "@/App.css";
 
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { BusinessSettingsProvider } from "@/lib/settings";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 
 import PublicLayout from "@/layouts/PublicLayout";
 import AdminLayout from "@/layouts/AdminLayout";
@@ -52,15 +53,24 @@ function App() {
                 <Route path="/catalog/jewelry" element={<Navigate to="/" replace />} />
               </Route>
 
-              {/* Authentication */}
-              <Route path="/login" element={<LoginPage />} />
+              {/* Authentication (admin-facing → Indonesian) */}
+              <Route
+                path="/login"
+                element={
+                  <LanguageProvider forceLocale="id">
+                    <LoginPage />
+                  </LanguageProvider>
+                }
+              />
 
-              {/* Admin shell (protected) */}
+              {/* Admin shell (protected, always Indonesian) */}
               <Route
                 path="/admin"
                 element={
                   <RequireAuth>
-                    <AdminLayout />
+                    <LanguageProvider forceLocale="id">
+                      <AdminLayout />
+                    </LanguageProvider>
                   </RequireAuth>
                 }
               >

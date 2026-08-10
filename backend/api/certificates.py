@@ -26,6 +26,7 @@ from repositories.legality import (
     CertificateRepository,
     GemstonePhotoRepository,
     GemstoneRepository,
+    LegalityDocumentRepository,
     SettingsRepository,
     VerificationTokenRepository,
 )
@@ -263,7 +264,16 @@ _SAMPLE_SNAP = {
     "conclusion": "SAMPLE DATA FOR VISUAL REVIEW ONLY",
     "photo_id": None,
 }
+_SAMPLE_LEGALITY = {
+    "certificate_name": "SAMPLE — Gemological Accreditation",
+    "certificate_number": "SAMPLE-ACC-0000",
+    "issuer": "SAMPLE — Accreditation Body",
+    "expiry_date": "2030-12-31",
+    "signatory_name": "A. Rahmani (SAMPLE)",
+    "signatory_position": "Chief Gemologist — SAMPLE",
+}
 _SAMPLE_PHOTO_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "sample-gemstone.png")
+_SAMPLE_SIGNATURE_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "sample-signature.png")
 
 
 def _sample_photo_bytes():
@@ -274,12 +284,31 @@ def _sample_photo_bytes():
         return None
 
 
+def _sample_signature_bytes():
+    try:
+        with open(_SAMPLE_SIGNATURE_PATH, "rb") as f:
+            return f.read()
+    except Exception:
+        return None
+
+
+async def _certificate_signature_bytes(db, cert) -> bytes | None:
+    """Resolve the immutable signature image referenced by a certificate snapshot."""
+    leg = getattr(cert, "legality_snapshot", None) or {}
+    sid = leg.get("signature_document_id")
+    if not sid:
+        return None
+    doc = await LegalityDocumentRepository(db).get_by_uuid(sid)
+    return decode_photo(doc.data_b64) if doc else None
+
+
 def _sample_cert() -> dict:
     return {
         "certificate_number": _SAMPLE_NUMBER,
         "issued_at": "2026-08-11",
         "version": 1,
         "gemstone_snapshot": dict(_SAMPLE_SNAP),
+        "legality_snapshot": dict(_SAMPLE_LEGALITY),
         "qr_url": "SAMPLE - NOT VALID",
         "website": "azuris-gemological.com",
     }
@@ -288,7 +317,9 @@ def _sample_cert() -> dict:
 @admin_router.get("/certificates/demo-preview")
 async def demo_certificate_preview(admin: Admin = Depends(_ADMIN)):
     """Non-persistent two-page SAMPLE certificate PDF (AGR-ZMD-000015-26)."""
-    pdf = build_certificate_pdf(_sample_cert(), _sample_photo_bytes(), demo=True)
+    pdf = build_certificate_pdf(
+        _sample_cert(), _sample_photo_bytes(), _sample_signature_bytes(), demo=True
+    )
     return Response(
         content=pdf,
         media_type="application/pdf",
@@ -363,6 +394,7 @@ async def certificate_pdf(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(
         "issued_at": cert.issued_at,
         "version": cert.version,
         "gemstone_snapshot": snap,
+        "legality_snapshot": cert.legality_snapshot,
         "qr_url": qr_url(token),
     }
     try:
@@ -371,7 +403,8 @@ async def certificate_pdf(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(
             payload["whatsapp"] = settings.whatsapp_number
     except Exception:
         pass
-    pdf = build_certificate_pdf(payload, photo_bytes)
+    signature_bytes = await _certificate_signature_bytes(db, cert)
+    pdf = build_certificate_pdf(payload, photo_bytes, signature_bytes)
     await write_audit_log(
         db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.UPDATE,
         entity_type="certificate", entity_id=uuid, after={"action": "pdf_generated", "version": cert.version},

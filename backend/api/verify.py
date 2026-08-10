@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 from db.mongodb import get_database
 from errors import forbidden
-from repositories.legality import CertificateRepository, GemstonePhotoRepository
+from repositories.legality import CertificateRepository, GemstonePhotoRepository, LegalityDocumentRepository
 from services.certificate_pdf import build_certificate_pdf, decode_photo, render_front_cover_png
 from services.preview import decode_preview_token
 from services.verification import resolve_qr, verify_manual, verify_qr
@@ -92,9 +92,16 @@ async def public_certificate_pdf(number: str, request: Request, db=Depends(get_d
         "issued_at": cert.issued_at,
         "version": cert.version,
         "gemstone_snapshot": snap,
+        "legality_snapshot": cert.legality_snapshot,
     }
+    signature_bytes = None
+    leg = cert.legality_snapshot or {}
+    if leg.get("signature_document_id"):
+        sdoc = await LegalityDocumentRepository(db).get_by_uuid(leg["signature_document_id"])
+        if sdoc:
+            signature_bytes = decode_photo(sdoc.data_b64)
     try:
-        pdf = build_certificate_pdf(payload, photo_bytes)
+        pdf = build_certificate_pdf(payload, photo_bytes, signature_bytes)
     except Exception:
         return Response(status_code=503)
     return Response(
@@ -104,6 +111,37 @@ async def public_certificate_pdf(number: str, request: Request, db=Depends(get_d
             "Content-Disposition": f'inline; filename="{cert.certificate_number}.pdf"',
             "Cache-Control": "public, max-age=300",
         },
+    )
+
+
+@router.get("/cover/{number}")
+async def public_certificate_cover(number: str, request: Request, db=Depends(get_database)):
+    """Public: the certificate-book FRONT COVER (PNG) by registration number.
+
+    Cover-first verification result. Returns 404 for unknown / invalid-format /
+    revoked / archived certificates (generic, no enumeration detail).
+    """
+    _rate_limit(request)
+    num = number.strip().upper()
+    if not CERT_RE.match(num):
+        return Response(status_code=404)
+    cert = await CertificateRepository(db).get_current_by_number(num)
+    if cert is None or cert.status == "revoked":
+        return Response(status_code=404)
+    try:
+        png = render_front_cover_png(
+            {
+                "certificate_number": cert.certificate_number,
+                "issued_at": cert.issued_at,
+                "version": cert.version,
+            }
+        )
+    except Exception:
+        return Response(status_code=503)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=300"},
     )
 
 

@@ -173,6 +173,7 @@ const en = {
     subtitle:
       "Reach the Azuris team for questions about gemstone examination, certification, and verification.",
     whatsapp: "Contact via WhatsApp",
+    moreInfo: "MORE INFORMATION",
   },
   homeMembership: {
     eyebrow: "Membership",
@@ -242,6 +243,13 @@ const en = {
     save: "Save", publish: "Publish", unpublish: "Unpublish", delete: "Delete",
     published: "Published", draft: "Draft", empty: "No legality credential yet.",
     saved: "Saved.", uploaded: "Document uploaded.",
+    signatoryName: "Authorized Signatory Name", signatoryPosition: "Position / Title",
+    activeForCerts: "Active for New Certificates", activeBadge: "Active for Certificates",
+    signature: "Signature Image", uploadSignature: "Upload Signature", replaceSignature: "Replace Signature",
+    removeSignature: "Remove Signature", signaturePreview: "Signature Preview",
+    signatureHint: "PNG with transparent background preferred (JPG/WebP also accepted, max 5MB).",
+    signatureUploaded: "Signature uploaded.", signatureRemoved: "Signature removed.",
+    saveFirst: "Save the credential first, then upload a signature.",
   },
   adminSettings: {
     title: "Contact Settings",
