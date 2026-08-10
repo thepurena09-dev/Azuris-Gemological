@@ -6,10 +6,12 @@ All mutations reuse the existing append-only audit log.
 """
 
 import base64
+import os
+import re
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi.responses import Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from auth.audit import write_audit_log
 from auth.rbac import Permission, require_permission, require_roles
@@ -55,6 +57,7 @@ class GemstoneIn(BaseModel):
     name_en: str = Field(min_length=1, max_length=200)
     category: str = Field(min_length=1, max_length=100)
     gemstone_type: str = Field(min_length=1, max_length=100)
+    gem_code: str | None = None
     weight_carat: float = Field(gt=0)
     color: str | None = None
     clarity: str | None = None
@@ -63,6 +66,18 @@ class GemstoneIn(BaseModel):
     dimensions_mm: str | None = None
     origin: str | None = None
     treatment: str | None = None
+
+    @field_validator("gem_code")
+    @classmethod
+    def _normalize_gem_code(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        v = v.strip().upper()
+        if v == "":
+            return None
+        if not re.fullmatch(r"[A-Z]{3}", v):
+            raise ValueError("Kode batu wajib terdiri dari tepat 3 huruf.")
+        return v
 
 
 class IssueIn(BaseModel):
@@ -87,6 +102,7 @@ def _gem_view(g: Gemstone) -> dict:
         "name_en": g.name_en,
         "category": g.category,
         "gemstone_type": g.gemstone_type,
+        "gem_code": g.gem_code,
         "weight_carat": g.weight_carat,
         "color": g.color,
         "clarity": g.clarity,
@@ -222,44 +238,73 @@ async def upload_photo(uuid: str, file: UploadFile = File(...), admin: Admin = D
 
 
 # ---------- CERTIFICATES ----------
-# DEMO PREVIEW — stateless UI-only certificate design preview. Creates NO
+# SAMPLE PREVIEW — stateless UI-only certificate design preview. Creates NO
 # certificate/gemstone/token, never touches the counter, never reaches Mongo.
-_DEMO_SNAP = {
-    "name": "Natural Sapphire",
-    "object_type": "Loose Gemstone",
-    "species": "Corundum",
-    "variety": "Sapphire",
-    "carat": 2.35,
-    "color": "Royal Blue",
+# Uses the fixed non-persistent sample number AGR-ZMD-000015-26 (Zamrud/Emerald).
+_SAMPLE_NUMBER = "AGR-ZMD-000015-26"
+_SAMPLE_SNAP = {
+    "name": "Zamrud",
+    "name_id": "Zamrud",
+    "name_en": "Emerald",
+    "gem_code": "ZMD",
+    "object_type": "Batu Mulia",
+    "species": "Natural Beryl — Sample",
+    "carat": 3.25,
+    "color": "Vivid Green",
     "clarity": "Transparent",
     "transparency": "Transparent",
-    "cut": "Oval Mixed Cut",
-    "shape": "Oval",
-    "dimensions": "8.20 × 6.10 × 4.35 mm",
-    "origin": "Demo",
-    "treatment": "No indication / Demo",
-    "examiner": "AZURIS GEMOLOGICAL",
-    "signatory": "Azuris Gemological",
-    "conclusion": "Natural Sapphire",
+    "cut": "Emerald Cut",
+    "shape": "Rectangular",
+    "dimensions": "9.10 × 7.25 × 4.80 mm",
+    "origin": "SAMPLE — Colombia",
+    "treatment": "SAMPLE — No indication",
+    "examiner": "SAMPLE — AGR Gemologist",
+    "signatory": "Azuris Gemological Research",
+    "conclusion": "SAMPLE DATA FOR VISUAL REVIEW ONLY",
     "photo_id": None,
 }
+_SAMPLE_PHOTO_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "sample-gemstone.png")
+
+
+def _sample_photo_bytes():
+    try:
+        with open(_SAMPLE_PHOTO_PATH, "rb") as f:
+            return f.read()
+    except Exception:
+        return None
+
+
+def _sample_cert() -> dict:
+    return {
+        "certificate_number": _SAMPLE_NUMBER,
+        "issued_at": "2026-08-11",
+        "version": 1,
+        "gemstone_snapshot": dict(_SAMPLE_SNAP),
+        "qr_url": "SAMPLE - NOT VALID",
+        "website": "azuris-gemological.com",
+    }
 
 
 @admin_router.get("/certificates/demo-preview")
 async def demo_certificate_preview(admin: Admin = Depends(_ADMIN)):
-    cert = {
-        "certificate_number": "AZR-GEM-DEMO",
-        "issued_at": "",
-        "version": 1,
-        "gemstone_snapshot": dict(_DEMO_SNAP),
-        "qr_url": "DEMO - NOT VALID",
-        "website": "azuris-gemological.com",
-    }
-    pdf = build_certificate_pdf(cert, None, demo=True)
+    """Non-persistent two-page SAMPLE certificate PDF (AGR-ZMD-000015-26)."""
+    pdf = build_certificate_pdf(_sample_cert(), _sample_photo_bytes(), demo=True)
     return Response(
         content=pdf,
         media_type="application/pdf",
-        headers={"Content-Disposition": 'inline; filename="AZR-GEM-DEMO.pdf"'},
+        headers={"Content-Disposition": 'inline; filename="AGR-ZMD-000015-26-SAMPLE.pdf"'},
+    )
+
+
+@admin_router.get("/certificates/sample-card")
+async def sample_certificate_card(admin: Admin = Depends(_ADMIN)):
+    """Non-persistent premium SAMPLE card preview (AGR-ZMD-000015-26, QR → /verify?sample=1)."""
+    verify_url = f"{PUBLIC_BASE_URL}/verify?sample=1"
+    pdf = build_card_pdf(_sample_cert(), _sample_photo_bytes(), verify_url, sample=True)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="AGR-ZMD-000015-26-SAMPLE-card.pdf"'},
     )
 
 

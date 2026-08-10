@@ -147,7 +147,7 @@ def _double_frame(c, x0, x1, color1=GOLD, color2=GOLD_SOFT, inset=3 * mm):
 
 
 def _demo_stamp(c, x0, x1):
-    """Diagonal DEMO / PREVIEW / NOT VALID watermark over a panel (visible but non-obscuring)."""
+    """Diagonal SAMPLE / NOT VALID watermark over a panel (visible but non-obscuring)."""
     cx = (x0 + x1) / 2
     cy = PAGE_H / 2
     c.saveState()
@@ -156,13 +156,13 @@ def _demo_stamp(c, x0, x1):
     # faint white halo so it stays legible on both navy and ivory panels
     c.setFillColorRGB(1, 1, 1)
     c.setFillAlpha(0.16)
-    c.setFont(HEADB, 27)
-    c.drawCentredString(0.6, 8 * mm - 0.6, "DEMO")
+    c.setFont(HEADB, 25)
+    c.drawCentredString(0.6, 8 * mm - 0.6, "SAMPLE")
     c.setFillColorRGB(0.83, 0.16, 0.16)
     c.setFillAlpha(0.40)
-    c.setFont(HEADB, 27)
-    c.drawCentredString(0, 8 * mm, "DEMO")
-    c.setFont(HEADB, 13)
+    c.setFont(HEADB, 25)
+    c.drawCentredString(0, 8 * mm, "SAMPLE")
+    c.setFont(HEADB, 12)
     c.drawCentredString(0, 0.5 * mm, "PREVIEW")
     c.setFont(BODYB, 9)
     c.drawCentredString(0, -6 * mm, "NOT VALID")
@@ -794,7 +794,7 @@ def _card_field(c, x, w, y, label, value, size=7.2):
     return yy
 
 
-def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str) -> bytes:
+def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sample: bool = False) -> bytes:
     """One-page premium AGR certificate card (105 x 66 mm) with a scannable QR."""
     snap = cert.get("gemstone_snapshot") or {}
     number = cert["certificate_number"]
@@ -883,6 +883,19 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str) ->
     c.setFont(BODYB, 4.6)
     c.drawCentredString(cx, 3.6 * mm,
                         "AUTHENTIC GEMSTONE CERTIFICATE — ISSUED BY AZURIS GEMOLOGICAL RESEARCH (AGR)")
+
+    if sample:
+        # visible but non-obstructive diagonal SAMPLE — NOT VALID watermark
+        c.saveState()
+        c.translate(CARD_W / 2, CARD_H / 2 - 3 * mm)
+        c.rotate(18)
+        c.setFillColorRGB(0.83, 0.16, 0.16)
+        c.setFillAlpha(0.28)
+        c.setFont(HEADB, 20)
+        c.drawCentredString(0, 2 * mm, "SAMPLE")
+        c.setFont(BODYB, 8)
+        c.drawCentredString(0, -5 * mm, "NOT VALID")
+        c.restoreState()
 
     c.showPage()
     c.save()

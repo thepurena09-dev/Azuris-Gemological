@@ -13,8 +13,9 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { apiFetch, unwrap } from "@/lib/api";
 import { appConfig } from "@/config";
 
-const CERT_RE = /^AZR-GEM-\d{6}-\d{2}$/;
+const CERT_RE = /^AGR-[A-Z]{3}-\d{6}-\d{2}$/;
 const API = appConfig.api.baseUrl;
+const SAMPLE_NUMBER = "AGR-ZMD-000015-26";
 
 const STR = {
   id: {
@@ -23,7 +24,7 @@ const STR = {
     subtitle:
       "Pindai kode QR pada kartu sertifikat, atau masukkan nomor registrasi untuk membuka pratinjau sertifikat resmi Azuris Gemological Research.",
     searchLabel: "Nomor Registrasi Sertifikat",
-    searchPlaceholder: "AZR-GEM-000000-00",
+    searchPlaceholder: "AGR-ZMD-000015-26",
     searchBtn: "Buka Sertifikat",
     formatError: "Format nomor registrasi tidak valid.",
     notFound: "Sertifikat tidak ditemukan.",
@@ -33,6 +34,7 @@ const STR = {
     loading: "Memeriksa…",
     close: "Tutup",
     pdfTitle: "Pratinjau Sertifikat (2 Halaman)",
+    sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
   en: {
     eyebrow: "Certificate Verification",
@@ -40,7 +42,7 @@ const STR = {
     subtitle:
       "Scan the QR code on the certificate card, or enter the registration number to open the official Azuris Gemological Research certificate preview.",
     searchLabel: "Certificate Registration Number",
-    searchPlaceholder: "AZR-GEM-000000-00",
+    searchPlaceholder: "AGR-ZMD-000015-26",
     searchBtn: "Open Certificate",
     formatError: "Invalid registration number format.",
     notFound: "Certificate not found.",
@@ -50,6 +52,7 @@ const STR = {
     loading: "Checking…",
     close: "Close",
     pdfTitle: "Certificate Preview (2 Pages)",
+    sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
 };
 
@@ -57,6 +60,7 @@ export default function VerifyPage() {
   const { locale } = useLanguage();
   const s = STR[locale === "en" ? "en" : "id"];
   const { search } = useLocation();
+  const isSample = new URLSearchParams(search).get("sample") === "1";
 
   const [qrLoading, setQrLoading] = React.useState(false);
   const [qrResult, setQrResult] = React.useState<any>(null); // {status, certificate} | {notfound:true}
@@ -130,6 +134,47 @@ export default function VerifyPage() {
       </section>
 
       <div className="mx-auto max-w-3xl px-6 py-16 md:px-10">
+        {/* SAMPLE presentation (design review only — never hits the DB) */}
+        {isSample && (
+          <div data-testid="verify-sample" className="mb-10">
+            <div
+              data-testid="verify-sample-banner"
+              className="mb-6 rounded-xl border-2 border-dashed border-red-400 bg-red-50 px-5 py-4 text-center text-sm font-bold uppercase tracking-[0.12em] text-red-700"
+            >
+              {s.sampleBanner}
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-gold/40 bg-card shadow-[0_30px_70px_-45px_rgba(13,27,42,0.4)]">
+              <div className="aspect-[16/10] w-full overflow-hidden bg-secondary">
+                <img
+                  data-testid="verify-sample-photo"
+                  src="/sample-gemstone.png"
+                  alt="Zamrud (Sample)"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="p-8">
+                <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                  <SealCheck size={20} weight="fill" /> {s.authentic}
+                </p>
+                <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.name}</dt>
+                    <dd data-testid="verify-sample-name" className="mt-1 font-serif text-xl text-foreground">Zamrud</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.date}</dt>
+                    <dd className="mt-1 text-base text-foreground">2026-08-11</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{s.searchLabel}</dt>
+                    <dd data-testid="verify-sample-number" className="mt-1 font-mono text-base text-foreground">{SAMPLE_NUMBER}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* QR verification result */}
         {qrLoading && (
           <div className="mb-8 flex items-center justify-center gap-3 rounded-2xl border border-border bg-card p-10 text-muted-foreground">

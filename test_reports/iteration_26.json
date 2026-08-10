@@ -1,0 +1,26 @@
+{
+  "summary": "Iteration 26 — Non-persistent frontend regression for the new AGR certificate-number format and sample previews. All 9 requested checks PASSED. Admin login (admin@azuris.local) succeeds and lands on /admin/legalitas; /admin/certificates renders. Kode Batu field (data-testid gem-gem_code) shows the exact Indonesian helper 'Masukkan tepat 3 huruf. Contoh: Zamrud = ZMD.' Auto-uppercase: typing 'zmd' -> value 'ZMD'. Reactive validation (no submit) shows gem-code-error 'Kode batu wajib terdiri dari tepat 3 huruf.' for 'zm' (2), 'zmdd' (4), 'zm1' (digit), 'zm.' (punct), 'z m' (internal space); the error disappears after typing valid 'ZMD'. Sample CARD button (cert-sample-card-btn) opens a new tab pointing to a blob URL (streamed via GET /api/admin/certificates/sample-card with Bearer auth). Demo/sample two-page PDF button (cert-demo-preview-btn) opens the cert-demo-modal with an iframe pointing to a blob: URL (streamed via GET /api/admin/certificates/demo-preview). Public /verify?sample=1 shows verify-sample-banner text 'SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.', verify-sample-photo loads /sample-gemstone.png (naturalWidth>0), verify-sample-name='Zamrud', verify-sample-number='AGR-ZMD-000015-26', and NO /api/verify/* network calls are made while on this page. Public /verify search: 'hello' -> 'Format nomor registrasi tidak valid.'; well-formed non-existent 'AGR-ZMD-000099-26' -> 'Sertifikat tidak ditemukan.' (backend returns 404); legacy 'AZR-GEM-000015-26' correctly rejected by new CERT_RE regex as invalid format. Design-time guarantee (name/kode edits do not change already-issued number) verified by design per main-agent note; NOT exercised live to respect the data-safety freeze.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CertificatesPage.tsx openPdf/openCard/openSampleCard use URL.createObjectURL + window.open without revoking the blob URL on close — minor memory leak on repeated opens (openDemo/closeDemo already handle this correctly).",
+    "VerifyPage.tsx sample-mode date is hard-coded to '2026-08-11'. Not a bug (design-only mock) but worth noting for future consistency with the backend sample date."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "read-only checks 100%", "frontend": "100% (9/9 flows verified)"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (SUPER_ADMIN)",
+  "seed_data_creation": "NONE. Strict non-persistent freeze respected — no gemstone create submit, no certificate issue, no verify token flow.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Certificate counter is exactly last_number=14 (year 2026, name='certificate'). Collections gemstones=0, certificates=0, verification_tokens=0 both BEFORE and AFTER this iteration — nothing was persisted. New number format AGR-{CODE3}-{SEQ6}-{YY} is enforced client-side (regex /^AGR-[A-Z]{3}-\\d{6}-\\d{2}$/ in VerifyPage.tsx and CertificatesPage.tsx). Sample number is AGR-ZMD-000015-26 (sequence 000015 NOT yet consumed).",
+  "final_data_safety_snapshot": {
+    "counter.last_number": 14,
+    "counter.year": 2026,
+    "gemstones_count": 0,
+    "certificates_count": 0,
+    "verification_tokens_count": 0
+  },
+  "rca of the issue": "N/A — no defects found."
+}

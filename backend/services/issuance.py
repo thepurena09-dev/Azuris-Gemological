@@ -6,6 +6,7 @@ Reuses locked counter, existing repos, audit, and verification-token schema.
 """
 
 import os
+import re
 from typing import Optional
 
 from fastapi import HTTPException
@@ -52,6 +53,7 @@ def _snapshot(gem: Gemstone, extra: dict) -> dict:
         "treatment": gem.treatment,
         "origin": gem.origin,
         "photo_id": photo_id,
+        "gem_code": gem.gem_code,
         "examiner": extra.get("examiner"),
         "signatory": extra.get("signatory"),
         "conclusion": extra.get("conclusion"),
@@ -68,7 +70,11 @@ async def issue_certificate(db, admin, gemstone_uuid: str, extra: dict) -> dict:
     if gem.certificate_id:
         raise HTTPException(status_code=409, detail="Gemstone already has a certificate (use reissue)")
 
-    number = await CounterRepository(db).next_certificate_number()
+    code = (gem.gem_code or "").strip().upper()
+    if not re.fullmatch(r"[A-Z]{3}", code):
+        raise HTTPException(status_code=400, detail="Kode batu wajib terdiri dari tepat 3 huruf.")
+
+    number = await CounterRepository(db).next_certificate_number(code=code)
     snapshot = _snapshot(gem, extra)
 
     cert = Certificate(

@@ -16,6 +16,9 @@ class Gemstone(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
     name_en: str = Field(min_length=1, max_length=200)
     category: str = Field(min_length=1, max_length=100)
     gemstone_type: str = Field(min_length=1, max_length=100)
+    # Manual 3-letter gemstone code (admin-defined). Part of the certificate
+    # number AGR-{CODE}-{SEQ}-{YY}. Empty for legacy records; required at issuance.
+    gem_code: Optional[str] = Field(default=None, max_length=3)
 
     # Specifications
     weight_carat: float = Field(gt=0)

@@ -646,3 +646,21 @@ Refocused the app to a single purpose: register a gemstone examination and issue
 
 ### Baseline (restored after testing)
 - All business collections = 0; certificate counter `last_number` = 14 (next issue → AZR-GEM-000015-26). Real gem-* testids use underscores: gem-name_id, gem-name_en, gem-category, gem-gemstone_type, gem-weight_carat, gem-color, gem-clarity, gem-cut, gem-shape, gem-dimensions_mm, gem-origin, gem-treatment.
+
+## Kode Batu number format + SAMPLE previews (2026-06)
+Verified by testing_agent iteration_26 (9/9 frontend PASS, read-only backend checks; counter=14, collections=0, nothing persisted).
+
+### Certificate number format
+- New format: `AGR-{KODE_BATU_3}-{SEQ_6}-{YY}` (e.g. AGR-ZMD-000015-26). One GLOBAL atomic counter (unchanged behavior). `CERTIFICATE_PREFIX="AGR"`, `next_certificate_number(code)` in repositories/counter.py.
+- **Kode Batu** = manual admin-defined 3-letter code (NEVER auto-derived from name). New optional field `gem_code` on Gemstone model (empty for legacy). GemstoneIn validator: trim+uppercase, must match ^[A-Z]{3}$ else "Kode batu wajib terdiri dari tepat 3 huruf.".
+- Issuance requires a valid gem_code (services/issuance.py → 400 if missing/invalid); number locked into certificate + gemstone_snapshot at issuance (name/code edits afterward never change it — by design). Public CERT_RE (verify.py + VerifyPage.tsx) updated to ^AGR-[A-Z]{3}-\d{6}-\d{2}$.
+- Admin CertificatesPage: Kode Batu field (gem-gem_code, gem-code-error), issue gated when code missing (issue-blocked-{uuid}).
+
+### Non-persistent SAMPLE previews (Zamrud/Emerald, AGR-ZMD-000015-26, "SAMPLE — NOT VALID")
+- Backend (stateless, no DB, no counter): `GET /api/admin/certificates/demo-preview` (2-page PDF, no QR), `GET /api/admin/certificates/sample-card` (card with QR → /verify?sample=1). Fixture `_SAMPLE_SNAP` + sample photo at backend/assets/sample-gemstone.png (also frontend/public/sample-gemstone.png).
+- `_demo_stamp` watermark text = SAMPLE / PREVIEW / NOT VALID; build_card_pdf(sample=True) adds card watermark.
+- Admin buttons: "Contoh Kartu" (cert-sample-card-btn), demo PDF (cert-demo-preview-btn).
+- Public `/verify?sample=1` (VerifyPage sample mode) = banner "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.", emerald photo, Zamrud, AGR-ZMD-000015-26; makes NO /api/verify call, not searchable.
+
+### Data safety (post-task)
+- Counter last_number = 14 (next real cert → AGR-{CODE}-000015-26). gemstones/certificates/verification_tokens = 0. CMS media untouched. No sample records persisted.

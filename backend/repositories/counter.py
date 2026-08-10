@@ -16,7 +16,7 @@ from models.base import utcnow_iso
 from repositories.base import BaseRepository
 
 CERTIFICATE_COUNTER = "certificate"
-CERTIFICATE_PREFIX = "AZR-GEM"
+CERTIFICATE_PREFIX = "AGR"
 
 # BATCH C operational number sources (separate counters — the certificate
 # counter is never touched). Formats are provisional operational defaults
@@ -44,10 +44,15 @@ class CounterRepository(BaseRepository):
         )
         return int(doc["last_number"])
 
-    async def next_certificate_number(self, year: Optional[int] = None) -> str:
+    async def next_certificate_number(self, code: str, year: Optional[int] = None) -> str:
+        """Global atomic sequence. Number = AGR-{CODE}-{SEQ:06d}-{YY}.
+
+        One global certificate counter is used for ALL gemstone codes (never a
+        per-code counter). `code` is the admin-defined 3-letter gemstone code.
+        """
         year = year or datetime.now(timezone.utc).year
         seq = await self._next_sequence(CERTIFICATE_COUNTER, year)
-        return f"{CERTIFICATE_PREFIX}-{seq:06d}-{year % 100:02d}"
+        return f"{CERTIFICATE_PREFIX}-{code}-{seq:06d}-{year % 100:02d}"
 
     async def next_warranty_number(self, year: Optional[int] = None) -> str:
         year = year or datetime.now(timezone.utc).year

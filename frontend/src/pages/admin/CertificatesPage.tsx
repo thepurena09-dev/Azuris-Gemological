@@ -9,6 +9,7 @@ interface Gem {
   name_en: string;
   name_id: string;
   gemstone_type: string;
+  gem_code?: string | null;
   weight_carat: number;
   certificate_id?: string;
   photo_id?: string;
@@ -22,9 +23,11 @@ interface Cert {
 }
 
 const EMPTY_GEM = {
-  name_id: "", name_en: "", category: "Batu Mulia", gemstone_type: "",
+  name_id: "", name_en: "", category: "Batu Mulia", gemstone_type: "", gem_code: "",
   weight_carat: "", color: "", clarity: "", cut: "", shape: "", dimensions_mm: "", origin: "", treatment: "",
 };
+
+const GEM_CODE_RE = /^[A-Z]{3}$/;
 
 export default function CertificatesPage() {
   const { t } = useLanguage();
@@ -53,13 +56,22 @@ export default function CertificatesPage() {
 
   const setG = (k: string, v: any) => setGem((f: any) => ({ ...f, [k]: v }));
 
+  const gemCode = (gem.gem_code || "").trim();
+  const gemCodeValid = GEM_CODE_RE.test(gemCode);
+  const gemCodeError = gemCode.length > 0 && !gemCodeValid;
+
   const createGem = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (gemCode.length > 0 && !gemCodeValid) return;
     setBusy(true);
     try {
       await apiJson("/api/admin/gemstones", {
         method: "POST",
-        body: JSON.stringify({ ...gem, weight_carat: parseFloat(gem.weight_carat) || 0 }),
+        body: JSON.stringify({
+          ...gem,
+          gem_code: gemCode || null,
+          weight_carat: parseFloat(gem.weight_carat) || 0,
+        }),
       });
       setGem(EMPTY_GEM);
       await load();
@@ -108,6 +120,14 @@ export default function CertificatesPage() {
 
   const openCard = (uuid: string) => {
     apiFetch(`/api/admin/certificates/${uuid}/card`).then(async (r) => {
+      if (!r.ok) return;
+      const blob = await r.blob();
+      window.open(URL.createObjectURL(blob), "_blank");
+    });
+  };
+
+  const openSampleCard = () => {
+    apiFetch("/api/admin/certificates/sample-card").then(async (r) => {
       if (!r.ok) return;
       const blob = await r.blob();
       window.open(URL.createObjectURL(blob), "_blank");
@@ -176,6 +196,26 @@ export default function CertificatesPage() {
             {gf("name_en", t("adminCert.gemName"))}
             {gf("category", t("adminCert.category"))}
             {gf("gemstone_type", t("adminCert.type"))}
+            <div className="sm:col-span-2">
+              <label className="mb-1.5 block text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+                {t("adminCert.kodeBatu")}
+              </label>
+              <input
+                data-testid="gem-gem_code"
+                type="text"
+                value={gem.gem_code}
+                maxLength={5}
+                onChange={(e) => setG("gem_code", e.target.value.toUpperCase())}
+                placeholder="ZMD"
+                className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm uppercase tracking-[0.2em] outline-none focus:border-gold ${gemCodeError ? "border-red-400" : "border-border"}`}
+              />
+              <p className="mt-1 text-[0.62rem] text-muted-foreground">{t("adminCert.kodeBatuHelper")}</p>
+              {gemCodeError && (
+                <p data-testid="gem-code-error" className="mt-1 text-[0.68rem] font-medium text-red-600">
+                  {t("adminCert.kodeBatuError")}
+                </p>
+              )}
+            </div>
             {gf("weight_carat", t("adminCert.carat"), "number")}
             {gf("color", t("adminCert.color"))}
             {gf("clarity", t("adminCert.clarity"))}
@@ -216,10 +256,14 @@ export default function CertificatesPage() {
                       </label>
                       {g.certificate_id ? (
                         <span className="rounded-md bg-emerald-100 px-2.5 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-emerald-700">{t("adminCert.issuedBadge")}</span>
-                      ) : (
+                      ) : g.gem_code ? (
                         <button data-testid={`issue-${g.uuid}`} onClick={() => issue(g.uuid)} disabled={busy} className="rounded-md bg-primary px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-primary-foreground disabled:opacity-70">
                           {t("adminCert.issue")}
                         </button>
+                      ) : (
+                        <span data-testid={`issue-blocked-${g.uuid}`} className="rounded-md bg-amber-100 px-2.5 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-amber-700">
+                          {t("adminCert.kodeBatuRequired")}
+                        </span>
                       )}
                     </div>
                   </li>
@@ -231,15 +275,24 @@ export default function CertificatesPage() {
           <div className="rounded-2xl border border-border bg-card p-7">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-xs uppercase tracking-[0.2em] text-foreground">{t("adminCert.certificates")}</h2>
-              <button
-                data-testid="cert-demo-preview-btn"
-                onClick={openDemo}
-                disabled={demoBusy}
-                className="inline-flex items-center gap-1.5 rounded-md border border-gold px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-gold transition-colors hover:bg-gold/10 disabled:opacity-60"
-              >
-                {demoBusy ? <CircleNotch size={13} className="animate-spin" /> : <SealCheck size={13} />}
-                {t("adminCert.demoPreview")}
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  data-testid="cert-sample-card-btn"
+                  onClick={openSampleCard}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gold px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-gold transition-colors hover:bg-gold/10"
+                >
+                  <SealCheck size={13} /> {t("adminCert.sampleCard")}
+                </button>
+                <button
+                  data-testid="cert-demo-preview-btn"
+                  onClick={openDemo}
+                  disabled={demoBusy}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gold px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.15em] text-gold transition-colors hover:bg-gold/10 disabled:opacity-60"
+                >
+                  {demoBusy ? <CircleNotch size={13} className="animate-spin" /> : <SealCheck size={13} />}
+                  {t("adminCert.demoPreview")}
+                </button>
+              </div>
             </div>
             {certs.length === 0 ? (
               <p className="text-sm text-muted-foreground">—</p>
