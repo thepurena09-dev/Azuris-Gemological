@@ -604,23 +604,23 @@ def _agr_details(c, cert, snap, signature_reader=None):
     w = A5W - 2 * m
     cx = A5W / 2
 
-    # header — compact navy AZURIS plaque lockup (emblem seal + plaque), centered
-    grp_emb, grp_gap, grp_pw = 12 * mm, 3 * mm, 46 * mm
+    # header — compact navy AZURIS plaque lockup (emblem seal + plaque), centered & lowered
+    grp_emb, grp_gap, grp_pw = 11 * mm, 3 * mm, 45 * mm
     grp_left = cx - (grp_emb + grp_gap + grp_pw) / 2
     emb_cx = grp_left + grp_emb / 2
     plq_cx = grp_left + grp_emb + grp_gap + grp_pw / 2
-    _draw_logo(c, _LOGO, emb_cx, A5H - 17 * mm, grp_emb)
-    _plaque(c, plq_cx, A5H - 11 * mm, grp_pw, 12 * mm, az_size=12.5, sub_size=4.2, sub=True)
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.9)
-    c.line(x, A5H - 27 * mm, x + w, A5H - 27 * mm)
+    _draw_logo(c, _LOGO, emb_cx, A5H - 20 * mm, grp_emb)
+    _plaque(c, plq_cx, A5H - 14.5 * mm, grp_pw, 11 * mm, az_size=12, sub_size=4.0, sub=True)
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(0.8)
+    c.line(x, A5H - 29 * mm, x + w, A5H - 29 * mm)
 
-    y = A5H - 32 * mm
+    y = A5H - 34 * mm
 
     # registration number plate
     c.setFillColorRGB(*BEIGE_LT)
-    c.setStrokeColorRGB(*GOLD_SOFT)
-    c.setLineWidth(0.6)
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(0.5)
     c.rect(x, y - 9 * mm, w, 9 * mm, fill=1, stroke=1)
     c.setFillColorRGB(*SLATE)
     c.setFont(BODYB, 5.6)
@@ -630,9 +630,9 @@ def _agr_details(c, cert, snap, signature_reader=None):
     c.drawRightString(x + w - 3 * mm, y - 6 * mm, cert["certificate_number"])
     y -= 14 * mm
 
-    # detail fields — full width, only present values (no invented data)
+    # detail fields — full width, only present values (English preferred, no invented data)
     pairs = [
-        ("Gemstone Name", snap.get("name")),
+        ("Gemstone Name", snap.get("name_en") or snap.get("name")),
         ("Object Type", snap.get("object_type")),
         ("Species", snap.get("species")),
         ("Variety", snap.get("variety")),
@@ -845,42 +845,42 @@ def _edge_wave(c, a, b, coord, amp, period, horizontal, off_perp=0.0, phase=0.0)
 
 
 def _double_frame_rect(c, w, h, color1=GOLD, color2=GOLD_SOFT, inset=6 * mm, restrained=False):
-    """Continuous layered ornamental band (laboratory/banknote character):
-    thin outer gold rule → thin navy rule → a continuous double-line guilloche
-    wave ribbon on all four edges → thin inner gold rule. Vector-only, no dotted
-    or disconnected marks. A restrained variant (thinner band) keeps dense pages
-    open while staying visually consistent."""
+    """Continuous layered ornamental band — NAVY-dominant (laboratory/banknote
+    character): outer navy rule → single thin gold supporting accent → a continuous
+    double-line navy guilloche wave ribbon on ALL FOUR edges → inner navy rule.
+    Vector-only, no dotted marks. Restrained variant (thinner) for dense pages."""
     if restrained:
-        navy_off, wy, amp, sep, period, inner_off = 1.0, 2.15, 0.5, 0.4, 5.0, 3.4
-        lw_out, lw_navy, lw_wave, lw_in = 0.8, 0.45, 0.45, 0.6
+        gold_off, wy, amp, sep, period, inner_off = 1.0, 2.15, 0.5, 0.4, 5.0, 3.4
+        lw_out, lw_gold, lw_wave, lw_in = 0.8, 0.4, 0.45, 0.6
     else:
-        navy_off, wy, amp, sep, period, inner_off = 1.3, 2.7, 0.85, 0.7, 6.0, 4.4
-        lw_out, lw_navy, lw_wave, lw_in = 0.9, 0.5, 0.5, 0.7
-    navy_off, wy, inner_off = navy_off * mm, wy * mm, inner_off * mm
+        gold_off, wy, amp, sep, period, inner_off = 1.3, 2.7, 0.85, 0.7, 6.0, 4.4
+        lw_out, lw_gold, lw_wave, lw_in = 0.9, 0.4, 0.5, 0.7
+    gold_off, wy, inner_off = gold_off * mm, wy * mm, inner_off * mm
     amp, sep, period = amp * mm, sep * mm, period * mm
 
     c.saveState()
-    # outer gold rule
-    c.setStrokeColorRGB(*color1)
+    # outer navy boundary
+    c.setStrokeColorRGB(*NAVY)
     c.setLineWidth(lw_out)
     c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
-    # navy supporting rule
-    c.setStrokeColorRGB(*NAVY)
-    c.setLineWidth(lw_navy)
-    c.rect(inset + navy_off, inset + navy_off, w - 2 * (inset + navy_off), h - 2 * (inset + navy_off))
-    # continuous double-line guilloche wave ribbon (stops short of corners)
+    # single thin gold supporting accent line
+    go = inset + gold_off
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(lw_gold)
+    c.rect(go, go, w - 2 * go, h - 2 * go)
+    # continuous double-line navy guilloche wave ribbon (all four edges)
     cg = period + amp + 1.0 * mm
     xa, xb = inset + cg, w - inset - cg
     ya, yb = inset + cg, h - inset - cg
-    c.setStrokeColorRGB(*color1)
+    c.setStrokeColorRGB(*NAVY)
     c.setLineWidth(lw_wave)
     for off in (sep / 2, -sep / 2):
-        _edge_wave(c, xa, xb, inset + wy, amp, period, True, off)
-        _edge_wave(c, xa, xb, h - inset - wy, amp, period, True, off)
-        _edge_wave(c, ya, yb, inset + wy, amp, period, False, off)
-        _edge_wave(c, ya, yb, h - inset - wy, amp, period, False, off)
-    # inner gold rule
-    c.setStrokeColorRGB(*color1)
+        _edge_wave(c, xa, xb, inset + wy, amp, period, True, off)          # bottom
+        _edge_wave(c, xa, xb, h - inset - wy, amp, period, True, off)      # top
+        _edge_wave(c, ya, yb, inset + wy, amp, period, False, off)         # left
+        _edge_wave(c, ya, yb, w - inset - wy, amp, period, False, off)     # right
+    # inner navy rule
+    c.setStrokeColorRGB(*NAVY)
     c.setLineWidth(lw_in)
     c.rect(inset + inner_off, inset + inner_off,
            w - 2 * (inset + inner_off), h - 2 * (inset + inner_off))
@@ -918,16 +918,18 @@ def _agr_presentation(c, cert, snap, photo_reader):
     _double_frame_rect(c, A5W, A5H, inset=8 * mm)
     cx = A5W / 2
 
-    # compact emblem seal + navy AZURIS plaque header (unifies with the cover)
-    _draw_logo(c, _LOGO, cx, A5H - 15 * mm, 15 * mm)
-    _plaque(c, cx, A5H - 24 * mm, 58 * mm, 13 * mm, az_size=16, sub_size=5.2, sub=True)
-    _tracked(c, 0, A5H - 43 * mm, "CERTIFIED GEMSTONE", BODY, 6.6, GOLD_DK, tracking=3.0, center=cx)
+    # compact emblem seal + navy AZURIS plaque header (lowered, clear of the frame)
+    _draw_logo(c, _LOGO, cx, A5H - 21 * mm, 12 * mm)
+    _plaque(c, cx, A5H - 30 * mm, 56 * mm, 13 * mm, az_size=16, sub_size=5.2, sub=True)
+    _tracked(c, 0, A5H - 47 * mm, "CERTIFIED GEMSTONE", BODY, 6.6, GOLD_DK, tracking=3.0, center=cx)
 
-    box_w, box_h = 104 * mm, 84 * mm
+    # gemstone photograph container (reduced ~15%, tight ivory mat, navy frame line)
+    box_w, box_h = 88 * mm, 71 * mm
     bx = cx - box_w / 2
-    by = A5H - 49 * mm - box_h
+    by = A5H - 53 * mm - box_h
+    mat = 1 * mm
     c.setFillColorRGB(*BEIGE_LT)
-    c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm, fill=1, stroke=0)
+    c.rect(bx - mat, by - mat, box_w + 2 * mat, box_h + 2 * mat, fill=1, stroke=0)
     if photo_reader is not None:
         try:
             iw, ih = photo_reader.getSize()
@@ -941,12 +943,12 @@ def _agr_presentation(c, cert, snap, photo_reader):
         c.setFillColorRGB(*TAUPE)
         c.setFont(BODY, 8)
         c.drawCentredString(cx, by + box_h / 2, "No photograph on record")
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.9)
-    c.rect(bx - 2 * mm, by - 2 * mm, box_w + 4 * mm, box_h + 4 * mm)
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(0.8)
+    c.rect(bx - mat, by - mat, box_w + 2 * mat, box_h + 2 * mat)
 
-    ty = by - 14 * mm
-    name = snap.get("name") or snap.get("name_en") or snap.get("name_id") or "Gemstone"
+    ty = by - 13 * mm
+    name = snap.get("name_en") or snap.get("name") or snap.get("name_id") or "Gemstone"
     c.setFillColorRGB(*NAVY)
     c.setFont(HEADB, 22)
     c.drawCentredString(cx, ty, str(name))
@@ -955,7 +957,7 @@ def _agr_presentation(c, cert, snap, photo_reader):
         ty -= 8 * mm
         _tracked(c, 0, ty, str(gtype).upper(), BODY, 8.5, GOLD_DK, tracking=2.4, center=cx)
 
-    ty -= 16 * mm
+    ty -= 15 * mm
     c.setStrokeColorRGB(*GOLD)
     c.setLineWidth(0.7)
     c.line(cx - 16 * mm, ty + 5 * mm, cx + 16 * mm, ty + 5 * mm)
@@ -1013,7 +1015,7 @@ def build_certificate_pdf(
 
     _agr_cover(c)
     if demo:
-        _sample_stamp(c, A5W / 2, 50 * mm, 15, 0.5)
+        _sample_stamp(c, A5W / 2, 58 * mm, 13, 0.5, 16)
     c.showPage()
 
     _agr_details(c, cert, snap, signature_reader)

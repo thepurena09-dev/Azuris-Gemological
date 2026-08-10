@@ -244,11 +244,11 @@ async def upload_photo(uuid: str, file: UploadFile = File(...), admin: Admin = D
 # Uses the fixed non-persistent sample number AGR-ZMD-000015-26 (Zamrud/Emerald).
 _SAMPLE_NUMBER = "AGR-ZMD-000015-26"
 _SAMPLE_SNAP = {
-    "name": "Zamrud",
+    "name": "Emerald",
     "name_id": "Zamrud",
     "name_en": "Emerald",
     "gem_code": "ZMD",
-    "object_type": "Batu Mulia",
+    "object_type": "Loose Gemstone",
     "species": "Natural Beryl — Sample",
     "carat": 3.25,
     "color": "Vivid Green",
