@@ -144,14 +144,14 @@ export default function HomePage() {
 
   // Slide 0 — Promotional (premium, navy-dominant; first slide on load)
   const slidePromo = (
-    <div className="flex min-h-[600px] items-center bg-primary px-6 py-16 text-primary-foreground md:px-10">
+    <div className="flex min-h-[600px] items-center px-6 py-16 md:px-10">
       <div className="mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="max-w-xl">
           <Eyebrow label={promo.eyebrow} />
-          <h1 className="mt-6 font-serif text-4xl font-normal leading-[1.04] tracking-tight md:text-6xl">
+          <h1 className="mt-6 font-serif text-4xl font-normal leading-[1.04] tracking-tight text-foreground md:text-6xl">
             {promo.heading}
           </h1>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-primary-foreground/80">
+          <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
             {promo.desc}
           </p>
           <div className="mt-9">
