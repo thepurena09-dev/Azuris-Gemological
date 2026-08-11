@@ -604,12 +604,9 @@ def _agr_details(c, cert, snap, signature_reader=None):
     w = A5W - 2 * m
     cx = A5W / 2
 
-    # header — emblem seal stays at grid left; AZURIS plaque centered on the page
-    grp_emb, grp_pw = 11 * mm, 45 * mm
-    emb_cx = x + grp_emb / 2
+    # header — AZURIS plaque centered on the page (top-left emblem removed per request)
     plq_cx = cx
-    _draw_logo(c, _LOGO, emb_cx, A5H - 20 * mm, grp_emb)
-    _plaque(c, plq_cx, A5H - 14.5 * mm, grp_pw, 11 * mm, az_size=12, sub_size=4.0, sub=True)
+    _plaque(c, plq_cx, A5H - 14.5 * mm, 45 * mm, 11 * mm, az_size=12, sub_size=4.0, sub=True)
     c.setStrokeColorRGB(*NAVY)
     c.setLineWidth(0.8)
     c.line(x, A5H - 29 * mm, x + w, A5H - 29 * mm)
