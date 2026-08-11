@@ -604,11 +604,10 @@ def _agr_details(c, cert, snap, signature_reader=None):
     w = A5W - 2 * m
     cx = A5W / 2
 
-    # header — compact navy AZURIS plaque lockup (emblem seal + plaque), centered & lowered
-    grp_emb, grp_gap, grp_pw = 11 * mm, 3 * mm, 45 * mm
-    grp_left = cx - (grp_emb + grp_gap + grp_pw) / 2
-    emb_cx = grp_left + grp_emb / 2
-    plq_cx = grp_left + grp_emb + grp_gap + grp_pw / 2
+    # header — left-aligned institutional lockup (emblem seal at grid left, plaque to its right)
+    grp_emb, grp_gap, grp_pw = 11 * mm, 5 * mm, 45 * mm
+    emb_cx = x + grp_emb / 2
+    plq_cx = x + grp_emb + grp_gap + grp_pw / 2
     _draw_logo(c, _LOGO, emb_cx, A5H - 20 * mm, grp_emb)
     _plaque(c, plq_cx, A5H - 14.5 * mm, grp_pw, 11 * mm, az_size=12, sub_size=4.0, sub=True)
     c.setStrokeColorRGB(*NAVY)
