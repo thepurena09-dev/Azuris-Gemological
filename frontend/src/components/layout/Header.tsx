@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { List, X, Diamond, UserCircle } from "@phosphor-icons/react";
+import { List, X, Diamond } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
@@ -82,14 +82,6 @@ export default function Header() {
           {/* Actions right */}
           <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3 lg:gap-5">
             <LanguageSwitcher />
-            <Link
-              to="/login"
-              data-testid={TEST_IDS.header.navLogin}
-              className="hidden items-center gap-2 rounded-lg bg-primary px-5 py-3 text-[0.66rem] uppercase tracking-[0.2em] text-primary-foreground shadow-sm transition-shadow duration-300 hover:shadow-lg sm:inline-flex"
-            >
-              <UserCircle size={16} weight="regular" />
-              {t("nav.login")}
-            </Link>
             <button
               type="button"
               data-testid={TEST_IDS.header.mobileToggle}
@@ -116,13 +108,6 @@ export default function Header() {
                   {t(item.key)}
                 </Link>
               ))}
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="mt-2 rounded-lg bg-primary px-6 py-3 text-center text-[0.66rem] uppercase tracking-[0.2em] text-primary-foreground"
-              >
-                {t("nav.login")}
-              </Link>
             </nav>
           </div>
         )}

@@ -18,8 +18,6 @@ import LegalityAdminPage from "@/pages/admin/LegalityAdminPage";
 import SettingsPage from "@/pages/admin/SettingsPage";
 import CertificatesPage from "@/pages/admin/CertificatesPage";
 import GemstonesPage from "@/pages/admin/GemstonesPage";
-import JewelryPage from "@/pages/admin/JewelryPage";
-import WarrantiesPage from "@/pages/admin/WarrantiesPage";
 import VisualsPage from "@/pages/admin/VisualsPage";
 import VerifyPage from "@/pages/public/VerifyPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -79,8 +77,8 @@ function App() {
                 <Route path="legalitas" element={<LegalityAdminPage />} />
                 <Route path="certificates" element={<CertificatesPage />} />
                 <Route path="gemstones" element={<GemstonesPage />} />
-                <Route path="jewelry" element={<JewelryPage />} />
-                <Route path="warranties" element={<WarrantiesPage />} />
+                <Route path="jewelry" element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="warranties" element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="visuals" element={<VisualsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>

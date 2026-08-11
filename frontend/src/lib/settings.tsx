@@ -38,6 +38,16 @@ export interface Visuals {
   home_gem_ruby_url: string;
   home_gem_sapphire_url: string;
   home_gem_emerald_url: string;
+  promo_show: boolean;
+  promo_image_url: string;
+  promo_eyebrow_id: string | null;
+  promo_eyebrow_en: string | null;
+  promo_heading_id: string | null;
+  promo_heading_en: string | null;
+  promo_desc_id: string | null;
+  promo_desc_en: string | null;
+  promo_cta_id: string | null;
+  promo_cta_en: string | null;
 }
 
 interface BusinessSettings extends Partial<Visuals> {

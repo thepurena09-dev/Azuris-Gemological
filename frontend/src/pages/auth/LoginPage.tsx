@@ -23,7 +23,7 @@ export default function LoginPage() {
   const useLoginBg = Boolean(visuals?.login_bg_enabled && visuals?.login_bg_url);
   const loginBgImage = useLoginBg ? mediaUrl(visuals!.login_bg_url) : "";
   const loginBgOpacity = useLoginBg
-    ? Math.min(Math.max((visuals!.login_bg_opacity ?? 10) / 100, 0.04), 0.24)
+    ? Math.min(Math.max((visuals!.login_bg_opacity ?? 10) / 100, 0), 1)
     : 0;
   const loginBgSize = useLoginBg && visuals!.login_bg_fit === "center" ? "contain" : "cover";
   const loginBgBlur = useLoginBg ? Math.min(Math.max(visuals!.login_bg_blur ?? 0, 0), 12) : 0;

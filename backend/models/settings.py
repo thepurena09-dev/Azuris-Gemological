@@ -85,3 +85,16 @@ class BusinessSettings(BaseDocument, AuditMixin):
         default="https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/8138fec9a0cfedc223c4896ebd58852071928246a1875cecdb3ce5aaebe929ad.jpeg",
         max_length=1000,
     )
+
+    # --- Homepage promotional slide (first hero slide; CMS-editable text) ---
+    # Neutral defaults live in the frontend i18n; None here falls back to those.
+    promo_show: bool = True
+    promo_image_url: str = Field(default="", max_length=1000)
+    promo_eyebrow_id: Optional[str] = Field(default=None, max_length=120)
+    promo_eyebrow_en: Optional[str] = Field(default=None, max_length=120)
+    promo_heading_id: Optional[str] = Field(default=None, max_length=200)
+    promo_heading_en: Optional[str] = Field(default=None, max_length=200)
+    promo_desc_id: Optional[str] = Field(default=None, max_length=600)
+    promo_desc_en: Optional[str] = Field(default=None, max_length=600)
+    promo_cta_id: Optional[str] = Field(default=None, max_length=80)
+    promo_cta_en: Optional[str] = Field(default=None, max_length=80)

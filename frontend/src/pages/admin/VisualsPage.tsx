@@ -10,6 +10,7 @@ import {
   Gauge,
   House,
   Diamond,
+  Megaphone,
   X,
 } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -243,7 +244,7 @@ function BgAppearance({
         </label>
         <input
           data-testid={`visuals-${slug}-opacity`}
-          type="range" min={4} max={24} step={1}
+          type="range" min={0} max={100} step={1}
           value={opacity}
           disabled={disabled}
           onChange={(e) => set(`${prefix}_opacity`, parseInt(e.target.value, 10))}
@@ -428,6 +429,39 @@ export default function VisualsPage() {
             </div>
           </SectionCard>
 
+          <SectionCard icon={<Megaphone size={18} />} title={t("adminVisuals.promoSection")}>
+            <p className="mb-4 text-sm text-muted-foreground">{t("adminVisuals.promoHint")}</p>
+            <label className="mb-5 flex items-center gap-2 text-sm text-foreground">
+              <input
+                data-testid="visuals-promo-show"
+                type="checkbox"
+                checked={v.promo_show !== false}
+                disabled={readOnly}
+                onChange={(e) => set("promo_show", e.target.checked)}
+              />
+              {t("adminVisuals.show")}
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("adminVisuals.promoEyebrowId")} value={v.promo_eyebrow_id || ""} onChange={(x) => set("promo_eyebrow_id", x)} testid="visuals-promo-eyebrow-id" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoEyebrowEn")} value={v.promo_eyebrow_en || ""} onChange={(x) => set("promo_eyebrow_en", x)} testid="visuals-promo-eyebrow-en" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoHeadingId")} value={v.promo_heading_id || ""} onChange={(x) => set("promo_heading_id", x)} testid="visuals-promo-heading-id" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoHeadingEn")} value={v.promo_heading_en || ""} onChange={(x) => set("promo_heading_en", x)} testid="visuals-promo-heading-en" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoDescId")} value={v.promo_desc_id || ""} onChange={(x) => set("promo_desc_id", x)} testid="visuals-promo-desc-id" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoDescEn")} value={v.promo_desc_en || ""} onChange={(x) => set("promo_desc_en", x)} testid="visuals-promo-desc-en" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoCtaId")} value={v.promo_cta_id || ""} onChange={(x) => set("promo_cta_id", x)} testid="visuals-promo-cta-id" disabled={readOnly} />
+              <Field label={t("adminVisuals.promoCtaEn")} value={v.promo_cta_en || ""} onChange={(x) => set("promo_cta_en", x)} testid="visuals-promo-cta-en" disabled={readOnly} />
+            </div>
+            <p className="mb-3 mt-6 text-[0.6rem] uppercase tracking-[0.22em] text-foreground">{t("adminVisuals.promoImage")}</p>
+            <ImageControl
+              slug="promo"
+              value={v.promo_image_url || ""}
+              defaultUrl=""
+              onChange={(x) => set("promo_image_url", x)}
+              onUpload={uploadFor("promo_image_url")}
+              onOpenPicker={() => openPicker("promo_image_url")}
+              disabled={readOnly}
+            />
+          </SectionCard>
           <SectionCard icon={<Gauge size={18} />} title={t("adminVisuals.dashboardSection")}>
             <p className="mb-4 text-sm text-muted-foreground">{t("adminVisuals.dashboardHint")}</p>
             <label className="mb-4 flex items-center gap-2 text-sm text-foreground">

@@ -73,6 +73,16 @@ class VisualsUpdate(BaseModel):
     home_gem_ruby_url: str | None = None
     home_gem_sapphire_url: str | None = None
     home_gem_emerald_url: str | None = None
+    promo_show: bool | None = None
+    promo_image_url: str | None = None
+    promo_eyebrow_id: str | None = None
+    promo_eyebrow_en: str | None = None
+    promo_heading_id: str | None = None
+    promo_heading_en: str | None = None
+    promo_desc_id: str | None = None
+    promo_desc_en: str | None = None
+    promo_cta_id: str | None = None
+    promo_cta_en: str | None = None
 
 
 def _contact(s) -> dict:
@@ -119,6 +129,16 @@ def _visuals(s) -> dict:
         "home_gem_ruby_url": s.home_gem_ruby_url,
         "home_gem_sapphire_url": s.home_gem_sapphire_url,
         "home_gem_emerald_url": s.home_gem_emerald_url,
+        "promo_show": s.promo_show,
+        "promo_image_url": s.promo_image_url,
+        "promo_eyebrow_id": s.promo_eyebrow_id,
+        "promo_eyebrow_en": s.promo_eyebrow_en,
+        "promo_heading_id": s.promo_heading_id,
+        "promo_heading_en": s.promo_heading_en,
+        "promo_desc_id": s.promo_desc_id,
+        "promo_desc_en": s.promo_desc_en,
+        "promo_cta_id": s.promo_cta_id,
+        "promo_cta_en": s.promo_cta_en,
     }
 
 
@@ -183,11 +203,11 @@ async def admin_update_visuals(
     repo = SettingsRepository(db)
     before = await repo.get_or_create()
     changes = {k: v for k, v in body.model_dump(exclude_unset=True).items()}
-    # Keep background appearance controls within readability-safe ranges.
+    # Background opacity uses a full 0–100% scale (0 = no overlay, 100 = fully opaque).
     for pre in ("dashboard_bg", "login_bg", "home_bg"):
         ok, bk, fk = f"{pre}_opacity", f"{pre}_blur", f"{pre}_fit"
         if changes.get(ok) is not None:
-            changes[ok] = max(4, min(24, int(changes[ok])))
+            changes[ok] = max(0, min(100, int(changes[ok])))
         if changes.get(bk) is not None:
             changes[bk] = max(0, min(12, int(changes[bk])))
         if changes.get(fk) is not None and changes[fk] not in ("cover", "center"):

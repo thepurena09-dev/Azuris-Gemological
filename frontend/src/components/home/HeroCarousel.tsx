@@ -43,7 +43,7 @@ export default function HeroCarousel({ slides, ariaLabel }: HeroCarouselProps) {
 
   React.useEffect(() => {
     if (!emblaApi || reduced || paused) return;
-    const id = window.setInterval(() => emblaApi.scrollNext(), 6000);
+    const id = window.setInterval(() => emblaApi.scrollNext(), 3000);
     return () => window.clearInterval(id);
   }, [emblaApi, reduced, paused]);
 

@@ -60,7 +60,16 @@ export default function Footer() {
           <span>
             © {year} {t("brand")}. {t("footer.rights")}
           </span>
-          <span className="uppercase tracking-[0.2em]">{t("footer.tagline2")}</span>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <span className="uppercase tracking-[0.2em]">{t("footer.tagline2")}</span>
+            <Link
+              to="/login"
+              data-testid="footer-admin-signin"
+              className="rounded-sm text-muted-foreground/70 underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {t("footer.adminSignIn")}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

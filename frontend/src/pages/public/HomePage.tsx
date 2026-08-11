@@ -76,7 +76,7 @@ export default function HomePage() {
   const useHomeBg = Boolean(visuals?.home_bg_enabled && visuals?.home_bg_url);
   const homeBgImage = useHomeBg ? mediaUrl(visuals!.home_bg_url) : MARBLE_BG;
   const homeBgOpacity = useHomeBg
-    ? Math.min(Math.max((visuals!.home_bg_opacity ?? 20) / 100, 0.04), 0.24)
+    ? Math.min(Math.max((visuals!.home_bg_opacity ?? 20) / 100, 0), 1)
     : 0.2;
   const homeBgSize = useHomeBg && visuals!.home_bg_fit === "center" ? "contain" : "cover";
   const homeBgBlur = useHomeBg ? Math.min(Math.max(visuals!.home_bg_blur ?? 0, 0), 12) : 0;
@@ -87,6 +87,16 @@ export default function HomePage() {
     ruby: mediaUrl(visuals?.home_gem_ruby_url) || GEM.ruby,
     sapphire: mediaUrl(visuals?.home_gem_sapphire_url) || GEM.sapphire,
     emerald: mediaUrl(visuals?.home_gem_emerald_url) || GEM.emerald,
+  };
+
+  // Homepage promotional slide (CMS-editable; neutral i18n defaults). Shown first.
+  const promo = {
+    show: visuals?.promo_show !== false,
+    eyebrow: (locale === "en" ? visuals?.promo_eyebrow_en : visuals?.promo_eyebrow_id) || t("home.promo.eyebrow"),
+    heading: (locale === "en" ? visuals?.promo_heading_en : visuals?.promo_heading_id) || t("home.promo.heading"),
+    desc: (locale === "en" ? visuals?.promo_desc_en : visuals?.promo_desc_id) || t("home.promo.desc"),
+    cta: (locale === "en" ? visuals?.promo_cta_en : visuals?.promo_cta_id) || t("home.promo.cta"),
+    image: mediaUrl(visuals?.promo_image_url),
   };
 
   const [qrToken, setQrToken] = React.useState<string | undefined>(undefined);
@@ -149,6 +159,58 @@ export default function HomePage() {
     { icon: Flask, k: "treatment" },
     { icon: Camera, k: "photo" },
   ];
+
+  // Slide 0 — Promotional (premium, navy-dominant; first slide on load)
+  const slidePromo = (
+    <div className="flex min-h-[600px] items-center bg-primary px-6 py-16 text-primary-foreground md:px-10">
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="max-w-xl">
+          <Eyebrow label={promo.eyebrow} />
+          <h1 className="mt-6 font-serif text-4xl font-normal leading-[1.04] tracking-tight md:text-6xl">
+            {promo.heading}
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-primary-foreground/70">
+            {promo.desc}
+          </p>
+          <div className="mt-9">
+            <a
+              href={whatsappHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="home-promo-cta"
+              className="group inline-flex items-center gap-3 rounded-lg border border-gold bg-gold px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary transition-colors duration-300 hover:bg-transparent hover:text-gold"
+            >
+              <WhatsappLogo size={18} weight="fill" />
+              {promo.cta}
+            </a>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl border border-gold/25 bg-primary/40">
+          <div className="aspect-[4/3] w-full overflow-hidden">
+            {promo.image ? (
+              <img
+                src={promo.image}
+                alt={promo.heading}
+                className="h-full w-full object-cover"
+                data-testid="home-promo-image"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary via-primary to-[#12233a]">
+                <img
+                  src="/azuris-logo.png"
+                  alt="Azuris Gemological"
+                  width={112}
+                  height={112}
+                  className="h-28 w-28 object-contain opacity-90"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Slide 1 — Four Pillars
   const slidePillars = (
@@ -276,7 +338,12 @@ export default function HomePage() {
         <div className="relative">
           <HeroCarousel
             ariaLabel={t("home.slides.pillars.title")}
-            slides={[slidePillars, slideDiamondRuby, slideSapphireEmerald]}
+            slides={[
+              ...(promo.show ? [slidePromo] : []),
+              slidePillars,
+              slideDiamondRuby,
+              slideSapphireEmerald,
+            ]}
           />
         </div>
       </section>

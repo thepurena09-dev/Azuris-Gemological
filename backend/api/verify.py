@@ -69,7 +69,7 @@ async def qr_resolve(token: str, request: Request, db=Depends(get_database)):
 
 @router.get("/pdf/{number}")
 async def public_certificate_pdf(number: str, request: Request, db=Depends(get_database)):
-    """Public: open the two-page certificate PDF by registration number (no login/code).
+    """Public: open the four-page certificate PDF by registration number (no login/code).
 
     Returns 404 for unknown, invalid-format, revoked, or archived certificates so the
     public UI can show a generic "Certificate not found" state (no enumeration detail).

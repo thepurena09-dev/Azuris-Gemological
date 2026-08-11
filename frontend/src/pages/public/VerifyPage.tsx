@@ -33,7 +33,7 @@ const STR = {
     viewDetails: "Lihat Detail Sertifikat",
     loading: "Memeriksa…",
     close: "Tutup",
-    pdfTitle: "Sertifikat (2 Halaman)",
+    pdfTitle: "Sertifikat (4 Halaman)",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
   en: {
@@ -51,7 +51,7 @@ const STR = {
     viewDetails: "View Certificate Details",
     loading: "Checking…",
     close: "Close",
-    pdfTitle: "Certificate (2 Pages)",
+    pdfTitle: "4-Page Certificate",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
 };

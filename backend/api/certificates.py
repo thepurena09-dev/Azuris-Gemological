@@ -316,7 +316,7 @@ def _sample_cert() -> dict:
 
 @admin_router.get("/certificates/demo-preview")
 async def demo_certificate_preview(admin: Admin = Depends(_ADMIN)):
-    """Non-persistent two-page SAMPLE certificate PDF (AGR-ZMD-000015-26)."""
+    """Non-persistent four-page SAMPLE certificate PDF (AGR-ZMD-000015-26)."""
     pdf = build_certificate_pdf(
         _sample_cert(), _sample_photo_bytes(), _sample_signature_bytes(), demo=True
     )

@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only cleanup verification for Azuris AGR. All 8 requested items verified via Playwright against the preview URL. Public header has no nav-login; footer has admin-signin link to /login. Home carousel promo slide loads first with WhatsApp CTA (https://wa.me/6287812128884); autoplay advances slides (dot 4 active within ~5s); hero-prev/hero-next exist. Admin login works; sidebar contains ONLY the six approved sections (dashboard, legality, certificates, gemstones, visuals, settings); forbidden nav testids (jewelry, warranties, customers, membership, ownership) are absent. /admin/jewelry and /admin/warranties both redirect to /admin/dashboard. Dashboard only shows Sertifikat, Verifikasi (30 hari), Batu Mulia metric cards, and Status Batu Mulia + Status Sertifikat + Hasil Verifikasi breakdowns; no customers/jewelry/warranties/transfers/memberships cards. Visuals page: dashboard/loginbg/homebg opacity sliders are type=range min=0 max=100; Promotional Slide section testids (visuals-promo-show, visuals-promo-heading-en, ...) exist; save works and persists (reload confirms 'Professional Gemstone Certification'). Public /verify has a single Registration Number input (no security code field); pdfTitle '4-Page Certificate' is present in source at VerifyPage.tsx:54 (EN strings). No destructive mutations performed; counter untouched.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin Dashboard (Dasbor)", "issues": ["Recharts warning: 'The width(-1) and height(-1) of chart should be greater than 0' logged on initial mount before container has size. Non-blocking but noisy; consider setting minHeight on ResponsiveContainer."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Recharts ResponsiveContainer emits width(-1)/height(-1) warnings on Dashboard mount — add minHeight/aspect to silence and prevent zero-size render frames.",
+    "VerifyPage pdfTitle localization strings duplicated inline (lines 36/54) — consider centralizing i18n strings to avoid future drift between ID/EN labels."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None. Non-destructive re-save of existing promo heading value only.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Full frontend cleanup verified against preview URL. Data frozen (counter=14, business collections=0) — do not issue certs or mutate. 4-page PDF renderer is frozen — do not exercise. Admin shell locale = Indonesian (sidebar labels: Dasbor/Legalitas/Sertifikat/Batu Mulia/Visual & Konten/Pengaturan). Public locale default = English.",
+  "rca of the issue": "N/A — no issues found."
+}

@@ -24,6 +24,7 @@ const id = {
     rights: "Seluruh hak cipta dilindungi.",
     established: "Institusi Gemologi Tepercaya",
     tagline2: "Sertifikasi · Dokumentasi · Verifikasi",
+    adminSignIn: "Masuk Admin",
   },
   home: {
     established: "Institusi Gemologi Tepercaya",
@@ -66,6 +67,12 @@ const id = {
           desc: "Batu mulia dengan warna hijau khas yang sangat ikonik.",
         },
       },
+    },
+    promo: {
+      eyebrow: "INFORMASI KHUSUS",
+      heading: "Sertifikasi Batu Mulia Profesional",
+      desc: "Hubungi Azuris Gemological Research untuk jadwal pemeriksaan dan informasi lebih lanjut.",
+      cta: "INFORMASI LEBIH LANJUT",
     },
   },
   verify: {
@@ -307,6 +314,13 @@ const id = {
     gemRuby: "Rubi",
     gemSapphire: "Safir",
     gemEmerald: "Zamrud",
+    promoSection: "Slide Promosi Beranda",
+    promoHint: "Slide promosi tampil pertama di hero Beranda. Kosongkan teks untuk memakai pesan default.",
+    promoImage: "Gambar Promosi (opsional)",
+    promoEyebrowId: "Eyebrow (ID)", promoEyebrowEn: "Eyebrow (EN)",
+    promoHeadingId: "Judul (ID)", promoHeadingEn: "Judul (EN)",
+    promoDescId: "Deskripsi (ID)", promoDescEn: "Deskripsi (EN)",
+    promoCtaId: "Teks CTA (ID)", promoCtaEn: "Teks CTA (EN)",
   },
   adminCert: {
     navTitle: "Sertifikat",

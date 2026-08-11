@@ -23,6 +23,7 @@ const en = {
     rights: "All rights reserved.",
     established: "A Trusted Gemological Institution",
     tagline2: "Certification · Documentation · Verification",
+    adminSignIn: "Admin Sign In",
   },
   home: {
     established: "A Trusted Gemological Institution",
@@ -65,6 +66,12 @@ const en = {
           desc: "A gemstone with a distinctive, iconic green color.",
         },
       },
+    },
+    promo: {
+      eyebrow: "SPECIAL INFORMATION",
+      heading: "Professional Gemstone Certification",
+      desc: "Contact Azuris Gemological Research for examination schedules and further information.",
+      cta: "MORE INFORMATION",
     },
   },
   verify: {
@@ -306,6 +313,13 @@ const en = {
     gemRuby: "Ruby",
     gemSapphire: "Sapphire",
     gemEmerald: "Emerald",
+    promoSection: "Homepage Promotional Slide",
+    promoHint: "The promotional slide appears first in the homepage hero. Leave text empty to use the default message.",
+    promoImage: "Promotional Image (optional)",
+    promoEyebrowId: "Eyebrow (ID)", promoEyebrowEn: "Eyebrow (EN)",
+    promoHeadingId: "Heading (ID)", promoHeadingEn: "Heading (EN)",
+    promoDescId: "Description (ID)", promoDescEn: "Description (EN)",
+    promoCtaId: "CTA Text (ID)", promoCtaEn: "CTA Text (EN)",
   },
   adminCert: {
     navTitle: "Certificates",

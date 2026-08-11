@@ -12,12 +12,7 @@ import {
   ArrowClockwise,
   Certificate,
   SealCheck,
-  Users,
   Diamond,
-  Crown,
-  ShieldCheck,
-  ArrowsLeftRight,
-  IdentificationCard,
   Image as ImageIcon,
   CircleNotch,
 } from "@phosphor-icons/react";
@@ -169,16 +164,11 @@ export default function DashboardPage() {
           {/* Metric cards */}
           <div
             data-testid={TEST_IDS.admin.dashMetrics}
-            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
           >
             <MetricCard icon={<Certificate size={20} />} label={t("admin.dash.certificates")} value={fmt(totals.certificates ?? 0)} />
             <MetricCard icon={<SealCheck size={20} />} label={t("admin.dash.verifications")} value={fmt(data.verification.total)} />
-            <MetricCard icon={<Users size={20} />} label={t("admin.dash.customers")} value={fmt(totals.customers ?? 0)} />
             <MetricCard icon={<Diamond size={20} />} label={t("admin.dash.gemstones")} value={fmt(totals.gemstones ?? 0)} />
-            <MetricCard icon={<Crown size={20} />} label={t("admin.dash.jewelry")} value={fmt(totals.jewelry ?? 0)} />
-            <MetricCard icon={<ShieldCheck size={20} />} label={t("admin.dash.warranties")} value={fmt(totals.warranties ?? 0)} />
-            <MetricCard icon={<ArrowsLeftRight size={20} />} label={t("admin.dash.transfers")} value={fmt(totals.ownership_transfers ?? 0)} />
-            <MetricCard icon={<IdentificationCard size={20} />} label={t("admin.dash.memberships")} value={fmt(totals.membership_cards ?? 0)} />
           </div>
 
           {/* Verification trend */}
@@ -226,9 +216,6 @@ export default function DashboardPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             <Breakdown title={t("admin.dash.gemStatus")} data={data.gemstones_by_status} />
             <Breakdown title={t("admin.dash.certStatus")} data={data.certificates_by_status} />
-            <Breakdown title={t("admin.dash.warrantyStatus")} data={data.warranties_by_status} />
-            <Breakdown title={t("admin.dash.transferStatus")} data={data.transfers_by_status} />
-            <Breakdown title={t("admin.dash.membershipStatus")} data={data.memberships_by_status} />
             <Breakdown title={t("admin.dash.verifyResults")} data={data.verification.by_result} />
           </div>
 

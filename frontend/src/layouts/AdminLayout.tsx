@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, NavLink } from "react-router-dom";
-import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Users, Diamond, Crown, ShieldCheck, ArrowsLeftRight, IdentificationCard, Image as ImageIcon, List, X } from "@phosphor-icons/react";
+import { Gauge, MagnifyingGlass, Bell, Certificate, Gear, SignOut, SealCheck, Diamond, Image as ImageIcon, List, X } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
 import { useAuth } from "@/lib/auth";
@@ -20,8 +20,6 @@ const NAV_ITEMS = [
   { to: "/admin/legalitas", id: TEST_IDS.admin.navLegality, Icon: Certificate, label: "adminNav.legality" },
   { to: "/admin/certificates", id: TEST_IDS.admin.navCertificates, Icon: SealCheck, label: "adminCert.navTitle" },
   { to: "/admin/gemstones", id: TEST_IDS.admin.navGemstones, Icon: Diamond, label: "adminNav.gemstones" },
-  { to: "/admin/jewelry", id: TEST_IDS.admin.navJewelry, Icon: Crown, label: "adminNav.jewelry" },
-  { to: "/admin/warranties", id: TEST_IDS.admin.navWarranties, Icon: ShieldCheck, label: "adminNav.warranties" },
   { to: "/admin/visuals", id: TEST_IDS.admin.navVisuals, Icon: ImageIcon, label: "adminVisuals.navTitle" },
   { to: "/admin/settings", id: TEST_IDS.admin.navSettings, Icon: Gear, label: "adminNav.settings" },
 ] as const;
@@ -35,7 +33,7 @@ export default function AdminLayout() {
   const useCustomBg = Boolean(visuals?.dashboard_bg_enabled && visuals?.dashboard_bg_url);
   const bgImage = useCustomBg ? mediaUrl(visuals!.dashboard_bg_url) : MARBLE_BG;
   const bgOpacity = useCustomBg
-    ? Math.min(Math.max((visuals!.dashboard_bg_opacity ?? 10) / 100, 0.04), 0.24)
+    ? Math.min(Math.max((visuals!.dashboard_bg_opacity ?? 10) / 100, 0), 1)
     : 0.1;
   const bgSize = useCustomBg && visuals!.dashboard_bg_fit === "center" ? "contain" : "cover";
   const bgBlur = useCustomBg ? Math.min(Math.max(visuals!.dashboard_bg_blur ?? 0, 0), 12) : 0;
