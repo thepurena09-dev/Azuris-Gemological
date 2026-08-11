@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ShieldCheck,
   ArrowRight,
@@ -19,11 +19,9 @@ import {
 import type { Icon } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
-import { apiJson } from "@/lib/api";
 import { useBusiness } from "@/lib/settings";
 import { mediaUrl } from "@/lib/api";
 import HeroCarousel from "@/components/home/HeroCarousel";
-import VerificationForm from "@/components/home/VerificationForm";
 
 const MARBLE_BG =
   "https://static.prod-images.emergentagent.com/jobs/6572b450-f0e7-4d20-83da-0f44a5e44dfd/images/df3161b0cd73f56ca5ed2325b394244a0bc533006164f0b288a0bd38c33fcfef.jpeg";
@@ -64,6 +62,7 @@ function StonePanel({ img, name, desc }: { img: string; name: string; desc: stri
 export default function HomePage() {
   const { t, locale } = useLanguage();
   const { hash, search } = useLocation();
+  const navigate = useNavigate();
   const { whatsappHref, visuals } = useBusiness();
 
   const showProcessImg = visuals?.process_image_show !== false && !!visuals?.process_image_url;
@@ -99,28 +98,11 @@ export default function HomePage() {
     image: mediaUrl(visuals?.promo_image_url),
   };
 
-  const [qrToken, setQrToken] = React.useState<string | undefined>(undefined);
-  const [qrCert, setQrCert] = React.useState<string | undefined>(undefined);
-
-  // QR flow: ?qr=<opaque_token> -> resolve certificate number (prefill only, no details)
+  // QR flow: /?qr=<opaque_token> -> forward to the dedicated /verify page
   React.useEffect(() => {
-    const params = new URLSearchParams(search);
-    const token = params.get("qr");
-    if (!token) return;
-    setQrToken(token);
-    apiJson<{ token_valid: boolean; certificate_number?: string }>(
-      `/api/verify/qr/resolve?token=${encodeURIComponent(token)}`
-    )
-      .then((r) => {
-        if (r.token_valid && r.certificate_number) setQrCert(r.certificate_number);
-      })
-      .catch(() => undefined);
-    const el = document.getElementById("verification");
-    if (el) {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-    }
-  }, [search]);
+    const token = new URLSearchParams(search).get("qr");
+    if (token) navigate(`/verify?t=${encodeURIComponent(token)}`, { replace: true });
+  }, [search, navigate]);
 
   React.useEffect(() => {
     if (!hash) return;
@@ -234,7 +216,7 @@ export default function HomePage() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <Link
-              to="/#verification"
+              to="/verify"
               className="group inline-flex items-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground shadow-sm transition-shadow duration-300 hover:shadow-xl"
             >
               <ShieldCheck size={16} weight="regular" className="text-gold" />
@@ -345,30 +327,6 @@ export default function HomePage() {
               slideSapphireEmerald,
             ]}
           />
-        </div>
-      </section>
-
-      {/* Verification — primary function */}
-      <section
-        id="verification"
-        data-testid={TEST_IDS.verify.section}
-        className="scroll-mt-28 border-b border-border bg-secondary/40"
-      >
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-24 md:px-10 lg:grid-cols-[1fr_1fr]">
-          <div className="max-w-xl">
-            <Eyebrow label={t("verify.eyebrow")} />
-            <h2 className="mt-6 font-serif text-4xl font-normal leading-[1.05] tracking-tight text-foreground md:text-6xl">
-              {t("verify.title")}
-            </h2>
-            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-              {t("verify.description")}
-            </p>
-            <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card px-4 py-2 text-[0.64rem] uppercase tracking-[0.18em] text-foreground">
-              <Certificate size={14} weight="fill" className="text-gold" />
-              AGR-ZMD-000015-26
-            </p>
-          </div>
-          <VerificationForm initialCert={qrCert} qrToken={qrToken} />
         </div>
       </section>
 

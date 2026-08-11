@@ -79,7 +79,7 @@ export default function LegalityPage() {
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">{t("legality.subtitle")}</p>
           <Link
-            to="/#verification"
+            to="/verify"
             data-testid={TEST_IDS.legality.ctaVerify}
             className="mt-9 inline-flex items-center gap-3 rounded-lg bg-primary px-8 py-4 text-[0.7rem] uppercase tracking-[0.25em] text-primary-foreground transition-shadow duration-300 hover:shadow-xl"
           >

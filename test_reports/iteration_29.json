@@ -1,0 +1,31 @@
+{
+  "summary": "Iteration 29 focused on card-redesign PDF endpoints, homepage on-page verification removal + routing consolidation to /verify, and successful verification of the reactivated real certificate AGR-RBY-000015-26. All 8 backend tests pass (sample-card PDF 1-page, demo-preview PDF ≥4 pages, real cert cover PNG, real cert PDF ≥4 pages, admin cert card PDF, QR bogus-token no-crash, cover 404 for bogus number, counter still 15). Frontend: after a supervisor restart which cleared a stale-bundle state (webpack was serving an outdated bundle from before recent edits), homepage no longer has a verification form (all verify-* testids count=0), /?qr=TOKEN redirects to /verify?t=TOKEN, /verify page uses registration-number-only (no security-code input, no password field), AGR-RBY-000015-26 resolves to a cover image + view-details button + PDF iframe modal, invalid cert shows verify-search-error, /verify?t=BOGUS loads without crash, header VERIFY nav + Legality page (/legalitas) legality-cta-verify + homepage hero CTA all route to /verify. Footer footer-admin-signin present; no nav-login in header. No mutations performed; counter=15 confirmed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter29_card_and_verify.py",
+    "/app/test_reports/pytest/iter29.xml"
+  ],
+  "action_items": [
+    "None blocking. Note: initial page load served a STALE frontend bundle (pre-cleanup HomePage with 'AUTHENTICITY VERIFICATION' form still visible) until supervisor restart recompiled webpack. The frontend.err.log retained old TS errors from a prior VisualsPage.tsx state that had already been fixed; after `supervisorctl restart frontend` it compiled cleanly ('No issues found'). Main agent may want to verify the dev-server is picking up latest edits without manual restart in future iterations."
+  ],
+  "critical_code_review_comments": [
+    "Route path for Legality is `/legalitas` (Indonesian) while public UI default locale is English and the header label is 'LEGALITY'. Not a bug (LEGALITY link points at /legalitas) but a minor inconsistency; consider aliasing /legality → /legalitas for shareability.",
+    "VerifyPage uses testids `verify-search-input`/`verify-search-submit`, but constants/testIds.ts also defines unused `verify-cert-input`/`verify-submit`. Dead constants should be removed to prevent test drift (review request itself referenced the wrong testids).",
+    "Verify PDF iframe src is a blob: URL rather than a direct /api/verify/pdf/{n} URL; asserting the underlying endpoint via src is not possible. Consider setting a stable data attribute (e.g., data-src or data-cert-number) so tests can assert intent."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter29_card_and_verify.py"
+  ],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% of requested checks"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None. Read-only tests. Certificate counter verified at 15 (unchanged).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression file for this iteration: /app/backend/tests/test_iter29_card_and_verify.py. Uses field `certificate_number` (NOT `registration_number`) when reading admin cert list. Legality public route is `/legalitas`, not `/legality`. Verify page testids: verify-search-input, verify-search-submit, verify-result, verify-cover-image, verify-view-details, verify-notfound, verify-search-error, verify-pdf-iframe. AGR-RBY-000015-26 is currently issued and verifiable end-to-end. Do not issue/revoke; counter must remain 15.",
+  "rca of the issue": "Initial homepage screenshot showed the 'AUTHENTICITY VERIFICATION → Verify Certificate' block still rendering even though HomePage.tsx source has no such block. Root cause: webpack dev server was serving a stale compiled bundle from before recent edits (frontend.err.log retained old TS1109/TS1128 errors on VisualsPage.tsx that had since been fixed). After `sudo supervisorctl restart frontend`, webpack recompiled cleanly and served the current code — homepage form disappeared, /?qr= redirect began working, and Legality CTA to /verify rendered. Mitigation: main agent should ensure dev server picks up latest source; if HMR gets stuck after multi-file rewrites, a supervisor restart resolves it."
+}
