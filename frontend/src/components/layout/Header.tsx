@@ -48,32 +48,46 @@ export default function Header() {
           </Link>
 
           {/* Navigation center */}
-          <nav className="hidden items-center gap-2.5 lg:flex">
+          <nav className="hidden items-center gap-7 lg:flex xl:gap-9">
             {navItems.map((item) => {
+              const emboss = {
+                textShadow:
+                  "0 1px 0 rgba(255,255,255,0.9), 0 -0.5px 0 rgba(13,27,42,0.16)",
+              };
               const base =
-                "rounded-lg border border-gold/20 px-3.5 py-2 text-[0.66rem] uppercase tracking-[0.16em] transition-[color,box-shadow,transform,background-color] duration-300 will-change-transform";
-              const normal =
-                "bg-gradient-to-b from-white to-muted text-muted-foreground shadow-[0_1px_1px_rgba(24,42,64,0.04),0_2px_4px_rgba(24,42,64,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] hover:-translate-y-px hover:text-foreground hover:shadow-[0_2px_4px_rgba(24,42,64,0.06),0_5px_12px_rgba(24,42,64,0.09),inset_0_1px_0_rgba(255,255,255,0.95)] active:translate-y-0 active:shadow-[inset_0_2px_4px_rgba(24,42,64,0.10)]";
-              const active =
-                "border-gold/45 bg-gold/10 text-foreground shadow-[inset_0_1px_3px_rgba(24,42,64,0.12),inset_0_-1px_0_rgba(255,255,255,0.5)]";
+                "group relative rounded-sm text-[0.7rem] font-semibold uppercase tracking-[0.2em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+              const label = (isActive: boolean) => (
+                <span className="relative inline-block py-1">
+                  {t(item.key)}
+                  <span
+                    className={`pointer-events-none absolute -bottom-0.5 left-0 h-px bg-gold transition-all duration-300 ${
+                      isActive ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </span>
+              );
               return item.type === "route" ? (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   end={item.end}
                   data-testid={item.testId}
-                  className={({ isActive }) => `${base} ${isActive ? active : normal}`}
+                  style={emboss}
+                  className={({ isActive }) =>
+                    `${base} ${isActive ? "text-gold" : "text-foreground hover:text-gold"}`
+                  }
                 >
-                  {t(item.key)}
+                  {({ isActive }) => label(isActive)}
                 </NavLink>
               ) : (
                 <Link
                   key={item.to}
                   to={item.to}
                   data-testid={item.testId}
-                  className={`${base} ${normal}`}
+                  style={emboss}
+                  className={`${base} text-foreground hover:text-gold`}
                 >
-                  {t(item.key)}
+                  {label(false)}
                 </Link>
               );
             })}
@@ -95,15 +109,16 @@ export default function Header() {
         </div>
 
         {open && (
-          <div className="border-t border-border bg-background px-5 py-6 sm:px-6 md:px-10 lg:hidden">
-            <nav className="flex flex-col gap-3">
+          <div className="border-t border-border bg-background px-5 py-4 sm:px-6 md:px-10 lg:hidden">
+            <nav className="flex flex-col">
               {navItems.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
                   data-testid={`${item.testId}-mobile`}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-gold/20 bg-gradient-to-b from-white to-muted px-4 py-3.5 text-sm uppercase tracking-[0.18em] text-muted-foreground shadow-[0_1px_1px_rgba(24,42,64,0.04),0_2px_4px_rgba(24,42,64,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] transition-[color,box-shadow] duration-300 hover:text-foreground active:shadow-[inset_0_2px_4px_rgba(24,42,64,0.10)]"
+                  style={{ textShadow: "0 1px 0 rgba(255,255,255,0.9)" }}
+                  className="border-b border-border/60 py-3.5 text-sm font-semibold uppercase tracking-[0.2em] text-foreground outline-none transition-colors last:border-0 hover:text-gold focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold/70"
                 >
                   {t(item.key)}
                 </Link>

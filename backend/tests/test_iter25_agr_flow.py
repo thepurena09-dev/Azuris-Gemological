@@ -17,7 +17,7 @@ try:
 except Exception:  # pragma: no cover
     from PyPDF2 import PdfReader  # type: ignore
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://gemstone-pdf-demo.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://gemstone-cert-1.preview.emergentagent.com").rstrip("/")
 ADMIN_EMAIL = "admin@azuris.local"
 ADMIN_PW = "AzurisDev@2026!"
 KNOWN_CERT = "AZR-GEM-000015-26"

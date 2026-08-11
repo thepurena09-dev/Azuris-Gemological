@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 30 verified the <object>-based PDF preview fix (both admin cert demo modal and public /verify modal), public nav restyling, admin Legality info + example panels, admin Visuals membership block removal, and data freeze. All 5 backend tests PASS: /api/admin/certificates/demo-preview returns 200 application/pdf exactly 4 pages; /api/verify/pdf/AGR-RBY-000015-26 returns valid PDF; /api/verify/cover/AGR-ZMD-000015-26 responds without crash; certificate_counter.last_number=15 (UNCHANGED from iteration_29 — the review request text said 14 but the frozen state is 15); admin certificates list contains 1 certificate (AGR-RBY-000015-26), no new issuance. Frontend Playwright: (a) admin cert-demo-preview-btn opens cert-demo-modal containing <object data-testid=cert-demo-iframe> with a blob: URL, header cert-demo-open-pdf 'Buka PDF' link visible, no 'diblokir'/blocked-by-Chrome page, cert-demo-close closes modal. (b) Public /verify: AGR-RBY-000015-26 → verify-result + verify-view-details opens verify-pdf-modal with <object data-testid=verify-pdf-iframe> blob URL, close works, no blocked error; AGR-ZMD-000015-26 → verify-search-error (expected, non-persistent sample). (c) /admin/visuals: visuals-membership-show and visuals-mem-title-id absent (GOOD), visuals-save present. (d) /admin/legalitas: legality-info-panel present, 'CONTOH PENGISIAN — BUKAN LEGALITAS RESMI' example panel present, legality-save present. (e) Public header nav (desktop 1920px): nav-home, nav-verification, nav-process, nav-legality, nav-about, nav-contact all borderWidth=0px, textTransform=uppercase, fontWeight=600, transparent background — no bordered boxes. Mobile 390px: header-mobile-toggle opens a menu with each *-mobile link present. NO mutations performed; counter frozen at 15; still exactly 1 issued certificate.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Public /verify PDF modal fallback", "issues": ["The <object> fallback text reuses s.notFound = 'Certificate not found.' — this is misleading; when the browser lacks a PDF plugin the fallback should say something like 'PDF cannot be displayed in this browser. Open PDF ↗' (as admin modal does in Bahasa Indonesia: 'Pratinjau PDF tidak dapat ditampilkan di peramban ini'). Recommend a separate i18n key for the object-fallback message."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter30_pdf_and_freeze.py",
+    "/app/test_reports/pytest/iter30.xml"
+  ],
+  "action_items": [
+    "COUNTER MISMATCH IN REVIEW REQUEST: the request states 'certificate counter must remain last_number=14' but the actual frozen state (unchanged since iteration_29) is last_number=15 with 1 issued certificate AGR-RBY-000015-26. Please confirm expected freeze value and update review request/docs.",
+    "Public /verify PDF <object> fallback uses 'Certificate not found.' string — replace with a dedicated 'PDF cannot be displayed' i18n message (admin modal already does this correctly in Bahasa).",
+    "Review request referenced testids 'header-nav-*' but actual testids are 'nav-*' (see /app/frontend/src/constants/testIds.ts). Consider aligning docs/testids to avoid drift."
+  ],
+  "critical_code_review_comments": [
+    "VerifyPage.tsx line 353 reuses s.notFound for the <object> fallback body — a UX label bug (says 'Certificate not found' when in reality the PDF is available but the browser can't render inline).",
+    "Verify PDF <object> data is a blob: URL only; there is no data-cert-number attribute on the object for tests to assert intent (carryover from iter29).",
+    "Header testid naming (nav-*) diverges from the admin header (admin-nav-*) and from review request expectations (header-nav-*). A single convention would reduce test drift."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter30_pdf_and_freeze.py"
+  ],
+  "success_rate": {"backend": "100% (5/5)", "frontend": "100% of requested checks"},
+  "test_credentials": "admin@azuris.local / AzurisDev@2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None. Read-only tests. No legality record created (avoided form mutation to preserve baseline; save button existence verified only).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression: /app/backend/tests/test_iter30_pdf_and_freeze.py (5 tests, all pass). Login response is wrapped: r.json()['data']['access_token']. Analytics overview also wrapped in data. certificate_counter.last_number is 15 (not 14 as review request suggested). Existing issued cert: AGR-RBY-000015-26. Public header nav testids are 'nav-<name>' NOT 'header-nav-<name>' (mobile suffix '-mobile'). Both PDF modals correctly use <object type=application/pdf> with blob URL; in headless Chromium the <object> falls back to friendly message + 'Buka PDF' / open-link — this is EXPECTED behavior, not a bug. Do not mutate data.",
+  "rca of the issue": "Not applicable — no bugs found. The <object>-based PDF preview replacement for both admin cert-demo-modal and public verify-pdf-modal correctly avoids the Chrome 'diblokir' block that <iframe blob:> triggered previously. Backend demo-preview endpoint returns a genuine 4-page PDF (verified by /Type /Page count regex)."
+}

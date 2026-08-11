@@ -190,6 +190,49 @@ export default function LegalityAdminPage() {
       <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight">{t("adminLegality.title")}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{t("adminLegality.subtitle")}</p>
 
+      {/* Panel penjelasan (non-persisten, hanya informasi) */}
+      <div data-testid="legality-info-panel" className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div className="rounded-2xl border border-royal/25 bg-royal/5 p-5">
+          <p className="text-[0.62rem] uppercase tracking-[0.2em] text-royal">Tentang Halaman Legalitas</p>
+          <ul className="mt-3 space-y-2 text-[0.82rem] leading-relaxed text-foreground">
+            <li>• Halaman ini menyimpan identitas izin, akreditasi, atau kredensial resmi institusi AGR.</li>
+            <li>• Legalitas yang <strong>aktif</strong> beserta penanda tangan berwenang akan disalin sebagai <code className="rounded bg-secondary px-1 py-0.5 text-[0.72rem]">legality_snapshot</code> saat sertifikat baru diterbitkan.</li>
+            <li>• Perubahan legalitas setelah penerbitan <strong>tidak</strong> mengubah sertifikat yang sudah terbit.</li>
+            <li>• Unggahan tanda tangan digunakan pada <strong>Halaman 2</strong> sertifikat.</li>
+            <li>• “Izinkan unduh publik” mengatur akses publik ke dokumen legalitas terkait.</li>
+            <li>• Sebaiknya hanya <strong>satu</strong> catatan yang aktif untuk sertifikat baru.</li>
+          </ul>
+        </div>
+        <div className="rounded-2xl border border-dashed border-gold/50 bg-gold/5 p-5">
+          <p className="text-[0.62rem] font-bold uppercase tracking-[0.2em] text-gold">
+            Contoh Pengisian — Bukan Legalitas Resmi
+          </p>
+          <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1.5 text-[0.82rem] text-foreground sm:grid-cols-2">
+            {[
+              ["Nama Sertifikat", "Gemological Laboratory Accreditation"],
+              ["Pemegang/Institusi", "Azuris Gemological Research"],
+              ["Nomor Sertifikat", "AGR-ACC-EXAMPLE-001"],
+              ["Penerbit", "Example Accreditation Authority"],
+              ["Tanggal Terbit", "01/01/2026"],
+              ["Tanggal Kedaluwarsa", "31/12/2030"],
+              ["Nama Penanda Tangan", "Dr. A. Pratama"],
+              ["Jabatan", "Chief Gemologist"],
+            ].map(([k, val]) => (
+              <div key={k}>
+                <dt className="text-[0.6rem] uppercase tracking-[0.14em] text-muted-foreground">{k}</dt>
+                <dd className="font-medium">{val}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-2 text-[0.78rem] text-muted-foreground">
+            Deskripsi: Institutional gemological examination credential.
+          </p>
+          <p className="mt-3 text-[0.72rem] italic text-muted-foreground">
+            Contoh ini hanya panduan pengisian — tidak tersimpan, tidak dibuat sebagai data, dan tidak ditampilkan publik.
+          </p>
+        </div>
+      </div>
+
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1fr]">
         {/* Form */}
         <form onSubmit={save} className="rounded-2xl border border-border bg-card p-7">

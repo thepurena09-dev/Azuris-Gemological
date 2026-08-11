@@ -560,37 +560,71 @@ def _agr_head(c, cx, top_y, subtitle_en, subtitle_id=None, mono_r=8 * mm):
     return y - 4 * mm
 
 
+def _cover_frame(c, w, h, inset=9 * mm):
+    """Layered GOLD ornamental frame on a navy cover: thin outer + supporting rules,
+    a continuous double-line gold guilloche wave ribbon on all four edges, inner rule."""
+    c.saveState()
+    # outer thin gold rule
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(1.0)
+    c.rect(inset, inset, w - 2 * inset, h - 2 * inset)
+    # second (supporting) gold rule
+    d = inset + 1.7 * mm
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.4)
+    c.rect(d, d, w - 2 * d, h - 2 * d)
+    # continuous double-line gold guilloche wave ribbon (all four edges)
+    amp, sep, period, wy = 0.85 * mm, 0.7 * mm, 6.0 * mm, 4.6 * mm
+    cg = period + amp + 1.0 * mm
+    xa, xb = d + cg, w - d - cg
+    ya, yb = d + cg, h - d - cg
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.4)
+    for off in (sep / 2, -sep / 2):
+        _edge_wave(c, xa, xb, d + wy, amp, period, True, off)
+        _edge_wave(c, xa, xb, h - d - wy, amp, period, True, off)
+        _edge_wave(c, ya, yb, d + wy, amp, period, False, off)
+        _edge_wave(c, ya, yb, w - d - wy, amp, period, False, off)
+    # inner gold rule
+    e = d + 6.0 * mm
+    c.setStrokeColorRGB(*GOLD_SOFT)
+    c.setLineWidth(0.5)
+    c.rect(e, e, w - 2 * e, h - 2 * e)
+    c.restoreState()
+
+
 def _agr_cover(c, w=A5W, h=A5H):
-    """Page 1 — premium detail-free certificate-book front cover (official logo)."""
+    """Page 1 — premium deep-navy detail-free front cover (matches design reference)."""
     cx = w / 2
-    c.setFillColorRGB(*IVORY)
+    # full deep-navy cover background + subtle printable security texture
+    c.setFillColorRGB(*NAVY)
     c.rect(0, 0, w, h, fill=1, stroke=0)
     _pattern(c, 0, w, 0, h, color=GOLD, alpha=0.05)
 
-    # layered ornamental frame (outer + inner rule + corner diamonds)
-    _double_frame_rect(c, w, h, inset=10 * mm)
+    # thin layered gold rules + continuous guilloche ornament
+    _cover_frame(c, w, h, inset=9 * mm)
 
-    # official Azuris emblem as a supporting seal (balanced, not oversized)
+    # official Azuris emblem centred in the upper section
     _draw_logo(c, _LOGO, cx, h - 52 * mm, 34 * mm)
 
-    # deep-navy institutional plaque = primary brand header
-    _plaque(c, cx, h - 72 * mm, 68 * mm, 20 * mm, az_size=25, sub_size=6.4, sub=True)
+    # navy AZURIS plaque/cartouche with refined gold outline + brand wording
+    _plaque(c, cx, h - 74 * mm, 66 * mm, 20 * mm, az_size=26, sub_size=6.2, sub=True)
 
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.5)
-    c.line(cx - 20 * mm, h - 100 * mm, cx + 20 * mm, h - 100 * mm)
-    _diamond(c, cx, h - 100 * mm, 0.8 * mm, GOLD)
+    c.line(cx - 20 * mm, h - 101 * mm, cx + 20 * mm, h - 101 * mm)
+    _diamond(c, cx, h - 101 * mm, 0.9 * mm, GOLD)
 
-    _tracked(c, 0, h - 118 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15.5, NAVY, tracking=1.4, center=cx)
-    _tracked(c, 0, h - 130 * mm, "CERTIFICATE", HEADB, 15.5, NAVY, tracking=5.0, center=cx)
-
-    _tracked(c, 0, h - 142 * mm, "OFFICIAL GEMOLOGICAL DOCUMENT", BODY, 7, TAUPE, tracking=3.0, center=cx)
+    # centred English title hierarchy (gold on navy)
+    _tracked(c, 0, h - 117 * mm, "GEMSTONE IDENTIFICATION", HEADB, 15, GOLD, tracking=1.7, center=cx)
+    _tracked(c, 0, h - 130 * mm, "CERTIFICATE", HEADB, 16, GOLD, tracking=6.0, center=cx)
+    _tracked(c, 0, h - 142 * mm, "OFFICIAL GEMOLOGICAL DOCUMENT", BODY, 7, GOLD_SOFT, tracking=3.2, center=cx)
 
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.5)
-    c.line(cx - 16 * mm, 46 * mm, cx + 16 * mm, 46 * mm)
-    _diamond(c, cx, 46 * mm, 0.9 * mm, GOLD)
-    _tracked(c, 0, 40 * mm, "TRUSTED GEMOLOGICAL INSTITUTION", BODY, 5.6, SLATE, tracking=2.6, center=cx)
+    c.line(cx - 16 * mm, 40 * mm, cx + 16 * mm, 40 * mm)
+    _diamond(c, cx, 40 * mm, 0.9 * mm, GOLD)
+    _tracked(c, 0, 34 * mm, "TRUSTED GEMOLOGICAL INSTITUTION", BODY, 5.8, GOLD_SOFT, tracking=2.8, center=cx)
 
 
 def _agr_details(c, cert, snap, signature_reader=None):
@@ -919,12 +953,12 @@ def _agr_presentation(c, cert, snap, photo_reader):
     _plaque(c, cx, A5H - 30 * mm, 56 * mm, 13 * mm, az_size=16, sub_size=5.2, sub=True)
     _tracked(c, 0, A5H - 47 * mm, "CERTIFIED GEMSTONE", BODY, 6.6, GOLD_DK, tracking=3.0, center=cx)
 
-    # gemstone photograph container (reduced ~15%, tight ivory mat, navy frame line)
-    box_w, box_h = 88 * mm, 71 * mm
+    # smaller PORTRAIT gemstone-photo container (~56% width, ~37% height, contain-fit)
+    box_w, box_h = 74 * mm, 78 * mm
     bx = cx - box_w / 2
-    by = A5H - 53 * mm - box_h
-    mat = 1 * mm
-    c.setFillColorRGB(*BEIGE_LT)
+    by = A5H - 56 * mm - box_h
+    mat = 2.2 * mm
+    c.setFillColorRGB(*IVORY)
     c.rect(bx - mat, by - mat, box_w + 2 * mat, box_h + 2 * mat, fill=1, stroke=0)
     if photo_reader is not None:
         try:
@@ -939,11 +973,12 @@ def _agr_presentation(c, cert, snap, photo_reader):
         c.setFillColorRGB(*TAUPE)
         c.setFont(BODY, 8)
         c.drawCentredString(cx, by + box_h / 2, "No photograph on record")
+    # thin navy outer rule around the ivory mat
     c.setStrokeColorRGB(*NAVY)
-    c.setLineWidth(0.8)
+    c.setLineWidth(0.7)
     c.rect(bx - mat, by - mat, box_w + 2 * mat, box_h + 2 * mat)
 
-    ty = by - 13 * mm
+    ty = by - 15 * mm
     name = snap.get("name_en") or snap.get("name") or snap.get("name_id") or "Gemstone"
     c.setFillColorRGB(*NAVY)
     c.setFont(HEADB, 22)
@@ -1079,6 +1114,20 @@ CARD_W = 105 * mm
 CARD_H = 66 * mm
 
 
+def _card_geo(c, w, h, color=GOLD, alpha=0.06):
+    """Subtle low-contrast angular/geometric security pattern for the card shell."""
+    c.saveState()
+    c.setStrokeColorRGB(*color)
+    c.setLineWidth(0.3)
+    c.setStrokeAlpha(alpha)
+    step = 5.0 * mm
+    x = -h
+    while x < w:
+        c.line(x, 0, x + h, h)
+        x += step
+    c.restoreState()
+
+
 def _card_field(c, x, w, y, label, value, size=6.8, max_lines=1,
                 label_color=SLATE, value_color=IVORY, value_font=BODY):
     c.setFillColorRGB(*label_color)
@@ -1113,18 +1162,23 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=(CARD_W, CARD_H))
 
-    # --- Deep navy background + subtle security detail ---
+    # --- Rounded deep-navy card shell + subtle geometric security pattern ---
+    c.saveState()
+    shell = c.beginPath()
+    shell.roundRect(0, 0, CARD_W, CARD_H, 4.0 * mm)
+    c.clipPath(shell, stroke=0, fill=0)
     c.setFillColorRGB(*NAVY)
     c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
-    _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.05)
+    _card_geo(c, CARD_W, CARD_H, color=GOLD, alpha=0.06)
+    c.restoreState()
 
-    # double gold frame (premium border)
+    # restrained double gold rounded edge (premium depth)
     c.setStrokeColorRGB(*GOLD)
     c.setLineWidth(0.7)
-    c.rect(2.4 * mm, 2.4 * mm, CARD_W - 4.8 * mm, CARD_H - 4.8 * mm)
+    c.roundRect(2.4 * mm, 2.4 * mm, CARD_W - 4.8 * mm, CARD_H - 4.8 * mm, 3.0 * mm)
     c.setStrokeColorRGB(*GOLD_SOFT)
     c.setLineWidth(0.3)
-    c.rect(3.4 * mm, 3.4 * mm, CARD_W - 6.8 * mm, CARD_H - 6.8 * mm)
+    c.roundRect(3.4 * mm, 3.4 * mm, CARD_W - 6.8 * mm, CARD_H - 6.8 * mm, 2.4 * mm)
 
     # --- Header: small tidy logo + AGR wordmark on one baseline grid ---
     logo_size = 7.0 * mm

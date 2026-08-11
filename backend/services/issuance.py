@@ -27,7 +27,7 @@ from repositories.legality import (
 from services.security import gen_qr_token, gen_security_code
 
 PUBLIC_BASE_URL = os.environ.get(
-    "PUBLIC_BASE_URL", "https://gemstone-pdf-demo.preview.emergentagent.com"
+    "PUBLIC_BASE_URL", "https://gemstone-cert-1.preview.emergentagent.com"
 ).rstrip("/")
 
 

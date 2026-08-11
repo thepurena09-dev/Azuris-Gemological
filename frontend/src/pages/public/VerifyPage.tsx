@@ -34,6 +34,8 @@ const STR = {
     loading: "Memeriksa…",
     close: "Tutup",
     pdfTitle: "Sertifikat (4 Halaman)",
+    pdfFallback: "Pratinjau PDF tidak dapat ditampilkan di peramban ini.",
+    openPdf: "Buka PDF",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
   en: {
@@ -52,6 +54,8 @@ const STR = {
     loading: "Checking…",
     close: "Close",
     pdfTitle: "4-Page Certificate",
+    pdfFallback: "This PDF cannot be displayed in this browser.",
+    openPdf: "Open PDF",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
   },
 };
@@ -73,7 +77,7 @@ export default function VerifyPage() {
   const [coverUrl, setCoverUrl] = React.useState<string | null>(null);
   const [notFound, setNotFound] = React.useState(false);
 
-  // 2-page PDF modal (opened via "View Certificate Details")
+  // 4-page PDF modal (opened via "View Certificate Details")
   const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
   const [pdfErr, setPdfErr] = React.useState<string | null>(null);
 
@@ -318,7 +322,7 @@ export default function VerifyPage() {
         </div>
       </div>
 
-      {/* 2-page PDF modal */}
+      {/* 4-page PDF modal */}
       {pdfUrl && (
         <div
           data-testid="verify-pdf-modal"
@@ -343,12 +347,24 @@ export default function VerifyPage() {
                 <X size={14} /> {s.close}
               </button>
             </div>
-            <iframe
+            <object
               data-testid="verify-pdf-iframe"
-              title="certificate-pdf"
-              src={pdfUrl}
+              data={pdfUrl}
+              type="application/pdf"
               className="w-full flex-1 bg-neutral-100"
-            />
+            >
+              <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted-foreground">
+                <p>{s.pdfFallback}</p>
+                <a
+                  href={pdfUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gold px-4 py-2 text-[0.62rem] uppercase tracking-[0.15em] text-foreground hover:bg-gold/10"
+                >
+                  <FileText size={14} className="text-gold" /> {s.openPdf}
+                </a>
+              </div>
+            </object>
           </div>
         </div>
       )}

@@ -357,12 +357,24 @@ export default function CertificatesPage() {
                 </button>
               </div>
             </div>
-            <iframe
+            <object
               data-testid="cert-demo-iframe"
-              title="demo-certificate"
-              src={demoUrl}
+              data={demoUrl}
+              type="application/pdf"
               className="w-full flex-1 bg-neutral-100"
-            />
+            >
+              <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted-foreground">
+                <p>Pratinjau PDF tidak dapat ditampilkan di peramban ini.</p>
+                <a
+                  href={demoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 rounded-md border border-border px-4 py-2 text-[0.62rem] uppercase tracking-[0.15em] text-royal hover:bg-royal/5"
+                >
+                  <FilePdf size={14} /> {t("adminCert.demoOpenPdf")}
+                </a>
+              </div>
+            </object>
           </div>
         </div>
       )}

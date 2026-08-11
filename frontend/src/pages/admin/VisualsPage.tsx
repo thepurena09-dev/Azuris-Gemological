@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   CircleNotch,
   Image as ImageIcon,
-  IdentificationCard,
   SignIn,
   UploadSimple,
   ImagesSquare,
@@ -18,7 +17,6 @@ import { TEST_IDS } from "@/constants/testIds";
 import { apiJson, mediaUrl } from "@/lib/api";
 import { useBusiness } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
-import { MembershipCardVisual } from "@/components/membership/MembershipCardVisual";
 
 type Visuals = Record<string, any>;
 interface MediaItem {
@@ -405,27 +403,6 @@ export default function VisualsPage() {
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Field label={t("adminVisuals.altId")} value={v.process_image_alt_id || ""} onChange={(x) => set("process_image_alt_id", x)} testid="visuals-process-alt-id" disabled={readOnly} />
               <Field label={t("adminVisuals.altEn")} value={v.process_image_alt_en || ""} onChange={(x) => set("process_image_alt_en", x)} testid="visuals-process-alt-en" disabled={readOnly} />
-            </div>
-          </SectionCard>
-
-          <SectionCard icon={<IdentificationCard size={18} />} title={t("adminVisuals.membershipSection")}>
-            <label className="mb-4 flex items-center gap-2 text-sm text-foreground">
-              <input data-testid="visuals-membership-show" type="checkbox" checked={v.membership_show !== false} disabled={readOnly} onChange={(e) => set("membership_show", e.target.checked)} />
-              {t("adminVisuals.show")}
-            </label>
-            <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t("adminVisuals.titleId")} value={v.membership_title_id || ""} onChange={(x) => set("membership_title_id", x)} testid="visuals-mem-title-id" disabled={readOnly} />
-                <Field label={t("adminVisuals.titleEn")} value={v.membership_title_en || ""} onChange={(x) => set("membership_title_en", x)} testid="visuals-mem-title-en" disabled={readOnly} />
-                <Field label={t("adminVisuals.descId")} value={v.membership_desc_id || ""} onChange={(x) => set("membership_desc_id", x)} testid="visuals-mem-desc-id" disabled={readOnly} />
-                <Field label={t("adminVisuals.descEn")} value={v.membership_desc_en || ""} onChange={(x) => set("membership_desc_en", x)} testid="visuals-mem-desc-en" disabled={readOnly} />
-                <Field label={t("adminVisuals.ctaId")} value={v.membership_cta_id || ""} onChange={(x) => set("membership_cta_id", x)} testid="visuals-mem-cta-id" disabled={readOnly} />
-                <Field label={t("adminVisuals.ctaEn")} value={v.membership_cta_en || ""} onChange={(x) => set("membership_cta_en", x)} testid="visuals-mem-cta-en" disabled={readOnly} />
-                <Field label={t("adminVisuals.link")} value={v.membership_link || ""} onChange={(x) => set("membership_link", x)} testid="visuals-mem-link" disabled={readOnly} />
-              </div>
-              <div>
-                <MembershipCardVisual side="front" cardNumber="AZR-MEM-••••••-26" memberName="Andi Pra****" memberSince="2026" status="active" />
-              </div>
             </div>
           </SectionCard>
 

@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 load_dotenv("/app/backend/.env")
 
-BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") if os.environ.get("REACT_APP_BACKEND_URL") else "https://gemstone-pdf-demo.preview.emergentagent.com"
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") if os.environ.get("REACT_APP_BACKEND_URL") else "https://gemstone-cert-1.preview.emergentagent.com"
 # Read frontend .env to be safe
 with open("/app/frontend/.env") as f:
     for ln in f:
