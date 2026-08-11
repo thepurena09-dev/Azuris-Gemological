@@ -151,7 +151,7 @@ export default function HomePage() {
           <h1 className="mt-6 font-serif text-4xl font-normal leading-[1.04] tracking-tight md:text-6xl">
             {promo.heading}
           </h1>
-          <p className="mt-6 max-w-md text-base leading-relaxed text-primary-foreground/70">
+          <p className="mt-6 max-w-md text-base leading-relaxed text-primary-foreground/80">
             {promo.desc}
           </p>
           <div className="mt-9">
@@ -168,27 +168,13 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-gold/25 bg-primary/40">
-          <div className="aspect-[4/3] w-full overflow-hidden">
-            {promo.image ? (
-              <img
-                src={promo.image}
-                alt={promo.heading}
-                className="h-full w-full object-cover"
-                data-testid="home-promo-image"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary via-primary to-[#12233a]">
-                <img
-                  src="/azuris-logo.png"
-                  alt="Azuris Gemological"
-                  width={112}
-                  height={112}
-                  className="h-28 w-28 object-contain opacity-90"
-                />
-              </div>
-            )}
-          </div>
+        <div className="relative flex items-center justify-center">
+          <img
+            src={promo.image || "/sample-card.png"}
+            alt={promo.heading}
+            data-testid="home-promo-image"
+            className="w-full max-w-xl rounded-2xl drop-shadow-[0_30px_70px_rgba(0,0,0,0.5)]"
+          />
         </div>
       </div>
     </div>

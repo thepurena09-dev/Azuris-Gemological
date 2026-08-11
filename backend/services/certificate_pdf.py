@@ -1114,20 +1114,6 @@ CARD_W = 105 * mm
 CARD_H = 66 * mm
 
 
-def _card_geo(c, w, h, color=GOLD, alpha=0.06):
-    """Subtle low-contrast angular/geometric security pattern for the card shell."""
-    c.saveState()
-    c.setStrokeColorRGB(*color)
-    c.setLineWidth(0.3)
-    c.setStrokeAlpha(alpha)
-    step = 5.0 * mm
-    x = -h
-    while x < w:
-        c.line(x, 0, x + h, h)
-        x += step
-    c.restoreState()
-
-
 def _card_field(c, x, w, y, label, value, size=6.8, max_lines=1,
                 label_color=SLATE, value_color=IVORY, value_font=BODY):
     c.setFillColorRGB(*label_color)
@@ -1162,14 +1148,15 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=(CARD_W, CARD_H))
 
-    # --- Rounded deep-navy card shell + subtle geometric security pattern ---
+    # --- Rounded deep-navy card shell + cover-matching watermark/background ---
     c.saveState()
     shell = c.beginPath()
     shell.roundRect(0, 0, CARD_W, CARD_H, 4.0 * mm)
     c.clipPath(shell, stroke=0, fill=0)
     c.setFillColorRGB(*NAVY)
     c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
-    _card_geo(c, CARD_W, CARD_H, color=GOLD, alpha=0.06)
+    # duplicate the certificate cover's watermark/background treatment
+    _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.05)
     c.restoreState()
 
     # restrained double gold rounded edge (premium depth)

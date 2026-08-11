@@ -1,6 +1,23 @@
 # Azuris Gemological — CHANGELOG (fork continuation)
 
-## 2026-06 — AGR CLIENT-REVIEW FREEZE revision (Preview only, NOT deployed)
+## 2026-06 — Follow-up (client-requested, unlocks: promo slide, contact page, card background)
+Self-tested (screenshots + hrefs + backend render); tsc clean; backend imports OK. Preview only.
+- **Homepage promo slide** (`pages/public/HomePage.tsx`): right panel box background made transparent
+  (removed the bordered `bg-primary/40` container); now displays the **sample certificate card**
+  image (`/sample-card.png`, falls back to CMS `promo_image_url` if set) with a soft drop-shadow;
+  description font brightened to `/80` for readability on navy.
+- **Sample card static asset** (`frontend/public/sample-card.png`): rasterized from the live
+  `build_card_pdf` sample fixture (AGR-ZMD-000015-26). REGENERATE this file if the card design
+  changes: `cd /app/backend && python3 -c "from services import certificate_pdf as cp; import api.certificates as ac; open('/app/frontend/public/sample-card.png','wb').write(cp.render_card_png(ac._sample_cert(), ac._sample_photo_bytes(), 'https://gemstone-cert-1.preview.emergentagent.com/verify?sample=1', zoom=4.0))"`.
+- **Contact Us page** (`pages/public/ContactPage.tsx`): replaced the placeholder with a real contact
+  section — hero heading/subtitle + a WhatsApp button (`contact-whatsapp-btn`, uses
+  `useBusiness().whatsappHref()`) + the business number. Reuses existing `contact.*` i18n.
+- **Certificate card watermark/background** (`services/certificate_pdf.py` `build_card_pdf`):
+  replaced the geometric line pattern with the SAME `_pattern(...GOLD, alpha=0.05)` gold-scallop
+  guilloche used on the certificate cover / Page 1 — i.e. the card watermark/background is now a
+  duplicate of the cover's. Rounded navy shell, gold rounded frame, all content/QR/size unchanged.
+  Removed the now-unused `_card_geo` helper.
+
 Validated: testing_agent iteration_30 — backend 5/5 PASS, frontend 100%. Data freeze intact
 (certificate counter last_number=15 UNCHANGED — reactivated AGR-RBY-000015-26 from a prior
 session; no new issuance, no persisted sample data). tsc clean.
