@@ -188,7 +188,18 @@ export default function LegalityPage() {
             <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{t("legality.disclaimer")}</p>
           </div>
         </div>
-      </section>
+              <div className="rounded-2xl border border-gold/40 bg-card p-7 text-center md:col-span-2 md:mx-auto md:w-full md:max-w-md">
+          <p className="text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">
+            {locale === "id" ? "Penandatangan Resmi" : "Authorized Signatory"}
+          </p>
+          <img
+            src="/signature-h-zulfikar-web.png"
+            alt="Tanda tangan H.Zulfikar.se.GG"
+            className="mx-auto mt-4 h-24 w-auto object-contain"
+          />
+          <p className="mt-3 font-serif text-lg text-foreground">H.Zulfikar.se.GG</p>
+        </div>
+</section>
     </div>
   );
 }
