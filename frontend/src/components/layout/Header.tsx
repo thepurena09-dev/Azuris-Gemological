@@ -3,7 +3,6 @@ import { useState } from "react";
 import { List, X, Diamond } from "@phosphor-icons/react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { TEST_IDS } from "@/constants/testIds";
-import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { Logo } from "@/components/common/Logo";
 
 const navItems = [
@@ -48,14 +47,14 @@ export default function Header() {
           </Link>
 
           {/* Navigation center */}
-          <nav className="hidden items-center gap-7 lg:flex xl:gap-9">
+          <nav className="hidden items-center gap-5 lg:flex xl:gap-7">
             {navItems.map((item) => {
               const emboss = {
                 textShadow:
                   "0 1px 0 rgba(255,255,255,0.9), 0 -0.5px 0 rgba(13,27,42,0.16)",
               };
               const base =
-                "group relative rounded-sm text-[0.7rem] font-semibold uppercase tracking-[0.2em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+                "group relative rounded-sm text-[0.64rem] font-medium uppercase tracking-[0.14em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
               const label = (isActive: boolean) => (
                 <span className="relative inline-block py-1">
                   {t(item.key)}
@@ -95,7 +94,6 @@ export default function Header() {
 
           {/* Actions right */}
           <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3 lg:gap-5">
-            <LanguageSwitcher />
             <button
               type="button"
               data-testid={TEST_IDS.header.mobileToggle}

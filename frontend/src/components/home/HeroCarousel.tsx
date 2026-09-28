@@ -92,7 +92,7 @@ export default function HeroCarousel({ slides, ariaLabel }: HeroCarouselProps) {
         type="button"
         data-testid={TEST_IDS.home.heroPrev}
         onClick={scrollPrev}
-        aria-label="Sebelumnya"
+        aria-label="Previous slide"
         className="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-sm backdrop-blur transition-colors duration-300 hover:border-gold md:flex"
       >
         <CaretLeft size={18} weight="bold" />
@@ -101,7 +101,7 @@ export default function HeroCarousel({ slides, ariaLabel }: HeroCarouselProps) {
         type="button"
         data-testid={TEST_IDS.home.heroNext}
         onClick={scrollNext}
-        aria-label="Berikutnya"
+        aria-label="Next slide"
         className="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/90 text-foreground shadow-sm backdrop-blur transition-colors duration-300 hover:border-gold md:flex"
       >
         <CaretRight size={18} weight="bold" />

@@ -65,8 +65,8 @@ export default function LegalityAdminPage() {
 
   const load = React.useCallback(async () => {
     const data = await apiJson<{ items: Credential[] }>("/api/admin/legality");
-    setItems(data.items || []);
-  }, []);
+    setItems(data["items"] || []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     load();
@@ -190,33 +190,33 @@ export default function LegalityAdminPage() {
       <h1 className="mt-3 font-serif text-4xl font-normal tracking-tight">{t("adminLegality.title")}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{t("adminLegality.subtitle")}</p>
 
-      {/* Panel penjelasan (non-persisten, hanya informasi) */}
+      {/* Non-persistent guidance panel. */}
       <div data-testid="legality-info-panel" className="mt-6 grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-royal/25 bg-royal/5 p-5">
-          <p className="text-[0.62rem] uppercase tracking-[0.2em] text-royal">Tentang Halaman Legalitas</p>
+          <p className="text-[0.62rem] uppercase tracking-[0.2em] text-royal">About Legality Records</p>
           <ul className="mt-3 space-y-2 text-[0.82rem] leading-relaxed text-foreground">
-            <li>• Halaman ini menyimpan identitas izin, akreditasi, atau kredensial resmi institusi AGR.</li>
-            <li>• Legalitas yang <strong>aktif</strong> beserta penanda tangan berwenang akan disalin sebagai <code className="rounded bg-secondary px-1 py-0.5 text-[0.72rem]">legality_snapshot</code> saat sertifikat baru diterbitkan.</li>
-            <li>• Perubahan legalitas setelah penerbitan <strong>tidak</strong> mengubah sertifikat yang sudah terbit.</li>
-            <li>• Unggahan tanda tangan digunakan pada <strong>Halaman 2</strong> sertifikat.</li>
-            <li>• “Izinkan unduh publik” mengatur akses publik ke dokumen legalitas terkait.</li>
-            <li>• Sebaiknya hanya <strong>satu</strong> catatan yang aktif untuk sertifikat baru.</li>
+            <li>• Store the institution's official licence, accreditation, or credential details here.</li>
+            <li>• The active record and authorised signatory are copied into each new certificate snapshot.</li>
+            <li>• Later changes do not alter certificates that have already been issued.</li>
+            <li>• The uploaded signature appears on certificate page 2.</li>
+            <li>• Public download controls access to the related legality document.</li>
+            <li>• Keep only one record active for new certificates.</li>
           </ul>
         </div>
         <div className="rounded-2xl border border-dashed border-gold/50 bg-gold/5 p-5">
           <p className="text-[0.62rem] font-bold uppercase tracking-[0.2em] text-gold">
-            Contoh Pengisian — Bukan Legalitas Resmi
+            Example Only — Not an Official Credential
           </p>
           <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1.5 text-[0.82rem] text-foreground sm:grid-cols-2">
             {[
-              ["Nama Sertifikat", "Gemological Laboratory Accreditation"],
-              ["Pemegang/Institusi", "Azuris Gemological Research"],
-              ["Nomor Sertifikat", "AGR-ACC-EXAMPLE-001"],
-              ["Penerbit", "Example Accreditation Authority"],
-              ["Tanggal Terbit", "01/01/2026"],
-              ["Tanggal Kedaluwarsa", "31/12/2030"],
-              ["Nama Penanda Tangan", "Dr. A. Pratama"],
-              ["Jabatan", "Chief Gemologist"],
+              ["Certificate Name", "Gemological Laboratory Accreditation"],
+              ["Holder / Institution", "Azuris Gemological Research"],
+              ["Certificate Number", "AGR-ACC-EXAMPLE-001"],
+              ["Issuer", "Example Accreditation Authority"],
+              ["Issue Date", "01/01/2026"],
+              ["Valid Until", "31/12/2030"],
+              ["Signatory Name", "Dr. A. Pratama"],
+              ["Position / Title", "Chief Gemologist"],
             ].map(([k, val]) => (
               <div key={k}>
                 <dt className="text-[0.6rem] uppercase tracking-[0.14em] text-muted-foreground">{k}</dt>
@@ -225,10 +225,10 @@ export default function LegalityAdminPage() {
             ))}
           </dl>
           <p className="mt-2 text-[0.78rem] text-muted-foreground">
-            Deskripsi: Institutional gemological examination credential.
+            Description: Institutional gemological examination credential.
           </p>
           <p className="mt-3 text-[0.72rem] italic text-muted-foreground">
-            Contoh ini hanya panduan pengisian — tidak tersimpan, tidak dibuat sebagai data, dan tidak ditampilkan publik.
+            This example is guidance only; it is not stored or displayed publicly.
           </p>
         </div>
       </div>
@@ -251,10 +251,10 @@ export default function LegalityAdminPage() {
                 onChange={(e) => set("status", e.target.value)}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-gold"
               >
-                <option value="aktif">Aktif</option>
-                <option value="tidak_aktif">Tidak Aktif</option>
-                <option value="kedaluwarsa">Kedaluwarsa</option>
-                <option value="dalam_pembaruan">Dalam Pembaruan</option>
+                <option value="aktif">Active</option>
+                <option value="tidak_aktif">Inactive</option>
+                <option value="kedaluwarsa">Expired</option>
+                <option value="dalam_pembaruan">Being Updated</option>
               </select>
             </div>
             <label className="flex items-center gap-2 self-end pb-2 text-sm text-foreground">

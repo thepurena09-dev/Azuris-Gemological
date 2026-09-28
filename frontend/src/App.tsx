@@ -51,22 +51,22 @@ function App() {
                 <Route path="/catalog/jewelry" element={<Navigate to="/" replace />} />
               </Route>
 
-              {/* Authentication (admin-facing → Indonesian) */}
+              {/* Authentication (English only). */}
               <Route
                 path="/login"
                 element={
-                  <LanguageProvider forceLocale="id">
+                  <LanguageProvider forceLocale="en">
                     <LoginPage />
                   </LanguageProvider>
                 }
               />
 
-              {/* Admin shell (protected, always Indonesian) */}
+              {/* Protected admin shell (English only). */}
               <Route
                 path="/admin"
                 element={
                   <RequireAuth>
-                    <LanguageProvider forceLocale="id">
+                    <LanguageProvider forceLocale="en">
                       <AdminLayout />
                     </LanguageProvider>
                   </RequireAuth>

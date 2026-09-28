@@ -18,27 +18,6 @@ const API = appConfig.api.baseUrl;
 const SAMPLE_NUMBER = "AGR-ZMD-000015-26";
 
 const STR = {
-  id: {
-    eyebrow: "Verifikasi Sertifikat",
-    title: "Verifikasi Keaslian Sertifikat AGR",
-    subtitle:
-      "Pindai kode QR pada kartu sertifikat, atau masukkan nomor registrasi untuk membuka sampul sertifikat resmi Azuris Gemological Research.",
-    searchLabel: "Nomor Registrasi Sertifikat",
-    searchPlaceholder: "AGR-ZMD-000015-26",
-    searchBtn: "Verifikasi Sertifikat",
-    formatError: "Sertifikat tidak ditemukan.",
-    notFound: "Sertifikat tidak ditemukan.",
-    authentic: "Sertifikat ini asli dan diterbitkan oleh Azuris Gemological Research (AGR).",
-    coverHeading: "Sampul Sertifikat",
-    viewDetails: "Lihat Detail Sertifikat",
-    loading: "Memeriksa…",
-    close: "Tutup",
-    pdfTitle: "Sertifikat (4 Halaman)",
-    pdfFallback: "Pratinjau PDF tidak dapat ditampilkan di peramban ini.",
-    openPdf: "Buka PDF",
-    sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
-  },
-  en: {
     eyebrow: "Certificate Verification",
     title: "Verify AGR Certificate Authenticity",
     subtitle:
@@ -57,12 +36,11 @@ const STR = {
     pdfFallback: "This PDF cannot be displayed in this browser.",
     openPdf: "Open PDF",
     sampleBanner: "SAMPLE CERTIFICATE FOR DESIGN REVIEW — NOT A VALID CERTIFICATE.",
-  },
 };
 
 export default function VerifyPage() {
-  const { locale } = useLanguage();
-  const s = STR[locale === "en" ? "en" : "id"];
+  useLanguage();
+  const s = STR;
   const { search } = useLocation();
   const isSample = new URLSearchParams(search).get("sample") === "1";
 

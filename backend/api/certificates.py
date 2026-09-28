@@ -31,7 +31,7 @@ from repositories.legality import (
     VerificationTokenRepository,
 )
 from services.certificate_pdf import build_card_pdf, build_certificate_pdf, decode_photo
-from services.issuance import PUBLIC_BASE_URL, issue_certificate, qr_url, reissue_certificate, revoke_certificate
+from services.issuance import PUBLIC_BASE_URL, issue_certificate, publish_gemstone, qr_url, reissue_certificate, revoke_certificate
 
 admin_router = APIRouter(prefix="/admin", tags=["certificates-admin"])
 public_router = APIRouter(prefix="/gemstone", tags=["gemstone-public"])
@@ -61,12 +61,15 @@ class GemstoneIn(BaseModel):
     gem_code: str | None = None
     weight_carat: float = Field(gt=0)
     color: str | None = None
+    transparency: str | None = None
     clarity: str | None = None
     cut: str | None = None
     shape: str | None = None
     dimensions_mm: str | None = None
     origin: str | None = None
     treatment: str | None = None
+    examiner: str | None = None
+    conclusion: str | None = None
 
     @field_validator("gem_code")
     @classmethod
@@ -77,7 +80,7 @@ class GemstoneIn(BaseModel):
         if v == "":
             return None
         if not re.fullmatch(r"[A-Z]{3}", v):
-            raise ValueError("Kode batu wajib terdiri dari tepat 3 huruf.")
+            raise ValueError("Gemstone code must contain exactly three letters.")
         return v
 
 
@@ -96,6 +99,14 @@ class IssueIn(BaseModel):
     measurements: str | None = None
 
 
+class PublishIn(BaseModel):
+    object_type: str | None = None
+    transparency: str | None = None
+    examiner: str | None = None
+    conclusion: str | None = None
+    notes: str | None = None
+
+
 def _gem_view(g: Gemstone) -> dict:
     return {
         "uuid": g.uuid,
@@ -106,12 +117,15 @@ def _gem_view(g: Gemstone) -> dict:
         "gem_code": g.gem_code,
         "weight_carat": g.weight_carat,
         "color": g.color,
+        "transparency": g.transparency,
         "clarity": g.clarity,
         "cut": g.cut,
         "shape": g.shape,
         "dimensions_mm": g.dimensions_mm,
         "origin": g.origin,
         "treatment": g.treatment,
+        "examiner": g.examiner,
+        "conclusion": g.conclusion,
         "status": g.status,
         "certificate_id": g.certificate_id,
         "media_ids": g.media_ids,
@@ -238,6 +252,17 @@ async def upload_photo(uuid: str, file: UploadFile = File(...), admin: Admin = D
     return {"photo_id": saved.uuid, "photo_url": f"/api/gemstone/photo/{saved.uuid}"}
 
 
+@admin_router.post("/gemstones/{uuid}/publish")
+async def publish(
+    uuid: str,
+    body: PublishIn,
+    admin: Admin = Depends(_ADMIN),
+    db=Depends(get_database),
+):
+    """Create or refresh the current certificate/card snapshot, then publish."""
+    return await publish_gemstone(db, admin, uuid, body.model_dump())
+
+
 # ---------- CERTIFICATES ----------
 # SAMPLE PREVIEW — stateless UI-only certificate design preview. Creates NO
 # certificate/gemstone/token, never touches the counter, never reaches Mongo.
@@ -341,7 +366,13 @@ async def sample_certificate_card(admin: Admin = Depends(_ADMIN)):
 
 @admin_router.get("/certificates")
 async def list_certificates(admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
-    items, _ = await CertificateRepository(db).list(page=1, page_size=100)
+    items, _ = await CertificateRepository(db).list({"is_current": True}, page=1, page_size=100)
+    published = []
+    gem_repo = GemstoneRepository(db)
+    for cert in items:
+        gem = await gem_repo.get_by_uuid(cert.gemstone_id)
+        if gem and gem.status == GemstoneStatus.PUBLISHED.value and gem.certificate_id == cert.uuid:
+            published.append((cert, gem))
     return {
         "items": [
             {
@@ -352,8 +383,9 @@ async def list_certificates(admin: Admin = Depends(_ADMIN), db=Depends(get_datab
                 "version": c.version,
                 "is_current": c.is_current,
                 "issued_at": c.issued_at,
+                "gemstone_name": g.name_en,
             }
-            for c in items
+            for c, g in published
         ]
     }
 
@@ -418,7 +450,7 @@ async def certificate_pdf(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(
 
 @admin_router.get("/certificates/{uuid}/card")
 async def certificate_card(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
-    """Premium AGR certificate card (single printable page, with QR)."""
+    """Premium AGR certificate card (front and back printable pages, with QR)."""
     repo = CertificateRepository(db)
     cert = await repo.get_by_uuid(uuid)
     if cert is None:

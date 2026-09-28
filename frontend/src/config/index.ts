@@ -32,9 +32,9 @@ export const appConfig = {
     ? "production"
     : "development") as Environment,
 
-  // Internationalization — public default is English (admin forces Indonesian).
+  // English is the only selectable UI language.
   defaultLocale: "en" as Locale,
-  supportedLocales: ["id", "en"] as Locale[],
+  supportedLocales: ["en"] as Locale[],
 
   // API
   api: {

@@ -68,15 +68,15 @@ def _snapshot(gem: Gemstone, extra: dict) -> dict:
         "shape": gem.shape,
         "cut": gem.cut,
         "color": gem.color,
-        "transparency": extra.get("transparency"),
+        "transparency": extra.get("transparency") or gem.transparency,
         "clarity": gem.clarity,
         "treatment": gem.treatment,
         "origin": gem.origin,
         "photo_id": photo_id,
         "gem_code": gem.gem_code,
-        "examiner": extra.get("examiner"),
+        "examiner": extra.get("examiner") or gem.examiner,
         "signatory": extra.get("signatory"),
-        "conclusion": extra.get("conclusion"),
+        "conclusion": extra.get("conclusion") or gem.conclusion,
         "notes": extra.get("notes"),
     }
     return {k: v for k, v in snap.items() if v is not None}
@@ -92,7 +92,7 @@ async def issue_certificate(db, admin, gemstone_uuid: str, extra: dict) -> dict:
 
     code = (gem.gem_code or "").strip().upper()
     if not re.fullmatch(r"[A-Z]{3}", code):
-        raise HTTPException(status_code=400, detail="Kode batu wajib terdiri dari tepat 3 huruf.")
+        raise HTTPException(status_code=400, detail="Gemstone code must contain exactly three letters.")
 
     number = await CounterRepository(db).next_certificate_number(code=code)
     snapshot = _snapshot(gem, extra)
@@ -191,7 +191,7 @@ async def reissue_certificate(db, admin, cert_uuid: str, extra: dict) -> dict:
         comments_id=extra.get("conclusion"),
         comments_en=extra.get("conclusion"),
         gemstone_snapshot=snapshot,
-        legality_snapshot=old.legality_snapshot,
+        legality_snapshot=await _legality_snapshot(db),
         created_by=admin.uuid,
         updated_by=admin.uuid,
     )
@@ -207,7 +207,10 @@ async def reissue_certificate(db, admin, cert_uuid: str, extra: dict) -> dict:
             {"uuid": old.verification_uuid}, {"certificate_id": saved.uuid}
         )
         await repo.update_one({"uuid": saved.uuid}, {"verification_uuid": old.verification_uuid})
-    await GemstoneRepository(db).update_one({"uuid": old.gemstone_id}, {"certificate_id": saved.uuid})
+    await GemstoneRepository(db).update_one(
+        {"uuid": old.gemstone_id},
+        {"certificate_id": saved.uuid, "updated_by": admin.uuid, "updated_at": utcnow_iso()},
+    )
 
     await write_audit_log(
         db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.VERSION_CREATE,
@@ -215,6 +218,65 @@ async def reissue_certificate(db, admin, cert_uuid: str, extra: dict) -> dict:
         after={"certificate_number": old.certificate_number, "version": new.version},
     )
     return {"certificate_uuid": saved.uuid, "version": new.version, "certificate_number": old.certificate_number}
+
+
+async def publish_gemstone(db, admin, gemstone_uuid: str, extra: dict) -> dict:
+    """Publish a gemstone and upsert its current certificate/card source record.
+
+    The certificate PDF and both card sides are rendered from the same immutable
+    certificate snapshot, so no separate card record or numbering path is needed.
+    """
+    gem_repo = GemstoneRepository(db)
+    gem = await gem_repo.get_by_uuid(gemstone_uuid)
+    if gem is None:
+        raise HTTPException(status_code=404, detail="Gemstone not found")
+
+    required = {
+        "gemstone code": gem.gem_code,
+        "gemstone name": gem.name_en,
+        "species / type": gem.gemstone_type,
+        "weight": gem.weight_carat,
+        "colour": gem.color,
+        "transparency": gem.transparency,
+        "clarity": gem.clarity,
+        "cut": gem.cut,
+        "shape": gem.shape,
+        "measurements": gem.dimensions_mm,
+        "origin": gem.origin,
+        "examiner": gem.examiner,
+        "examination photo": gem.media_ids[0] if gem.media_ids else None,
+    }
+    missing = [label for label, value in required.items() if value in (None, "", [])]
+    if missing:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Complete the required gemstone information before publishing: {', '.join(missing)}.",
+        )
+
+    if gem.certificate_id:
+        result = await reissue_certificate(db, admin, gem.certificate_id, extra)
+    else:
+        result = await issue_certificate(db, admin, gem.uuid, extra)
+
+    await gem_repo.update_one(
+        {"uuid": gem.uuid},
+        {
+            "certificate_id": result["certificate_uuid"],
+            "status": GemstoneStatus.PUBLISHED.value,
+            "updated_by": admin.uuid,
+            "updated_at": utcnow_iso(),
+        },
+    )
+    await write_audit_log(
+        db,
+        actor_id=admin.uuid,
+        actor_role=admin.role,
+        action=AuditAction.STATUS_CHANGE,
+        entity_type="gemstone",
+        entity_id=gem.uuid,
+        after={"status": GemstoneStatus.PUBLISHED.value, "certificate_id": result["certificate_uuid"]},
+    )
+    return {**result, "gemstone_id": gem.uuid, "status": GemstoneStatus.PUBLISHED.value}
 
 
 async def revoke_certificate(db, admin, cert_uuid: str) -> dict:

@@ -23,12 +23,15 @@ class Gemstone(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
     # Specifications
     weight_carat: float = Field(gt=0)
     color: Optional[str] = Field(default=None, max_length=100)
+    transparency: Optional[str] = Field(default=None, max_length=100)
     clarity: Optional[str] = Field(default=None, max_length=100)
     cut: Optional[str] = Field(default=None, max_length=100)
     shape: Optional[str] = Field(default=None, max_length=100)
     dimensions_mm: Optional[str] = Field(default=None, max_length=100)
     origin: Optional[str] = Field(default=None, max_length=120)
     treatment: Optional[str] = Field(default=None, max_length=200)
+    examiner: Optional[str] = Field(default=None, max_length=200)
+    conclusion: Optional[str] = Field(default=None, max_length=500)
     description_id: Optional[str] = None
     description_en: Optional[str] = None
 

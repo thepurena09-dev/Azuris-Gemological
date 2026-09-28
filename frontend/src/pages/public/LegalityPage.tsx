@@ -21,15 +21,15 @@ interface Credential {
   document_content_type?: string;
 }
 
-const STATUS_LABEL: Record<string, { id: string; en: string; ok?: boolean }> = {
-  aktif: { id: "Terverifikasi dan Aktif", en: "Verified & Active", ok: true },
-  tidak_aktif: { id: "Tidak Aktif", en: "Inactive" },
-  kedaluwarsa: { id: "Kedaluwarsa", en: "Expired" },
-  dalam_pembaruan: { id: "Dalam Pembaruan", en: "Being Updated" },
+const STATUS_LABEL: Record<string, { en: string; ok?: boolean }> = {
+  aktif: { en: "Verified & Active", ok: true },
+  tidak_aktif: { en: "Inactive" },
+  kedaluwarsa: { en: "Expired" },
+  dalam_pembaruan: { en: "Being Updated" },
 };
 
 export default function LegalityPage() {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const [rec, setRec] = React.useState<Credential | null>(null);
   const [loaded, setLoaded] = React.useState(false);
 
@@ -42,12 +42,12 @@ export default function LegalityPage() {
 
   const fields = rec
     ? [
-        { l: locale === "id" ? "Nama Sertifikat" : "Certificate Name", v: rec.certificate_name },
-        { l: locale === "id" ? "Pemegang / Institusi" : "Holder / Institution", v: rec.holder_name },
-        { l: locale === "id" ? "Nomor Sertifikat" : "Certificate Number", v: rec.certificate_number },
-        { l: locale === "id" ? "Penerbit" : "Issuer", v: rec.issuer },
-        { l: locale === "id" ? "Tanggal Terbit" : "Issue Date", v: rec.issue_date },
-        { l: locale === "id" ? "Berlaku Hingga" : "Valid Until", v: rec.expiry_date },
+        { l: "Certificate Name", v: rec.certificate_name },
+        { l: "Holder / Institution", v: rec.holder_name },
+        { l: "Certificate Number", v: rec.certificate_number },
+        { l: "Issuer", v: rec.issuer },
+        { l: "Issue Date", v: rec.issue_date },
+        { l: "Valid Until", v: rec.expiry_date },
       ].filter((f) => f.v)
     : [];
 
@@ -122,7 +122,7 @@ export default function LegalityPage() {
                   className="mt-4 inline-flex items-center gap-2 rounded-lg border border-gold px-5 py-2.5 text-[0.62rem] uppercase tracking-[0.2em] text-foreground"
                 >
                   <DownloadSimple size={15} className="text-gold" />
-                  {locale === "id" ? "Unduh Sertifikat" : "Download Certificate"}
+                  Download Certificate
                 </a>
               )}
             </div>
@@ -137,7 +137,7 @@ export default function LegalityPage() {
                   }`}
                 >
                   {status.ok ? <SealCheck size={14} weight="fill" /> : <Info size={14} />}
-                  {locale === "id" ? status.id : status.en}
+                  {status.en}
                 </span>
               )}
               <dl className="mt-6 space-y-4">
@@ -190,7 +190,7 @@ export default function LegalityPage() {
         </div>
               <div className="rounded-2xl border border-gold/40 bg-card p-7 text-center md:col-span-2 md:mx-auto md:w-full md:max-w-md">
           <p className="text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">
-            {locale === "id" ? "Penandatangan Resmi" : "Authorized Signatory"}
+            Authorized Signatory
           </p>
           <img
             src="/signature-h-zulfikar-web.png"

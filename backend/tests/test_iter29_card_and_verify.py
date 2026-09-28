@@ -37,7 +37,7 @@ class TestCardRedesign:
         assert r.content.startswith(b"%PDF")
         assert len(r.content) > 500
         pages = _pdf_page_count(r.content)
-        assert pages == 1, f"card should be 1 page, got {pages}"
+        assert pages == 2, f"card should contain front and back pages, got {pages}"
 
     def test_demo_preview_is_4page_pdf(self, auth):
         r = requests.get(f"{API}/admin/certificates/demo-preview", headers=auth, timeout=30)

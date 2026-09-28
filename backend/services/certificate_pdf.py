@@ -927,6 +927,16 @@ def _reader(data: Optional[bytes]) -> Optional[ImageReader]:
         return None
 
 
+def _photo_studio(c, x, y, w, h):
+    """Neutral warm-grey studio background without a gemstone colour cast."""
+    steps = 24
+    for i in range(steps):
+        t = i / max(steps - 1, 1)
+        shade = 0.955 - 0.045 * abs(t - 0.5) * 2
+        c.setFillColorRGB(shade, shade - 0.006, shade - 0.012)
+        c.rect(x, y + h * i / steps, w, h / steps + 0.2, fill=1, stroke=0)
+
+
 def _sample_stamp(c, cx, cy, text_size, alpha, angle=18):
     """One consistent semi-transparent diagonal document stamp (muted red),
     placed in negative space so it never obscures key content."""
@@ -960,6 +970,7 @@ def _agr_presentation(c, cert, snap, photo_reader):
     mat = 2.2 * mm
     c.setFillColorRGB(*IVORY)
     c.rect(bx - mat, by - mat, box_w + 2 * mat, box_h + 2 * mat, fill=1, stroke=0)
+    _photo_studio(c, bx, by, box_w, box_h)
     if photo_reader is not None:
         try:
             iw, ih = photo_reader.getSize()
@@ -1137,7 +1148,7 @@ def _card_field(c, x, w, y, label, value, size=6.8, max_lines=1,
 
 
 def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sample: bool = False) -> bytes:
-    """One-page premium AGR certificate card (105 x 66 mm) — deep navy / gold / ivory."""
+    """Two-page premium AGR card: coordinated front and back at 105 x 66 mm."""
     snap = cert.get("gemstone_snapshot") or {}
     number = cert["certificate_number"]
     qr_reader = _qr_image(verify_url, border=2)
@@ -1194,8 +1205,7 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     # --- Gemstone photograph (compact, left) ---
     ph_w, ph_h = 31 * mm, 23 * mm
     py = top - ph_h
-    c.setFillColorRGB(*NAVY_LT)
-    c.rect(lx, py, ph_w, ph_h, fill=1, stroke=0)
+    _photo_studio(c, lx, py, ph_w, ph_h)
     if photo_reader is not None:
         try:
             iw, ih = photo_reader.getSize()
@@ -1224,7 +1234,7 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     c.line(rx, fy - 6.6 * mm, rx + rw, fy - 6.6 * mm)
     fy -= 9.2 * mm
 
-    fy = _card_field(c, rx, rw, fy, "Gemstone", snap.get("name") or "—",
+    fy = _card_field(c, rx, rw, fy, "Gemstone", snap.get("name_en") or snap.get("name") or "—",
                      size=8.0, label_color=LABEL, value_color=IVORY, value_font=HEADB) - 0.6 * mm
     for label, val in [
         ("Type", snap.get("variety") or snap.get("species") or snap.get("object_type")),
@@ -1262,6 +1272,58 @@ def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sa
     c.setFont(BODY, 3.8)
     c.drawRightString(CARD_W - 6 * mm, 5.6 * mm, "Issued by Azuris Gemological Research (AGR)")
 
+    c.showPage()
+
+    # --- Back: same shell, border system, typography and verification identity ---
+    c.saveState()
+    shell = c.beginPath()
+    shell.roundRect(0, 0, CARD_W, CARD_H, 4.0 * mm)
+    c.clipPath(shell, stroke=0, fill=0)
+    c.setFillColorRGB(*IVORY)
+    c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
+    _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.045)
+    c.restoreState()
+    c.setStrokeColorRGB(*NAVY)
+    c.setLineWidth(0.7)
+    c.roundRect(2.4 * mm, 2.4 * mm, CARD_W - 4.8 * mm, CARD_H - 4.8 * mm, 3.0 * mm)
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.35)
+    c.roundRect(3.4 * mm, 3.4 * mm, CARD_W - 6.8 * mm, CARD_H - 6.8 * mm, 2.4 * mm)
+
+    _draw_logo(c, _LOGO, 15 * mm, CARD_H - 13 * mm, 15 * mm)
+    c.setFillColorRGB(*NAVY)
+    c.setFont(HEADB, 16)
+    c.drawString(25 * mm, CARD_H - 11.5 * mm, "AZURIS")
+    _tracked(c, 25 * mm, CARD_H - 15 * mm, AGR_FULL.upper(), BODYB, 4.2, GOLD_DK, tracking=1.0)
+    c.setStrokeColorRGB(*GOLD)
+    c.line(6 * mm, CARD_H - 20 * mm, CARD_W - 6 * mm, CARD_H - 20 * mm)
+
+    back_tile = 22 * mm
+    back_x, back_y = 7 * mm, 8 * mm
+    c.setFillColorRGB(1, 1, 1)
+    c.roundRect(back_x, back_y, back_tile, back_tile, 1 * mm, fill=1, stroke=0)
+    c.drawImage(qr_reader, back_x + 1 * mm, back_y + 1 * mm,
+                width=back_tile - 2 * mm, height=back_tile - 2 * mm, mask="auto")
+
+    info_x = 35 * mm
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODYB, 4.5)
+    c.drawString(info_x, 28 * mm, "CERTIFICATE NUMBER")
+    c.setFillColorRGB(*NAVY)
+    c.setFont(BODYB, 10)
+    c.drawString(info_x, 23.5 * mm, number)
+    c.setFillColorRGB(*SLATE)
+    c.setFont(BODYB, 4.5)
+    c.drawString(info_x, 17.5 * mm, "DATE OF ISSUE")
+    c.setFillColorRGB(*NAVY)
+    c.setFont(BODY, 8)
+    c.drawString(info_x, 13.5 * mm, (cert.get("issued_at") or "")[:10] or "—")
+    c.setFillColorRGB(*GOLD_DK)
+    c.setFont(BODYB, 4.4)
+    c.drawString(info_x, 8.5 * mm, "SCAN TO VERIFY AUTHENTICITY")
+
+    if sample:
+        _sample_stamp(c, CARD_W * 0.70, CARD_H * 0.50, 10, 0.38, 16)
     c.showPage()
     c.save()
     buf.seek(0)
