@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Use the official transparent AGR emblem on the active card back only."""
+"""Use the complete official AGR/AZURIS lockup on the active card back only."""
 
 from datetime import datetime
 from pathlib import Path
@@ -7,37 +7,41 @@ import py_compile
 
 
 source_path = Path("backend/services/certificate_pdf.py")
-emblem_path = Path("backend/assets/azuris-emblem-20260926.png")
+card_logo_path = Path("backend/assets/azuris-logo.png")
 
 if not source_path.is_file():
     raise SystemExit("STOP: certificate renderer not found; no changes")
-if not emblem_path.is_file():
-    raise SystemExit("STOP: official AGR emblem asset not found; no changes")
+if not card_logo_path.is_file():
+    raise SystemExit("STOP: complete AGR/AZURIS logo asset not found; no changes")
 
 source = source_path.read_text()
 
-emblem_path_line = (
-    'CARD_EMBLEM_PATH = os.path.join(_ASSETS, "azuris-emblem-20260926.png")'
+card_logo_path_line = (
+    'CARD_BACK_LOGO_PATH = os.path.join(_ASSETS, "azuris-logo.png")'
 )
-emblem_reader_line = "_CARD_EMBLEM = _logo(CARD_EMBLEM_PATH)"
+card_logo_reader_line = "_CARD_BACK_LOGO = _logo(CARD_BACK_LOGO_PATH)"
 
-if emblem_path_line not in source:
-    logo_path_line = 'LOGO_PATH = os.path.join(_ASSETS, "azuris-logo.png")'
-    if source.count(logo_path_line) != 1:
+if card_logo_path_line not in source:
+    logo_path_lines = [
+        line for line in source.splitlines()
+        if line.startswith("LOGO_PATH = os.path.join(_ASSETS,")
+    ]
+    if len(logo_path_lines) != 1:
         raise SystemExit("STOP: logo path anchor is not unique; no changes")
+    logo_path_line = logo_path_lines[0]
     source = source.replace(
         logo_path_line,
-        logo_path_line + "\n" + emblem_path_line,
+        logo_path_line + "\n" + card_logo_path_line,
         1,
     )
 
-if emblem_reader_line not in source:
+if card_logo_reader_line not in source:
     logo_reader_line = "_LOGO = _logo(LOGO_PATH)"
     if source.count(logo_reader_line) != 1:
         raise SystemExit("STOP: logo reader anchor is not unique; no changes")
     source = source.replace(
         logo_reader_line,
-        logo_reader_line + "\n" + emblem_reader_line,
+        logo_reader_line + "\n" + card_logo_reader_line,
         1,
     )
 
@@ -55,13 +59,13 @@ if back_start < 0 or back_end < 0:
     raise SystemExit("STOP: active Card-back block not found; no changes")
 
 back = card[back_start:back_end]
-if "_draw_logo(c, _CARD_EMBLEM," in back:
+if "_draw_logo(c, _CARD_BACK_LOGO," in back:
     print("ALREADY PATCHED")
     raise SystemExit(0)
 
 old_logo_call = "_draw_logo(c, _LOGO, cx, CARD_H - 11.5 * mm, 13.5 * mm)"
 new_logo_call = (
-    "_draw_logo(c, _CARD_EMBLEM, cx, CARD_H - 11.5 * mm, 13.5 * mm)"
+    "_draw_logo(c, _CARD_BACK_LOGO, cx, CARD_H - 11.5 * mm, 13.5 * mm)"
 )
 if back.count(old_logo_call) != 1:
     raise SystemExit("STOP: active Card-back logo call differs; no changes")
@@ -83,4 +87,4 @@ except Exception as exc:
     raise SystemExit(f"STOP: syntax failed; original restored: {exc}")
 
 print("PATCH OK. Backup:", backup)
-print("Card back now uses:", emblem_path)
+print("Card back now uses:", card_logo_path)
