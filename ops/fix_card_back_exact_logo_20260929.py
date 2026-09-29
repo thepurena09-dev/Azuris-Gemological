@@ -46,7 +46,7 @@ if current == replacement:
 
 required = (
     "_draw_logo(c, _CARD_BACK_LOGO, cx, CARD_H - 11.5 * mm, 13.5 * mm)",
-    "_draw_agr_3d(0, CARD_H - 21.5 * mm, 13.0, center=cx)",
+    "_draw_agr_3d(c, CARD_H - 21.5 * mm, 13.0, center=cx)",
     '"AZURIS GEMOLOGICAL RESEARCH"',
     '"azurisgemological.com"',
 )
