@@ -36,7 +36,7 @@ company = block.index("    _tracked(\n        c, 0, CARD_H - 28.0 * mm,")
 website = block.index("    _tracked(\n        c, 0, CARD_H - 32.0 * mm,")
 if not website < company:
     raise SystemExit("STOP: identity order changed; no changes")
-first = block.index("    _tracked(", block.index("# Centered identity"))
+first = block.index("    _tracked(", 0)
 logo = block.index("    _draw_logo(", company)
 site_call = block[website:company]
 company_call = block[company:logo]
