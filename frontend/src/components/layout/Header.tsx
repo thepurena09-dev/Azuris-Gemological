@@ -22,9 +22,9 @@ export default function Header() {
     <div className="sticky top-0 z-50">
       {/* Announcement bar */}
       <div className="bg-primary">
-        <div className="mx-auto flex h-9 max-w-7xl items-center gap-3 px-6 md:px-10">
+        <div className="mx-auto flex h-9 max-w-7xl items-center gap-2 px-4 sm:gap-3 sm:px-6 md:px-10">
           <Diamond size={13} weight="fill" className="text-gold" />
-          <span className="text-[0.62rem] uppercase tracking-[0.35em] text-gold">
+          <span className="whitespace-nowrap text-[0.62rem] uppercase tracking-[0.22em] text-gold sm:text-[0.76rem] sm:tracking-[0.35em]">
             {t("footer.established")}
           </span>
         </div>
@@ -54,7 +54,7 @@ export default function Header() {
                   "0 1px 0 rgba(255,255,255,0.9), 0 -0.5px 0 rgba(13,27,42,0.16)",
               };
               const base =
-                "group relative rounded-sm text-[0.64rem] font-medium uppercase tracking-[0.14em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+                "group relative rounded-sm text-[0.78rem] font-medium uppercase tracking-[0.14em] outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
               const label = (isActive: boolean) => (
                 <span className="relative inline-block py-1">
                   {t(item.key)}
@@ -116,7 +116,7 @@ export default function Header() {
                   data-testid={`${item.testId}-mobile`}
                   onClick={() => setOpen(false)}
                   style={{ textShadow: "0 1px 0 rgba(255,255,255,0.9)" }}
-                  className="border-b border-border/60 py-3.5 text-sm font-semibold uppercase tracking-[0.2em] text-foreground outline-none transition-colors last:border-0 hover:text-gold focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold/70"
+                  className="border-b border-border/60 py-3.5 text-base font-semibold uppercase tracking-[0.17em] text-foreground outline-none transition-colors last:border-0 hover:text-gold focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold/70"
                 >
                   {t(item.key)}
                 </Link>

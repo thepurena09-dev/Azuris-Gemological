@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - /opt/azuris/data/mongodb:/data/db
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.backend
+    restart: unless-stopped
+    env_file: .env.staging
+    depends_on:
+      - mongo
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend

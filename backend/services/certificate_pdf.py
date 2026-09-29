@@ -47,13 +47,14 @@ BODY = "Helvetica"
 BODYB = "Helvetica-Bold"
 
 _ASSETS = os.path.join(os.path.dirname(__file__), "..", "assets")
-LOGO_PATH = os.path.join(_ASSETS, "azuris-logo.png")
-WATERMARK_PATH = os.path.join(_ASSETS, "azuris-watermark.png")
+LOGO_PATH = os.path.join(_ASSETS, "azuris-emblem-20260926.png")
+CARD_BACK_LOGO_PATH = os.path.join(_ASSETS, "azuris-logo.png")
+WATERMARK_PATH = os.path.join(_ASSETS, "azuris-emblem-20260926.png")
 
 DISCLAIMER_ID = (
-    "Sertifikat gemologi merupakan laporan hasil pemeriksaan dan identifikasi batu "
-    "mulia. Sertifikat ini bukan merupakan jaminan harga, nilai investasi, kepemilikan, "
-    "atau asal-usul hukum atas suatu batu."
+    "This gemological certificate is a report of gemstone examination and identification. "
+    "It does not constitute a guarantee of price, investment value, ownership, "
+    "or legal provenance of the gemstone."
 )
 
 
@@ -65,6 +66,7 @@ def _logo(path):
 
 
 _LOGO = _logo(LOGO_PATH)
+_CARD_BACK_LOGO = _logo(CARD_BACK_LOGO_PATH)
 _WM = _logo(WATERMARK_PATH)
 
 
@@ -132,7 +134,14 @@ def _pattern(c, x0, x1, y0, y1, color=GOLD, alpha=0.05):
 
 
 def _watermark(c, cx, cy, size):
+    """Draw the official AGR emblem as a subtle certificate watermark."""
+    c.saveState()
+    try:
+        c.setFillAlpha(0.07)
+    except Exception:
+        pass
     _draw_logo(c, _WM, cx, cy, size)
+    c.restoreState()
 
 
 def _double_frame(c, x0, x1, color1=GOLD, color2=GOLD_SOFT, inset=3 * mm):
@@ -266,7 +275,7 @@ def _panel_front(c, x0, x1, number, year):
     c.drawCentredString(cx, PAGE_H - 60 * mm, "Gemological Certificate")
     c.setFillColorRGB(*TAUPE)
     c.setFont(HEAD, 8.5)
-    c.drawCentredString(cx, PAGE_H - 65.5 * mm, "Sertifikat Gemologi")
+    c.drawCentredString(cx, PAGE_H - 65.5 * mm, "Gemological Certificate")
 
     # certificate serial plate — compact luxury plaque (must NOT dominate AZURIS)
     plate_w, plate_h = 38 * mm, 9.5 * mm
@@ -304,12 +313,12 @@ def _panel_back(c, x0, x1, version, website, contact):
     inner = (x1 - x0) - 2 * (SAFE + 2 * mm)
     lx = x0 + SAFE + 2 * mm
 
-    _tracked(c, 0, PAGE_H - band_h - 9 * mm, "KEASLIAN & VERIFIKASI", BODYB, 6.0, GOLD,
+    _tracked(c, 0, PAGE_H - band_h - 9 * mm, "AUTHENTICITY & VERIFICATION", BODYB, 6.0, GOLD,
              tracking=1.2, center=cx)
     c.setFillColorRGB(*SLATE)
     stmt = (
-        "Sertifikat ini diterbitkan resmi oleh Azuris Gemological dan dilengkapi kode "
-        "keamanan unik serta kode QR untuk verifikasi digital keasliannya."
+        "This certificate is officially issued by Azuris Gemological Research and includes a unique "
+        "security reference and QR code for digital authenticity verification."
     )
     y = PAGE_H - band_h - 14 * mm
     for ln in _wrap(c, stmt, BODY, 6.5, inner)[:4]:
@@ -320,9 +329,9 @@ def _panel_back(c, x0, x1, version, website, contact):
     y -= 1.5 * mm
     c.setFillColorRGB(*NAVY)
     for s in [
-        "1.  Pindai kode QR pada sertifikat, atau",
-        "2.  Buka situs resmi Azuris Gemological, lalu",
-        "3.  Masukkan Nomor Sertifikat & Kode Keamanan.",
+        "1.  Scan the QR code on the certificate, or",
+        "2.  Open the official Azuris Gemological website, then",
+        "3.  Enter the Certificate Number & Security Code.",
     ]:
         c.setFont(BODY, 6)
         c.drawString(lx, y, s)
@@ -341,7 +350,7 @@ def _panel_back(c, x0, x1, version, website, contact):
         c.drawCentredString(cx, SAFE + 6 * mm, f"WhatsApp {contact}")
     c.setFillColorRGB(*TAUPE)
     c.setFont(BODY, 5.2)
-    v = f"Dokumen v{version}" if version else ""
+    v = f"Document v{version}" if version else ""
     c.drawCentredString(cx, SAFE + 1.5 * mm, v)
 
 
@@ -353,7 +362,7 @@ def _panel_info(c, x0, x1, cert, snap, qr_reader):
     w = (x1 - x0) - 2 * SAFE
     top = PAGE_H - SAFE - 1 * mm
 
-    y = _section_bar(c, x, x1 - SAFE, top, "Sertifikat & Verifikasi")
+    y = _section_bar(c, x, x1 - SAFE, top, "Certificate & Verification")
 
     c.setFillColorRGB(*NAVY)
     c.setFont(BODYB, 12.5)
@@ -362,12 +371,12 @@ def _panel_info(c, x0, x1, cert, snap, qr_reader):
 
     rows = [
         ("Tanggal Terbit", (cert.get("issued_at") or "")[:10] or "-"),
-        ("Versi Dokumen", str(cert.get("version") or 1)),
+        ("Document Version", str(cert.get("version") or 1)),
         ("Status", "Aktif - Versi Terkini"),
     ]
     if snap.get("examiner"):
         rows.append(("Pemeriksa / Gemolog", snap["examiner"]))
-    rows.append(("Penanda Tangan", snap.get("signatory") or "Azuris Gemological"))
+    rows.append(("Authorised Signatory", snap.get("signatory") or "H.Zulfikar.se.GG"))
     for i, (label, val) in enumerate(rows):
         _field(c, x, w, y, label, val, val_size=7.4, zebra=(i % 2 == 0))
         y -= 6.2 * mm
@@ -379,7 +388,7 @@ def _panel_info(c, x0, x1, cert, snap, qr_reader):
     c.line(x, y, x + 30 * mm, y)
     c.setFillColorRGB(*SLATE)
     c.setFont(BODY, 5)
-    c.drawString(x, y - 3.2 * mm, "Tanda Tangan Berwenang")
+    c.drawString(x, y - 3.2 * mm, "Authorised Signature")
 
     # disclaimer in mid whitespace
     c.setFillColorRGB(*GREY)
@@ -400,14 +409,14 @@ def _panel_info(c, x0, x1, cert, snap, qr_reader):
     tx = x + qr_size + 4 * mm
     c.setFillColorRGB(*NAVY)
     c.setFont(BODYB, 5.8)
-    c.drawString(tx, qy + qr_size - 2 * mm, "VERIFIKASI DIGITAL")
+    c.drawString(tx, qy + qr_size - 2 * mm, "DIGITAL VERIFICATION")
     c.setFillColorRGB(*SLATE)
     c.setFont(BODY, 5.4)
     for i, ln in enumerate([
-        "Pindai kode QR untuk memeriksa",
-        "keaslian sertifikat secara resmi.",
-        "Hanya versi terkini yang aktif;",
-        "versi sebelumnya diarsipkan.",
+        "Scan the QR code to verify",
+        "certificate authenticity.",
+        "Only the current version is active;",
+        "Previous versions are archived.",
     ]):
         c.drawString(tx, qy + qr_size - 6 * mm - i * 3.4 * mm, ln)
 
@@ -685,16 +694,6 @@ def _agr_details(c, cert, snap, signature_reader=None):
         _field(c, x, w, y, k, v, val_size=7.8, zebra=(i % 2 == 0))
         y -= row_h
 
-    # comment / conclusion
-    comment = snap.get("conclusion") or snap.get("notes")
-    if comment:
-        y -= 1 * mm
-        yb = _section_bar(c, x, x + w, y, "Comment")
-        c.setFillColorRGB(*NAVY)
-        for ln in _wrap(c, str(comment), BODY, 7.4, w)[:2]:
-            c.setFont(BODY, 7.4)
-            c.drawString(x, yb, ln)
-            yb -= 4.0 * mm
 
     # ---------------- Legality & authorised signatory (fixed bottom band) ----------------
     leg = cert.get("legality_snapshot") or {}
@@ -705,7 +704,6 @@ def _agr_details(c, cert, snap, signature_reader=None):
     lw = w * 0.54
     ly = by - 8 * mm
     leg_rows = [
-        ("Accreditation", leg.get("certificate_name") or leg.get("name")),
         ("Accreditation No.", leg.get("certificate_number")),
         ("Issuing Institution", leg.get("issuer")),
     ]
@@ -732,7 +730,7 @@ def _agr_details(c, cert, snap, signature_reader=None):
     if signature_reader is not None:
         try:
             iw, ih = signature_reader.getSize()
-            r = min(rw / iw, (12 * mm) / ih)
+            r = min((rw * 0.98) / iw, (18 * mm) / ih)
             dw, dh = iw * r, ih * r
             c.drawImage(signature_reader, rx + (rw - dw) / 2, sig_line_y + 1.5 * mm,
                         width=dw, height=dh, mask="auto")
@@ -741,7 +739,7 @@ def _agr_details(c, cert, snap, signature_reader=None):
     c.setStrokeColorRGB(*SLATE)
     c.setLineWidth(0.5)
     c.line(rx, sig_line_y, rx + rw, sig_line_y)
-    signatory = leg.get("signatory_name") or "Azuris Gemological Research"
+    signatory = leg.get("signatory_name") or "H.Zulfikar.se.GG"
     position = leg.get("signatory_position") or "Authorised Signatory"
     c.setFillColorRGB(*NAVY)
     c.setFont(BODYB, 7.2)
@@ -964,9 +962,10 @@ def _agr_presentation(c, cert, snap, photo_reader):
     _tracked(c, 0, A5H - 47 * mm, "CERTIFIED GEMSTONE", BODY, 6.6, GOLD_DK, tracking=3.0, center=cx)
 
     # smaller PORTRAIT gemstone-photo container (~56% width, ~37% height, contain-fit)
-    box_w, box_h = 74 * mm, 78 * mm
+    box_w, box_h = 42 * mm, 46 * mm
     bx = cx - box_w / 2
     by = A5H - 56 * mm - box_h
+    by -= 7 * mm
     mat = 2.2 * mm
     c.setFillColorRGB(*IVORY)
     c.rect(bx - mat, by - mat, box_w + 2 * mat, box_h + 2 * mat, fill=1, stroke=0)
@@ -974,7 +973,7 @@ def _agr_presentation(c, cert, snap, photo_reader):
     if photo_reader is not None:
         try:
             iw, ih = photo_reader.getSize()
-            r = min(box_w / iw, box_h / ih)
+            r = min((box_w * 0.58) / iw, (box_h * 0.58) / ih)
             dw, dh = iw * r, ih * r
             c.drawImage(photo_reader, cx - dw / 2, by + (box_h - dh) / 2,
                         width=dw, height=dh, mask="auto")
@@ -993,7 +992,7 @@ def _agr_presentation(c, cert, snap, photo_reader):
     name = snap.get("name_en") or snap.get("name") or snap.get("name_id") or "Gemstone"
     c.setFillColorRGB(*NAVY)
     c.setFont(HEADB, 22)
-    c.drawCentredString(cx, ty, str(name))
+    c.drawCentredString(cx, ty - 2 * mm, str(name))
     gtype = snap.get("variety") or snap.get("species") or snap.get("object_type")
     if gtype:
         ty -= 8 * mm
@@ -1005,7 +1004,7 @@ def _agr_presentation(c, cert, snap, photo_reader):
     c.line(cx - 16 * mm, ty + 5 * mm, cx + 16 * mm, ty + 5 * mm)
     c.setFillColorRGB(*NAVY)
     c.setFont(HEAD, 14)
-    c.drawCentredString(cx, ty - 2 * mm, "From AGR")
+    c.drawCentredString(cx, ty - 4 * mm, "From AGR")
 
 
 def _agr_back(c, cert):
@@ -1034,6 +1033,45 @@ def _agr_back(c, cert):
         c.setFillColorRGB(*NAVY)
         c.setFont(BODY, 9)
         c.drawCentredString(cx, my - 29 * mm, date)
+
+
+
+def _signature_reader_white(signature_bytes):
+    """Convert signature ink to white while removing a light background."""
+    base = _reader(signature_bytes)
+
+    if base is None or not signature_bytes:
+        return base
+
+    try:
+        import io
+        from PIL import Image
+
+        img = Image.open(io.BytesIO(signature_bytes)).convert("RGBA")
+        src = img.load()
+
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = src[x, y]
+
+                # Perceived luminance.
+                lum = (0.299 * r) + (0.587 * g) + (0.114 * b)
+
+                # Dark ink -> opaque white.
+                # Light paper/background -> transparent.
+                darkness = max(0.0, min(1.0, (235.0 - lum) / 180.0))
+                alpha = int(a * darkness)
+
+                src[x, y] = (255, 255, 255, alpha)
+
+        out = io.BytesIO()
+        img.save(out, format="PNG")
+        out.seek(0)
+
+        return ImageReader(out)
+
+    except Exception:
+        return base
 
 
 def build_certificate_pdf(
@@ -1127,6 +1165,8 @@ CARD_H = 66 * mm
 
 def _card_field(c, x, w, y, label, value, size=6.8, max_lines=1,
                 label_color=SLATE, value_color=IVORY, value_font=BODY):
+
+
     c.setFillColorRGB(*label_color)
     c.setFont(BODYB, 4.6)
     c.drawString(x, y, label.upper())
@@ -1147,185 +1187,380 @@ def _card_field(c, x, w, y, label, value, size=6.8, max_lines=1,
     return yy
 
 
-def build_card_pdf(cert: dict, photo_bytes: Optional[bytes], verify_url: str, sample: bool = False) -> bytes:
-    """Two-page premium AGR card: coordinated front and back at 105 x 66 mm."""
+def build_card_pdf(
+    cert: dict,
+    photo_bytes: Optional[bytes],
+    verify_url: str,
+    sample: bool = False,
+    signature_bytes: Optional[bytes] = None,
+) -> bytes:
+    """Two-page AGR premium card closely matching approved reference."""
+
     snap = cert.get("gemstone_snapshot") or {}
     number = cert["certificate_number"]
+
     qr_reader = _qr_image(verify_url, border=2)
     photo_reader = _reader(photo_bytes)
+    signature_reader = _signature_reader_white(signature_bytes)
 
-    LABEL = (0.60, 0.66, 0.75)  # muted blue-grey supporting labels
+    def val(*keys, default="—"):
+
+
+        for key in keys:
+            v = snap.get(key)
+            if v not in (None, "", []):
+                return str(v)
+        return default
 
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=(CARD_W, CARD_H))
 
-    # --- Rounded deep-navy card shell + cover-matching watermark/background ---
-    c.saveState()
-    shell = c.beginPath()
-    shell.roundRect(0, 0, CARD_W, CARD_H, 4.0 * mm)
-    c.clipPath(shell, stroke=0, fill=0)
-    c.setFillColorRGB(*NAVY)
-    c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
-    # duplicate the certificate cover's watermark/background treatment
-    _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.05)
-    c.restoreState()
+    # =========================================================
+    # COMMON CARD SHELL
+    # =========================================================
+    def shell():
+        c.saveState()
 
-    # restrained double gold rounded edge (premium depth)
+        path = c.beginPath()
+        path.roundRect(0, 0, CARD_W, CARD_H, 4.0 * mm)
+        c.clipPath(path, stroke=0, fill=0)
+
+        c.setFillColorRGB(*NAVY)
+        c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
+
+        _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.05)
+
+        c.restoreState()
+
+        # Outer border
+        c.setStrokeColorRGB(*GOLD)
+        c.setLineWidth(0.78)
+        c.roundRect(
+            2.3 * mm,
+            2.3 * mm,
+            CARD_W - 4.6 * mm,
+            CARD_H - 4.6 * mm,
+            3.0 * mm,
+        )
+
+        # Inner border
+        c.setStrokeColorRGB(*GOLD_SOFT)
+        c.setLineWidth(0.32)
+        c.roundRect(
+            3.35 * mm,
+            3.35 * mm,
+            CARD_W - 6.7 * mm,
+            CARD_H - 6.7 * mm,
+            2.45 * mm,
+        )
+
+    def draw_agr_3d(x, y, size, center=None):
+        label = "AGR"
+
+        layers = [
+            (0.42 * mm, -0.34 * mm, (0.09, 0.06, 0.02)),
+            (0.22 * mm, -0.18 * mm, (0.32, 0.22, 0.07)),
+            (0, 0, GOLD_SOFT),
+        ]
+
+        for ox, oy, color in layers:
+            c.setFillColorRGB(*color)
+            c.setFont(HEADB, size)
+            if center is None:
+                c.drawString(x + ox, y + oy, label)
+            else:
+                c.drawCentredString(center + ox, y + oy, label)
+
+        c.setFillColorRGB(*IVORY)
+        c.setFont(HEADB, size)
+        if center is None:
+            c.drawString(x - 0.08 * mm, y + 0.10 * mm, label)
+        else:
+            c.drawCentredString(center - 0.08 * mm, y + 0.10 * mm, label)
+
+    # =========================================================
+    # FRONT
+    # =========================================================
+    shell()
+
+    top_y = CARD_H - 8.1 * mm
+
+    # logo
+    _draw_logo(
+        c,
+        _LOGO,
+        9.4 * mm,
+        top_y,
+        10.8 * mm,
+    )
+
+    # divider
     c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.7)
-    c.roundRect(2.4 * mm, 2.4 * mm, CARD_W - 4.8 * mm, CARD_H - 4.8 * mm, 3.0 * mm)
-    c.setStrokeColorRGB(*GOLD_SOFT)
-    c.setLineWidth(0.3)
-    c.roundRect(3.4 * mm, 3.4 * mm, CARD_W - 6.8 * mm, CARD_H - 6.8 * mm, 2.4 * mm)
+    c.setLineWidth(0.38)
+    c.line(
+        15.8 * mm,
+        CARD_H - 4.7 * mm,
+        15.8 * mm,
+        CARD_H - 12.5 * mm,
+    )
 
-    # --- Header: small tidy logo + AGR wordmark on one baseline grid ---
-    logo_size = 7.0 * mm
-    logo_cx = 8.5 * mm
-    logo_cy = CARD_H - 8.6 * mm
-    _draw_logo(c, _LOGO, logo_cx, logo_cy, logo_size)
-    text_x = logo_cx + logo_size / 2 + 2.6 * mm
-    c.setFillColorRGB(*IVORY)
-    c.setFont(HEADB, 12)
-    c.drawString(text_x, CARD_H - 8.2 * mm, "AGR")
-    _tracked(c, text_x, CARD_H - 11.3 * mm, AGR_FULL.upper(), BODYB, 3.7, GOLD_SOFT, tracking=1.0)
+    # AGR
+    draw_agr_3d(
+        19.0 * mm,
+        CARD_H - 8.8 * mm,
+        17.2,
+    )
+
+    _tracked(
+        c,
+        19.0 * mm,
+        CARD_H - 11.4 * mm,
+        "AZURIS GEMOLOGICAL RESEARCH",
+        BODYB,
+        4.4,
+        GOLD_SOFT,
+        tracking=1.15,
+    )
+
     c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.5)
-    c.line(5.5 * mm, CARD_H - 13.6 * mm, CARD_W - 5.5 * mm, CARD_H - 13.6 * mm)
+    c.setLineWidth(0.48)
+    c.line(
+        5.7 * mm,
+        CARD_H - 13.4 * mm,
+        CARD_W - 5.7 * mm,
+        CARD_H - 13.4 * mm,
+    )
 
-    if sample:
-        cw2 = 16.5 * mm
-        c.setFillColorRGB(0.78, 0.22, 0.24)
-        c.roundRect(CARD_W - 5.5 * mm - cw2, CARD_H - 10.6 * mm, cw2, 4.6 * mm, 1.0 * mm, fill=1, stroke=0)
-        _tracked(c, 0, CARD_H - 7.7 * mm, "SAMPLE - NOT VALID", BODYB, 4.0, (1, 1, 1),
-                 tracking=0.3, center=CARD_W - 5.5 * mm - cw2 / 2)
+    # ---------------------------------------------------------
+    # Photo frame
+    # ---------------------------------------------------------
+    px = 6.0 * mm
+    py = 20.6 * mm
+    pw = 28.0 * mm
+    ph = 26.0 * mm
 
-    top = CARD_H - 17 * mm
-    lx = 6 * mm
+    c.setFillColorRGB(0.975, 0.972, 0.960)
+    c.roundRect(
+        px, py, pw, ph,
+        0.55 * mm,
+        fill=1,
+        stroke=0,
+    )
 
-    # --- Gemstone photograph (compact, left) ---
-    ph_w, ph_h = 31 * mm, 23 * mm
-    py = top - ph_h
-    _photo_studio(c, lx, py, ph_w, ph_h)
     if photo_reader is not None:
         try:
             iw, ih = photo_reader.getSize()
-            r = min(ph_w / iw, ph_h / ih)
-            dw, dh = iw * r, ih * r
-            c.drawImage(photo_reader, lx + (ph_w - dw) / 2, py + (ph_h - dh) / 2,
-                        width=dw, height=dh, mask="auto")
+
+            max_w = pw * 0.80
+            max_h = ph * 0.80
+            r = min(max_w / iw, max_h / ih)
+
+            dw = iw * r
+            dh = ih * r
+
+            c.drawImage(
+                photo_reader,
+                px + (pw - dw) / 2,
+                py + (ph - dh) / 2,
+                width=dw,
+                height=dh,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
         except Exception:
             pass
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.6)
-    c.rect(lx, py, ph_w, ph_h)
 
-    # --- Right column: certificate number + fields ---
-    rx = lx + ph_w + 5 * mm
-    rw = CARD_W - rx - 6 * mm
-    fy = top
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(0.62)
+    c.roundRect(
+        px, py, pw, ph,
+        0.55 * mm,
+        fill=0,
+        stroke=1,
+    )
+
+    # ---------------------------------------------------------
+    # Info area
+    # ---------------------------------------------------------
+    ix = 37.8 * mm
+    ir = CARD_W - 5.6 * mm
+
+    def row(y, label, value, label_size=3.8, value_size=7.2):
+        c.setFillColorRGB(*GOLD_SOFT)
+        c.setFont(BODYB, label_size)
+        c.drawString(ix, y, label.upper())
+
+        c.setFillColorRGB(*IVORY)
+        c.setFont(HEADB, value_size)
+        c.drawString(ix, y - 3.5 * mm, str(value or "—"))
+
+        c.setStrokeColorRGB(*GOLD)
+        c.setLineWidth(0.34)
+        c.line(ix, y - 6.8 * mm, ir, y - 6.8 * mm)
+
+        return y - 8.7 * mm
+
+    yy = CARD_H - 16.8 * mm
+
+    yy = row(yy, "Certificate No.", number, 4.2, 9.8)
+    yy = row(yy, "Gemstone", val("name_en", "name"), 4.2, 8.8)
+    yy = row(yy, "Type", val("variety", "species", "object_type"), 4.2, 8.0)
+    yy = row(yy, "Origin", val("origin"), 4.2, 8.0)
+
     c.setFillColorRGB(*GOLD_SOFT)
-    c.setFont(BODYB, 4.2)
-    c.drawString(rx, fy, "CERTIFICATE NO.")
+    c.setFont(BODYB, 4.0)
+    c.drawString(ix, yy, "DATE")
+
     c.setFillColorRGB(*IVORY)
-    c.setFont(BODYB, 8.6)
-    c.drawString(rx, fy - 4.6 * mm, number)
+    c.setFont(HEADB, 8.0)
+    c.drawString(
+        ix,
+        yy - 3.5 * mm,
+        (cert.get("issued_at") or "")[:10] or "—",
+    )
+
+    # ---------------------------------------------------------
+    # QR area
+    # ---------------------------------------------------------
+    qx = 6.0 * mm
+    qy = 4.7 * mm
+    qs = 11.8 * mm
+
+    c.setFillColorRGB(*IVORY)
+    c.roundRect(
+        qx, qy, qs, qs,
+        0.75 * mm,
+        fill=1,
+        stroke=0,
+    )
+
     c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.4)
-    c.line(rx, fy - 6.6 * mm, rx + rw, fy - 6.6 * mm)
-    fy -= 9.2 * mm
+    c.setLineWidth(0.40)
+    c.roundRect(
+        qx, qy, qs, qs,
+        0.75 * mm,
+        fill=0,
+        stroke=1,
+    )
 
-    fy = _card_field(c, rx, rw, fy, "Gemstone", snap.get("name_en") or snap.get("name") or "—",
-                     size=8.0, label_color=LABEL, value_color=IVORY, value_font=HEADB) - 0.6 * mm
-    for label, val in [
-        ("Type", snap.get("variety") or snap.get("species") or snap.get("object_type")),
-        ("Origin", snap.get("origin")),
-        ("Date", (cert.get("issued_at") or "")[:10]),
-        ("Comment", snap.get("conclusion") or snap.get("notes")),
-    ]:
-        if val in (None, "", "None"):
-            continue
-        fy = _card_field(c, rx, rw, fy, label, val, label_color=LABEL, value_color=IVORY) - 0.4 * mm
+    pad = 0.7 * mm
+    c.drawImage(
+        qr_reader,
+        qx + pad,
+        qy + pad,
+        width=qs - 2 * pad,
+        height=qs - 2 * pad,
+        mask="auto",
+    )
 
-    # --- QR fills its ivory tile (scannable quiet zone built into the QR image) ---
-    tile = 13 * mm
-    pad = 0.5 * mm
-    qr_s = tile - 2 * pad
-    tile_x = lx
-    tile_y = 5.5 * mm
-    c.setFillColorRGB(*IVORY)
-    c.roundRect(tile_x, tile_y, tile, tile, 0.8 * mm, fill=1, stroke=0)
-    c.drawImage(qr_reader, tile_x + pad, tile_y + pad, width=qr_s, height=qr_s, mask="auto")
-    tile_cy = tile_y + tile / 2
-    tx = tile_x + tile + 3 * mm
+    tx = qx + qs + 2.0 * mm
+
     c.setFillColorRGB(*GOLD_SOFT)
-    c.setFont(BODYB, 3.8)
-    c.drawString(tx, tile_cy + 1.4 * mm, "SCAN TO VERIFY")
-    c.setFillColorRGB(*LABEL)
-    c.setFont(BODY, 3.6)
-    c.drawString(tx, tile_cy - 1.8 * mm, "authenticity")
+    c.setFont(BODYB, 3.9)
+    c.drawString(tx, qy + 6.1 * mm, "SCAN TO VERIFY")
 
-    # --- Authenticity footer (aligned to the right information grid) ---
-    c.setFillColorRGB(*GOLD_SOFT)
-    c.setFont(BODYB, 4.4)
-    c.drawRightString(CARD_W - 6 * mm, 8.4 * mm, "AUTHENTIC GEMSTONE CERTIFICATE")
-    c.setFillColorRGB(*LABEL)
-    c.setFont(BODY, 3.8)
-    c.drawRightString(CARD_W - 6 * mm, 5.6 * mm, "Issued by Azuris Gemological Research (AGR)")
-
-    c.showPage()
-
-    # --- Back: same shell, border system, typography and verification identity ---
-    c.saveState()
-    shell = c.beginPath()
-    shell.roundRect(0, 0, CARD_W, CARD_H, 4.0 * mm)
-    c.clipPath(shell, stroke=0, fill=0)
     c.setFillColorRGB(*IVORY)
-    c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
-    _pattern(c, 0, CARD_W, 0, CARD_H, color=GOLD, alpha=0.045)
-    c.restoreState()
-    c.setStrokeColorRGB(*NAVY)
-    c.setLineWidth(0.7)
-    c.roundRect(2.4 * mm, 2.4 * mm, CARD_W - 4.8 * mm, CARD_H - 4.8 * mm, 3.0 * mm)
-    c.setStrokeColorRGB(*GOLD)
-    c.setLineWidth(0.35)
-    c.roundRect(3.4 * mm, 3.4 * mm, CARD_W - 6.8 * mm, CARD_H - 6.8 * mm, 2.4 * mm)
+    c.setFont(BODY, 2.85)
+    c.drawString(tx, qy + 2.9 * mm, "azurisgemological.com/verify")
 
-    _draw_logo(c, _LOGO, 15 * mm, CARD_H - 13 * mm, 15 * mm)
-    c.setFillColorRGB(*NAVY)
-    c.setFont(HEADB, 16)
-    c.drawString(25 * mm, CARD_H - 11.5 * mm, "AZURIS")
-    _tracked(c, 25 * mm, CARD_H - 15 * mm, AGR_FULL.upper(), BODYB, 4.2, GOLD_DK, tracking=1.0)
-    c.setStrokeColorRGB(*GOLD)
-    c.line(6 * mm, CARD_H - 20 * mm, CARD_W - 6 * mm, CARD_H - 20 * mm)
+    # footer right
+    c.setFillColorRGB(*GOLD_SOFT)
+    c.setFont(BODYB, 3.95)
+    c.drawRightString(
+        CARD_W - 5.5 * mm,
+        7.2 * mm,
+        "AUTHENTIC GEMSTONE CERTIFICATE",
+    )
 
-    back_tile = 22 * mm
-    back_x, back_y = 7 * mm, 8 * mm
-    c.setFillColorRGB(1, 1, 1)
-    c.roundRect(back_x, back_y, back_tile, back_tile, 1 * mm, fill=1, stroke=0)
-    c.drawImage(qr_reader, back_x + 1 * mm, back_y + 1 * mm,
-                width=back_tile - 2 * mm, height=back_tile - 2 * mm, mask="auto")
-
-    info_x = 35 * mm
-    c.setFillColorRGB(*SLATE)
-    c.setFont(BODYB, 4.5)
-    c.drawString(info_x, 28 * mm, "CERTIFICATE NUMBER")
-    c.setFillColorRGB(*NAVY)
-    c.setFont(BODYB, 10)
-    c.drawString(info_x, 23.5 * mm, number)
-    c.setFillColorRGB(*SLATE)
-    c.setFont(BODYB, 4.5)
-    c.drawString(info_x, 17.5 * mm, "DATE OF ISSUE")
-    c.setFillColorRGB(*NAVY)
-    c.setFont(BODY, 8)
-    c.drawString(info_x, 13.5 * mm, (cert.get("issued_at") or "")[:10] or "—")
-    c.setFillColorRGB(*GOLD_DK)
-    c.setFont(BODYB, 4.4)
-    c.drawString(info_x, 8.5 * mm, "SCAN TO VERIFY AUTHENTICITY")
+    c.setFillColorRGB(*IVORY)
+    c.setFont(BODY, 3.15)
+    c.drawRightString(
+        CARD_W - 5.5 * mm,
+        4.75 * mm,
+        "Issued by Azuris Gemological Research (AGR)",
+    )
 
     if sample:
-        _sample_stamp(c, CARD_W * 0.70, CARD_H * 0.50, 10, 0.38, 16)
+        _sample_stamp(c, CARD_W * 0.74, CARD_H * 0.50, 8, 0.26, 14)
+
+    c.showPage()
+
+    # =========================================================
+    # BACK — centered identity and unobstructed signature
+    # =========================================================
+    shell()
+    cx = CARD_W / 2
+
+    # Balanced centered back identity.
+    # Keep the complete composition visually centred inside the card.
+    logo_y = 40.5 * mm
+
+    _draw_logo(
+        c,
+        _CARD_BACK_LOGO,
+        cx,
+        logo_y,
+        25.0 * mm,
+    )
+
+    _tracked(
+        c,
+        0,
+        26.8 * mm,
+        "azurisgemological.com",
+        BODYB,
+        3.8,
+        GOLD_SOFT,
+        tracking=0.7,
+        center=cx,
+    )
+
+    # Signature area — centred, clear, and without decorative lines.
+    if signature_reader is not None:
+        try:
+            iw, ih = signature_reader.getSize()
+            max_w, max_h = 31 * mm, 8.5 * mm
+            ratio = min(max_w / iw, max_h / ih)
+            dw, dh = iw * ratio, ih * ratio
+
+            c.drawImage(
+                signature_reader,
+                cx - dw / 2,
+                15.0 * mm,
+                width=dw,
+                height=dh,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
+        except Exception:
+            pass
+
+    c.setFillColorRGB(*GOLD_SOFT)
+    c.setFont(BODYB, 4.2)
+    c.drawCentredString(
+        cx,
+        11.5 * mm,
+        "H.Zulfikar.se.GG",
+    )
+
+    _tracked(
+        c,
+        0,
+        8.5 * mm,
+        "AUTHORISED SIGNATORY",
+        BODYB,
+        2.8,
+        GOLD_SOFT,
+        tracking=0.6,
+        center=cx,
+    )
+
+    if sample:
+        _sample_stamp(c, CARD_W * 0.74, CARD_H * 0.50, 8, 0.26, 14)
+
     c.showPage()
     c.save()
+
     buf.seek(0)
     return buf.read()
 

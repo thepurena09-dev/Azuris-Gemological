@@ -78,9 +78,9 @@ class TestRealCertificate:
         assert rc.headers.get("content-type", "").startswith("application/pdf")
         assert rc.content.startswith(b"%PDF")
         pages = _pdf_page_count(rc.content)
-        assert pages == 1, f"card should be 1 page, got {pages}"
+        assert pages == 2, f"card should contain front and back pages, got {pages}"
 
-        # QR is embedded as an image (PNG) inside the PDF — literal URL text is not extractable
+        # QR remains on the Card Front; Card Back is intentionally minimal per the approved design.
         # without a QR decoder. We validate the PDF is a valid 1-page card; QR content is
         # verified by frontend flow (deep-link routing tests).
         assert len(rc.content) > 5000, "card PDF suspiciously small"

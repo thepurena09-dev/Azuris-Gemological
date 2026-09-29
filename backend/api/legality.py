@@ -19,7 +19,10 @@ from models.base import utcnow_iso
 from models.enums import AdminRole, AuditAction
 from models.legality import LegalityCredential, LegalityDocument
 from models.people import Admin
-from repositories.legality import LegalityDocumentRepository, LegalityRepository
+from repositories.legality import (
+    LegalityDocumentRepository,
+    LegalityRepository,
+)
 
 public_router = APIRouter(prefix="/legality", tags=["legality"])
 admin_router = APIRouter(prefix="/admin/legality", tags=["legality-admin"])
@@ -102,6 +105,7 @@ async def get_legality_document(doc_uuid: str, db=Depends(get_database)):
 
 
 # ---------- ADMIN ----------
+
 class LegalityUpsert(BaseModel):
     certificate_name: str = Field(min_length=1, max_length=200)
     holder_name: str | None = None
@@ -246,6 +250,156 @@ async def admin_upload_document(
         entity_type="legality_credential", entity_id=uuid, after={"document_id": saved.uuid},
     )
     return {"document_id": saved.uuid, "document_url": f"/api/legality/document/{saved.uuid}"}
+
+
+
+@admin_router.get("/active-signature/status")
+async def admin_active_signature_status(
+    admin: Admin = Depends(_ADMIN),
+    db=Depends(get_database),
+):
+    repo = LegalityRepository(db)
+    raw = await repo.find_one({"active_for_certificates": True})
+
+    if not raw:
+        return {
+            "active": False,
+            "has_signature": False,
+            "signatory_name": "H.Zulfikar.se.GG",
+        }
+
+    rec = repo.model.from_mongo(raw)
+
+    return {
+        "active": True,
+        "uuid": rec.uuid,
+        "has_signature": bool(rec.signature_document_id),
+        "signatory_name": rec.signatory_name or "H.Zulfikar.se.GG",
+        "signatory_position": rec.signatory_position or "Authorised Signatory",
+    }
+
+
+@admin_router.get("/active-signature/file")
+async def admin_active_signature_file(
+    admin: Admin = Depends(_ADMIN),
+    db=Depends(get_database),
+):
+    repo = LegalityRepository(db)
+    raw = await repo.find_one({"active_for_certificates": True})
+
+    if not raw:
+        raise HTTPException(status_code=404, detail="No active legality record")
+
+    rec = repo.model.from_mongo(raw)
+
+    if not rec.signature_document_id:
+        raise HTTPException(status_code=404, detail="No signature uploaded")
+
+    doc = await LegalityDocumentRepository(db).get_by_uuid(
+        rec.signature_document_id
+    )
+
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Signature document not found")
+
+    return Response(
+        content=base64.b64decode(doc.data_b64),
+        media_type=doc.content_type,
+    )
+
+
+@admin_router.post("/active-signature")
+async def admin_upload_active_signature(
+    file: UploadFile = File(...),
+    admin: Admin = Depends(_ADMIN),
+    db=Depends(get_database),
+):
+    if file.content_type not in SIGNATURE_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Signature must be PNG, JPEG, or WebP",
+        )
+
+    raw = await file.read()
+
+    if not raw or len(raw) > MAX_SIGNATURE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail="Signature file too large or empty",
+        )
+
+    repo = LegalityRepository(db)
+    raw_rec = await repo.find_one({"active_for_certificates": True})
+
+    if not raw_rec:
+        raise HTTPException(
+            status_code=409,
+            detail="Select one Legality record as Active for Certificates first",
+        )
+
+    rec = repo.model.from_mongo(raw_rec)
+
+    doc = LegalityDocument(
+        content_type=file.content_type,
+        filename=file.filename or "signature",
+        size=len(raw),
+        data_b64=base64.b64encode(raw).decode("ascii"),
+    )
+
+    saved = await LegalityDocumentRepository(db).create(doc)
+
+    await repo.update_one(
+        {"uuid": rec.uuid},
+        {
+            "signature_document_id": saved.uuid,
+            "signatory_name": rec.signatory_name or "H.Zulfikar.se.GG",
+            "signatory_position": rec.signatory_position or "Authorised Signatory",
+            "updated_by": admin.uuid,
+            "updated_at": utcnow_iso(),
+        },
+    )
+
+    await write_audit_log(
+        db,
+        actor_id=admin.uuid,
+        actor_role=admin.role,
+        action=AuditAction.UPDATE,
+        entity_type="legality_credential",
+        entity_id=rec.uuid,
+        after={"signature_document_id": saved.uuid},
+    )
+
+    return {
+        "success": True,
+        "uuid": rec.uuid,
+        "signature_document_id": saved.uuid,
+        "signatory_name": rec.signatory_name or "H.Zulfikar.se.GG",
+    }
+
+
+@admin_router.delete("/active-signature")
+async def admin_remove_active_signature(
+    admin: Admin = Depends(_ADMIN),
+    db=Depends(get_database),
+):
+    repo = LegalityRepository(db)
+    raw = await repo.find_one({"active_for_certificates": True})
+
+    if not raw:
+        raise HTTPException(status_code=404, detail="No active legality record")
+
+    rec = repo.model.from_mongo(raw)
+
+    await repo.update_one(
+        {"uuid": rec.uuid},
+        {
+            "signature_document_id": None,
+            "updated_by": admin.uuid,
+            "updated_at": utcnow_iso(),
+        },
+    )
+
+    return {"success": True}
 
 
 @admin_router.post("/{uuid}/signature")

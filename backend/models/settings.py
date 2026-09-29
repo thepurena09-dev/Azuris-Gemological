@@ -19,6 +19,14 @@ class BusinessSettings(BaseDocument, AuditMixin):
     whatsapp_label: Optional[str] = Field(default=None, max_length=120)
     whatsapp_enabled: bool = True
 
+    # Global authorised signature used by certificate/card rendering.
+    # Independent from individual legality records.
+    global_signature_document_id: Optional[str] = None
+    global_signatory_name: str = Field(
+        default="H.Zulfikar.se.GG",
+        max_length=160,
+    )
+
     # --- CMS visual controls (POST-BATCH D final UI polish) ---
     # Image URLs may reference the Media Library (public `/api/media/{uuid}`) or an
     # approved external asset URL. No binaries stored here (reuse Sprint 10/14 media).

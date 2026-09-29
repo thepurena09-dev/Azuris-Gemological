@@ -97,13 +97,23 @@ def test_certificate_and_two_sided_card_render_with_photo_and_signature():
     photo = (assets / "sample-gemstone.png").read_bytes()
     signature = (assets / "sample-signature.png").read_bytes()
     certificate = pymupdf.open(stream=build_certificate_pdf(payload, photo, signature), filetype="pdf")
-    card = pymupdf.open(stream=build_card_pdf(payload, photo, "https://example.test/verify"), filetype="pdf")
+    card = pymupdf.open(
+        stream=build_card_pdf(
+            payload,
+            photo,
+            "https://example.test/verify",
+            signature_bytes=signature,
+        ),
+        filetype="pdf",
+    )
     try:
         assert len(certificate) == 4
         assert len(card) == 2
         assert certificate[2].get_images(), "gemstone presentation page must contain the uploaded photo"
         assert card[0].get_images(), "card front must contain the gemstone photo and QR code"
-        assert card[1].get_images(), "card back must contain the verification QR code"
+        assert len(card[1].get_images(full=True)) >= 2, (
+            "card back must contain both the AGR brand and authorised signature images"
+        )
     finally:
         certificate.close()
         card.close()

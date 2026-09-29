@@ -373,8 +373,24 @@ export default function HomePage() {
       </section>
 
       {/* Why Azuris */}
-      <section className="border-y border-border bg-secondary/40">
-        <div className="mx-auto max-w-7xl px-6 py-24 md:px-10">
+      <section
+        id="why-azuris"
+        className="relative overflow-hidden border-y border-gold/20 bg-[#f7f3ea]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 9% 18%, rgba(199,159,70,0.22), transparent 23%), radial-gradient(circle at 92% 84%, rgba(13,27,42,0.13), transparent 30%), linear-gradient(135deg, #faf8f2 0%, #eee5d4 50%, #f8f5ee 100%)",
+        }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-30"
+          style={{
+            backgroundImage:
+              "linear-gradient(30deg, transparent 48%, rgba(199,159,70,0.16) 49%, transparent 50%), linear-gradient(150deg, transparent 48%, rgba(199,159,70,0.16) 49%, transparent 50%)",
+            backgroundSize: "72px 124px",
+          }}
+        />
+        <div className="relative mx-auto max-w-7xl px-6 py-24 md:px-10">
           <Eyebrow label={t("why.eyebrow")} />
           <h2 className="mt-6 max-w-3xl font-serif text-4xl font-normal tracking-tight text-foreground md:text-6xl">
             {t("why.title")}
@@ -384,7 +400,10 @@ export default function HomePage() {
           </p>
           <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {whyItems.map(({ icon: Ic, k }) => (
-              <div key={k} className="rounded-2xl border border-border bg-card p-8">
+              <div
+                key={k}
+                className="rounded-2xl border border-gold/25 bg-white/80 p-8 shadow-[0_18px_45px_rgba(13,27,42,0.10)] backdrop-blur-[2px] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(13,27,42,0.16)]"
+              >
                 <span className="flex h-14 w-14 items-center justify-center rounded-full border border-gold/40 bg-secondary">
                   <Ic size={24} weight="thin" className="text-gold" />
                 </span>

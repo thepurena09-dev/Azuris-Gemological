@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 from db.mongodb import get_database
 from errors import forbidden
-from repositories.legality import CertificateRepository, GemstonePhotoRepository, LegalityDocumentRepository
+from repositories.legality import CertificateRepository, GemstonePhotoRepository, LegalityDocumentRepository, LegalityRepository
 from services.certificate_pdf import build_certificate_pdf, decode_photo, render_front_cover_png
 from services.preview import decode_preview_token
 from services.verification import resolve_qr, verify_manual, verify_qr
@@ -95,9 +95,15 @@ async def public_certificate_pdf(number: str, request: Request, db=Depends(get_d
         "legality_snapshot": cert.legality_snapshot,
     }
     signature_bytes = None
-    leg = cert.legality_snapshot or {}
-    if leg.get("signature_document_id"):
-        sdoc = await LegalityDocumentRepository(db).get_by_uuid(leg["signature_document_id"])
+    legality_repo = LegalityRepository(db)
+    active_doc = await legality_repo.find_one({"active_for_certificates": True})
+    active = legality_repo.model.from_mongo(active_doc) if active_doc else None
+    signature_document_id = active.signature_document_id if active else None
+    if not signature_document_id:
+        leg = cert.legality_snapshot or {}
+        signature_document_id = leg.get("signature_document_id")
+    if signature_document_id:
+        sdoc = await LegalityDocumentRepository(db).get_by_uuid(signature_document_id)
         if sdoc:
             signature_bytes = decode_photo(sdoc.data_b64)
     try:

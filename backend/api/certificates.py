@@ -19,7 +19,7 @@ from db.mongodb import get_database
 from errors import ApiError, ErrorCode
 from models.base import utcnow_iso
 from models.catalog import Gemstone
-from models.enums import AdminRole, AuditAction, GemstoneStatus
+from models.enums import AdminRole, AuditAction, GemstoneStatus, CertificateStatus
 from models.legality import LegalityDocument
 from models.people import Admin
 from repositories.legality import (
@@ -27,6 +27,7 @@ from repositories.legality import (
     GemstonePhotoRepository,
     GemstoneRepository,
     LegalityDocumentRepository,
+    LegalityRepository,
     SettingsRepository,
     VerificationTokenRepository,
 )
@@ -317,14 +318,31 @@ def _sample_signature_bytes():
         return None
 
 
-async def _certificate_signature_bytes(db, cert) -> bytes | None:
-    """Resolve the immutable signature image referenced by a certificate snapshot."""
-    leg = getattr(cert, "legality_snapshot", None) or {}
-    sid = leg.get("signature_document_id")
-    if not sid:
+async def _certificate_signature_bytes(db, cert=None) -> bytes | None:
+    """Return the signature stored on the Legality record active for certificates."""
+    try:
+        repo = LegalityRepository(db)
+        raw = await repo.find_one({"active_for_certificates": True})
+
+        if not raw:
+            return None
+
+        legality = repo.model.from_mongo(raw)
+        signature_id = getattr(legality, "signature_document_id", None)
+
+        if not signature_id:
+            return None
+
+        doc = await LegalityDocumentRepository(db).get_by_uuid(signature_id)
+
+        if not doc:
+            return None
+
+        return decode_photo(doc.data_b64)
+
+    except Exception:
         return None
-    doc = await LegalityDocumentRepository(db).get_by_uuid(sid)
-    return decode_photo(doc.data_b64) if doc else None
+
 
 
 def _sample_cert() -> dict:
@@ -371,7 +389,12 @@ async def list_certificates(admin: Admin = Depends(_ADMIN), db=Depends(get_datab
     gem_repo = GemstoneRepository(db)
     for cert in items:
         gem = await gem_repo.get_by_uuid(cert.gemstone_id)
-        if gem and gem.status == GemstoneStatus.PUBLISHED.value and gem.certificate_id == cert.uuid:
+        if (
+            gem
+            and gem.status == GemstoneStatus.PUBLISHED.value
+            and gem.certificate_id == cert.uuid
+            and cert.status != CertificateStatus.REVOKED.value
+        ):
             published.append((cert, gem))
     return {
         "items": [
@@ -384,6 +407,8 @@ async def list_certificates(admin: Admin = Depends(_ADMIN), db=Depends(get_datab
                 "is_current": c.is_current,
                 "issued_at": c.issued_at,
                 "gemstone_name": g.name_en,
+                "gemstone_type": g.gemstone_type,
+                "origin": g.origin,
             }
             for c, g in published
         ]
@@ -426,7 +451,10 @@ async def certificate_pdf(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends(
         "issued_at": cert.issued_at,
         "version": cert.version,
         "gemstone_snapshot": snap,
-        "legality_snapshot": cert.legality_snapshot,
+        "legality_snapshot": {
+            **(cert.legality_snapshot or {}),
+            "signatory_name": "H.Zulfikar.se.GG",
+        },
         "qr_url": qr_url(token),
     }
     try:
@@ -469,8 +497,12 @@ async def certificate_card(uuid: str, admin: Admin = Depends(_ADMIN), db=Depends
         "issued_at": cert.issued_at,
         "version": cert.version,
         "gemstone_snapshot": snap,
+        "legality_snapshot": cert.legality_snapshot,
     }
-    pdf = build_card_pdf(payload, photo_bytes, verify_url)
+    signature_bytes = await _certificate_signature_bytes(db, cert)
+    pdf = build_card_pdf(
+        payload, photo_bytes, verify_url, signature_bytes=signature_bytes
+    )
     return Response(
         content=pdf,
         media_type="application/pdf",
