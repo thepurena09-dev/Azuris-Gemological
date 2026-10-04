@@ -14,6 +14,7 @@ import logging
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+import api.certificates as certificates_api
 from api.auth import router as auth_router
 from api.health import router as health_router
 from api.verify import router as verify_router
@@ -36,6 +37,15 @@ from core.config import get_settings
 from core.envelope import install_envelope
 from db.init import init_database
 from db.mongodb import mongodb
+from services.certificate_pdf_custom import (
+    build_card_pdf as custom_build_card_pdf,
+    build_certificate_pdf as custom_build_certificate_pdf,
+)
+
+# Keep all existing certificate endpoints/workflow unchanged while swapping only
+# the PDF/card presentation layer.
+certificates_api.build_card_pdf = custom_build_card_pdf
+certificates_api.build_certificate_pdf = custom_build_certificate_pdf
 
 settings = get_settings()
 
