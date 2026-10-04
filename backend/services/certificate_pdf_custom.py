@@ -1,10 +1,9 @@
 """AGR card/certificate rendering overrides.
 
-The front card uses the exact user-supplied artwork as its background. Only the
-QR code and Warranty ID are generated dynamically. The back stays plain.
+The front card uses the approved artwork as its background. Only the QR code
+and Warranty ID are generated dynamically. The back stays plain.
 """
 
-import base64
 import os
 from io import BytesIO
 from typing import Optional
@@ -20,14 +19,12 @@ from services import certificate_pdf as base
 CARD_W = 105 * mm
 CARD_H = 66 * mm
 _ASSET_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")
-_CARD_FRONT_B64 = os.path.join(_ASSET_DIR, "card_front_reference_small.jpg.b64")
+_CARD_FRONT_JPG = os.path.join(_ASSET_DIR, "azuris_card_front.jpg")
 
 
 def _card_front_reader():
-    """Load the approved front artwork stored as base64 text in the repo."""
-    with open(_CARD_FRONT_B64, "r", encoding="ascii") as f:
-        raw = base64.b64decode(f.read().strip())
-    return ImageReader(BytesIO(raw))
+    """Load the approved front artwork from the packaged JPEG asset."""
+    return ImageReader(_CARD_FRONT_JPG)
 
 
 def build_card_pdf(
@@ -44,7 +41,6 @@ def build_card_pdf(
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=(CARD_W, CARD_H))
 
-    # FRONT: exact supplied card artwork, scaled edge-to-edge.
     c.drawImage(
         _card_front_reader(),
         0,
@@ -55,15 +51,11 @@ def build_card_pdf(
         mask="auto",
     )
 
-    # Replace the QR artwork with the certificate-specific verification QR.
-    # Coordinates are matched to the white QR square in the supplied reference.
     qx, qy, qs = 4.65 * mm, 4.55 * mm, 17.65 * mm
     c.setFillColorRGB(1, 1, 1)
     c.rect(qx, qy, qs, qs, fill=1, stroke=0)
     c.drawImage(qr_reader, qx, qy, width=qs, height=qs, mask="auto")
 
-    # The supplied artwork intentionally leaves this field blank.
-    # Insert only the live certificate/warranty ID.
     c.setFillColorRGB(0.98, 0.98, 0.98)
     c.setFont(base.BODYB, 8.1)
     c.drawString(61.5 * mm, 6.6 * mm, number)
@@ -73,7 +65,6 @@ def build_card_pdf(
 
     c.showPage()
 
-    # BACK: plain dark navy/black as requested.
     c.setFillColorRGB(0.008, 0.018, 0.040)
     c.rect(0, 0, CARD_W, CARD_H, fill=1, stroke=0)
     c.showPage()
