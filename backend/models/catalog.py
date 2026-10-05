@@ -34,6 +34,8 @@ class Gemstone(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
     conclusion: Optional[str] = Field(default=None, max_length=500)
     # Optional per-gemstone title size for the presentation page; blank uses the automatic layout.
     presentation_title_size: Optional[float] = Field(default=None, ge=8, le=22)
+    # Optional per-field certificate typography overrides. Empty means automatic sizing.
+    certificate_text_sizes: dict[str, float] = Field(default_factory=dict)
     description_id: Optional[str] = None
     description_en: Optional[str] = None
 

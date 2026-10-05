@@ -668,26 +668,35 @@ def _agr_details(c, cert, snap, signature_reader=None):
     y -= 14 * mm
 
     # detail fields — full width, only present values (English preferred, no invented data)
+    text_sizes = snap.get("certificate_text_sizes") or {}
+
+    def detail_size(key: str, default: float = 7.8) -> float:
+        try:
+            return max(5.0, min(12.0, float(text_sizes.get(key, default))))
+        except (TypeError, ValueError):
+            return default
+
     pairs = [
-        ("Gemstone Name", snap.get("name_en") or snap.get("name")),
-        ("Object Type", snap.get("object_type")),
-        ("Species", snap.get("species")),
-        ("Variety", snap.get("variety")),
-        ("Carat Weight", f"{snap.get('carat')} ct" if snap.get("carat") else None),
-        ("Measurements", snap.get("dimensions")),
-        ("Shape", snap.get("shape")),
-        ("Cut", snap.get("cut")),
-        ("Colour", snap.get("color")),
-        ("Transparency", snap.get("transparency")),
-        ("Treatment", snap.get("treatment")),
-        ("Origin", snap.get("origin")),
-        ("Date of Issue", (cert.get("issued_at") or "")[:10] or None),
+        ("name", "Gemstone Name", snap.get("name_en") or snap.get("name")),
+        ("category", "Object Type", snap.get("object_type")),
+        ("species", "Species", snap.get("species")),
+        ("category", "Variety", snap.get("variety")),
+        (None, "Carat Weight", f"{snap.get('carat')} ct" if snap.get("carat") else None),
+        ("dimensions", "Measurements", snap.get("dimensions")),
+        (None, "Shape", snap.get("shape")),
+        (None, "Cut", snap.get("cut")),
+        (None, "Colour", snap.get("color")),
+        (None, "Transparency", snap.get("transparency")),
+        ("treatment", "Treatment", snap.get("treatment")),
+        ("origin", "Origin", snap.get("origin")),
+        (None, "Date of Issue", (cert.get("issued_at") or "")[:10] or None),
     ]
-    pairs = [(k, v) for k, v in pairs if v not in (None, "", "None")]
+    pairs = [(size_key, k, v) for size_key, k, v in pairs if v not in (None, "", "None")]
 
     row_h = 5.8 * mm
-    for i, (k, v) in enumerate(pairs):
-        _field(c, x, w, y, k, v, val_size=7.8, zebra=(i % 2 == 0))
+    for i, (size_key, k, v) in enumerate(pairs):
+        size = detail_size(size_key) if size_key else 7.8
+        _field(c, x, w, y, k, v, val_size=size, zebra=(i % 2 == 0))
         y -= row_h
 
 
@@ -989,14 +998,15 @@ def _agr_presentation(c, cert, snap, photo_reader):
     c.setFillColorRGB(*NAVY)
     name_text = str(name).upper()
     max_width = A5W - 26 * mm
-    configured_size = snap.get("presentation_title_size")
+    text_sizes = snap.get("certificate_text_sizes") or {}
+    configured_size = text_sizes.get("name", snap.get("presentation_title_size"))
     try:
         configured_size = float(configured_size) if configured_size is not None else None
     except (TypeError, ValueError):
         configured_size = None
     if configured_size is not None:
         configured_size = max(8.0, min(22.0, configured_size))
-    font_size = configured_size if configured_size is not None else 22.0
+    font_size = configured_size if configured_size is not None else (14.0 if len(name_text) >= 20 else 22.0)
     name_lines = [name_text]
     # Short names retain their original scale. Long names use two balanced, bold
     # lines at 12 pt unless an admin has explicitly selected a title size.
@@ -1021,7 +1031,11 @@ def _agr_presentation(c, cert, snap, photo_reader):
     gtype = snap.get("variety") or snap.get("species") or snap.get("object_type")
     if gtype:
         ty -= 8 * mm + title_extra
-        _tracked(c, 0, ty, str(gtype).upper(), BODY, 8.5, GOLD_DK, tracking=2.4, center=cx)
+        try:
+            type_size = max(5.0, min(12.0, float(text_sizes.get("category", 8.5))))
+        except (TypeError, ValueError):
+            type_size = 8.5
+        _tracked(c, 0, ty, str(gtype).upper(), BODY, type_size, GOLD_DK, tracking=2.4, center=cx)
 
     ty -= 15 * mm + title_extra
     c.setStrokeColorRGB(*GOLD)

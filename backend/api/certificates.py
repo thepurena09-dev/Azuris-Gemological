@@ -72,6 +72,29 @@ class GemstoneIn(BaseModel):
     examiner: str | None = None
     conclusion: str | None = None
     presentation_title_size: float | None = Field(default=None, ge=8, le=22)
+    certificate_text_sizes: dict[str, float] = Field(default_factory=dict)
+
+    @field_validator("certificate_text_sizes")
+    @classmethod
+    def _validate_text_sizes(cls, value: dict[str, float]) -> dict[str, float]:
+        limits = {
+            "name": (8.0, 22.0),
+            "category": (5.0, 12.0),
+            "species": (5.0, 12.0),
+            "dimensions": (5.0, 12.0),
+            "origin": (5.0, 12.0),
+            "treatment": (5.0, 12.0),
+        }
+        out: dict[str, float] = {}
+        for key, raw in (value or {}).items():
+            if key not in limits:
+                continue
+            size = float(raw)
+            lo, hi = limits[key]
+            if not lo <= size <= hi:
+                raise ValueError(f"{key} text size must be between {lo:g} and {hi:g} pt.")
+            out[key] = round(size, 1)
+        return out
 
     @field_validator("gem_code")
     @classmethod
@@ -129,6 +152,7 @@ def _gem_view(g: Gemstone) -> dict:
         "examiner": g.examiner,
         "conclusion": g.conclusion,
         "presentation_title_size": g.presentation_title_size,
+        "certificate_text_sizes": g.certificate_text_sizes or {},
         "status": g.status,
         "certificate_id": g.certificate_id,
         "media_ids": g.media_ids,
@@ -189,6 +213,19 @@ async def update_gemstone(uuid: str, body: GemstoneIn, admin: Admin = Depends(_A
     if before is None:
         raise HTTPException(status_code=404, detail="Not found")
     await repo.update_one({"uuid": uuid}, {**body.model_dump(), "updated_by": admin.uuid, "updated_at": utcnow_iso()})
+    # Identity data stays frozen in the issuance snapshot. Typography is a
+    # presentation preference, so keep only these display overrides in sync for
+    # an already-issued certificate.
+    if before.certificate_id:
+        await CertificateRepository(db).update_one(
+            {"uuid": before.certificate_id},
+            {
+                "gemstone_snapshot.certificate_text_sizes": body.certificate_text_sizes or {},
+                "gemstone_snapshot.presentation_title_size": body.presentation_title_size,
+                "updated_by": admin.uuid,
+                "updated_at": utcnow_iso(),
+            },
+        )
     after = await repo.get_by_uuid(uuid)
     await write_audit_log(
         db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.UPDATE,

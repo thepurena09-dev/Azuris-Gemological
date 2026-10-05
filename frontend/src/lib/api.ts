@@ -4,9 +4,13 @@ const API_BASE = appConfig.api.baseUrl; // paths below already include the /api 
 
 const ACCESS = "azuris_access";
 const REFRESH = "azuris_refresh";
+let refreshInFlight: Promise<string | null> | null = null;
 
 export function getToken(): string | null {
   return localStorage.getItem(ACCESS);
+}
+function getRefreshToken(): string | null {
+  return localStorage.getItem(REFRESH);
 }
 export function setTokens(access: string, refresh: string): void {
   localStorage.setItem(ACCESS, access);
@@ -24,14 +28,57 @@ export function mediaUrl(url?: string | null): string {
   return url.startsWith("http") ? url : `${API_BASE}${url}`;
 }
 
-export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
-  const headers = new Headers(opts.headers || {});
-  const tok = getToken();
-  if (tok) headers.set("Authorization", `Bearer ${tok}`);
-  if (opts.body && !(opts.body instanceof FormData) && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
+async function refreshAccessToken(): Promise<string | null> {
+  const refresh = getRefreshToken();
+  if (!refresh) return null;
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refresh }),
+    });
+    if (!res.ok) {
+      clearTokens();
+      return null;
+    }
+    const json = await res.json().catch(() => null);
+    const data = json && typeof json === "object" && "success" in json
+      ? (json.success ? json.data : null)
+      : json;
+    if (!data?.access_token || !data?.refresh_token) {
+      clearTokens();
+      return null;
+    }
+    setTokens(data.access_token, data.refresh_token);
+    return data.access_token as string;
+  } catch {
+    clearTokens();
+    return null;
   }
-  return fetch(`${API_BASE}${path}`, { ...opts, headers });
+}
+
+export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
+  const run = (token: string | null) => {
+    const headers = new Headers(opts.headers || {});
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    if (opts.body && !(opts.body instanceof FormData) && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+    return fetch(`${API_BASE}${path}`, { ...opts, headers });
+  };
+
+  let res = await run(getToken());
+  const isAuthBootstrap = path === "/api/auth/login" || path === "/api/auth/refresh";
+  if (res.status === 401 && !isAuthBootstrap && getRefreshToken()) {
+    if (!refreshInFlight) {
+      refreshInFlight = refreshAccessToken().finally(() => {
+        refreshInFlight = null;
+      });
+    }
+    const access = await refreshInFlight;
+    if (access) res = await run(access);
+  }
+  return res;
 }
 
 /** Standardized API error carrying the backend's stable error code (Sprint 8). */
