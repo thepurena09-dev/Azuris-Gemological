@@ -1,0 +1,8 @@
+FROM python:3.11-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends libzbar0 poppler-utils && rm -rf /var/lib/apt/lists/*
+COPY backend/requirements.txt ./requirements.txt
+RUN grep -viE '^(emergentintegrations|litellm @ https://customer-assets\.emergentagent\.com/)' requirements.txt > requirements.vps.txt && pip install --no-cache-dir -r requirements.vps.txt
+COPY backend/ ./
+EXPOSE 8001
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001"]

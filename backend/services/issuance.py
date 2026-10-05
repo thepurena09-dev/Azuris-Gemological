@@ -77,6 +77,7 @@ def _snapshot(gem: Gemstone, extra: dict) -> dict:
         "examiner": extra.get("examiner") or gem.examiner,
         "signatory": extra.get("signatory"),
         "conclusion": extra.get("conclusion") or gem.conclusion,
+        "presentation_title_size": gem.presentation_title_size,
         "notes": extra.get("notes"),
     }
     return {k: v for k, v in snap.items() if v is not None}

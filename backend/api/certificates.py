@@ -71,6 +71,7 @@ class GemstoneIn(BaseModel):
     treatment: str | None = None
     examiner: str | None = None
     conclusion: str | None = None
+    presentation_title_size: float | None = Field(default=None, ge=8, le=22)
 
     @field_validator("gem_code")
     @classmethod
@@ -127,6 +128,7 @@ def _gem_view(g: Gemstone) -> dict:
         "treatment": g.treatment,
         "examiner": g.examiner,
         "conclusion": g.conclusion,
+        "presentation_title_size": g.presentation_title_size,
         "status": g.status,
         "certificate_id": g.certificate_id,
         "media_ids": g.media_ids,

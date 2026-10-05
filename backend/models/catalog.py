@@ -32,6 +32,8 @@ class Gemstone(BaseDocument, DualIdMixin, AuditMixin, SoftDeleteMixin):
     treatment: Optional[str] = Field(default=None, max_length=200)
     examiner: Optional[str] = Field(default=None, max_length=200)
     conclusion: Optional[str] = Field(default=None, max_length=500)
+    # Optional per-gemstone title size for the presentation page; blank uses the automatic layout.
+    presentation_title_size: Optional[float] = Field(default=None, ge=8, le=22)
     description_id: Optional[str] = None
     description_en: Optional[str] = None
 
