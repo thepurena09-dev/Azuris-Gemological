@@ -231,13 +231,13 @@ export default function CertificatesPage() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     {c.gemstone_name}
                     {c.gemstone_type
-                      ? ` Â· ${c.gemstone_type}`
+                      ? ` · ${c.gemstone_type}`
                       : ""}
                     {c.origin
-                      ? ` Â· ${c.origin}`
+                      ? ` · ${c.origin}`
                       : ""}
-                    {` Â· Issued ${c.issued_at?.slice(0, 10)}`}
-                    {` Â· Version ${c.version}`}
+                    {` · Issued ${c.issued_at?.slice(0, 10)}`}
+                    {` · Version ${c.version}`}
                   </p>
                 </div>
 

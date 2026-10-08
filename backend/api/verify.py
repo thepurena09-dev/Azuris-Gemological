@@ -1,4 +1,4 @@
-"""Public verification endpoints â€” FASE 2.
+"""Public verification endpoints — FASE 2.
 
 Manual (certificate number + security code) and QR (opaque token) verification.
 Generic, non-enumerable outcomes. Minimal in-memory rate limiting (smallest

@@ -1,4 +1,4 @@
-"""Operational analytics â€” Sprint 27 (BATCH D).
+"""Operational analytics — Sprint 27 (BATCH D).
 
 Read-only, privacy-safe aggregations for the admin dashboard. Never returns PII
 (no names, emails, phones, addresses), never returns secrets (security codes, QR

@@ -1,5 +1,5 @@
 /**
- * Azuris Gemological â€” centralized frontend configuration (Sprint 2).
+ * Azuris Gemological — centralized frontend configuration (Sprint 2).
  *
  * Single source of truth for environment-driven settings. Only variables
  * prefixed with REACT_APP_ are available in the browser (Create React App).

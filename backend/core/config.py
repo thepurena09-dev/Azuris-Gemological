@@ -1,4 +1,4 @@
-"""Centralized application configuration â€” Sprint 2.
+"""Centralized application configuration — Sprint 2.
 
 Environment-driven settings via Pydantic Settings. No secrets are hardcoded;
 every value is sourced from environment variables / the backend .env file.

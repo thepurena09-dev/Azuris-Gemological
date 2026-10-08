@@ -1,4 +1,4 @@
-"""Repositories for FASE 2 domains â€” legality, settings, verification lookups.
+"""Repositories for FASE 2 domains — legality, settings, verification lookups.
 
 Thin DomainRepository subclasses; the ONLY layer touching Mongo. No business
 logic here (that lives in services / routers).

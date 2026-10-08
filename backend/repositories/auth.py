@@ -1,4 +1,4 @@
-"""Refresh-token store repository â€” Sprint 6.
+"""Refresh-token store repository — Sprint 6.
 
 Server-side record of issued refresh tokens (by `jti`) enabling rotation and
 logout invalidation. Repositories are the only layer touching MongoDB.

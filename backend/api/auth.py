@@ -1,4 +1,4 @@
-"""Authentication endpoints â€” Sprint 6 (admin portal only).
+"""Authentication endpoints — Sprint 6 (admin portal only).
 
 Endpoints (all under /api/auth):
   POST /login    -> issue access + refresh (rotating) tokens
@@ -6,7 +6,7 @@ Endpoints (all under /api/auth):
   POST /logout   -> invalidate refresh token(s)
   GET  /me       -> current admin (no secrets)
 
-Bearer/JSON transport (no cookies this sprint â€” frontend integration is later).
+Bearer/JSON transport (no cookies this sprint — frontend integration is later).
 Generic errors only; every event is written to security_logs.
 """
 
@@ -182,7 +182,7 @@ async def my_permissions(admin: Admin = Depends(get_current_admin)):
     """Role validation / RBAC introspection for the authenticated admin.
 
     Returns the caller's role and resolved permission set (SUPER_ADMIN => all).
-    Not a business feature â€” lets the future admin UI hide unauthorized actions.
+    Not a business feature — lets the future admin UI hide unauthorized actions.
     """
     from auth.rbac import ALL_PERMISSIONS, permissions_for
     from models.enums import AdminRole as _Role

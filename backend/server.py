@@ -1,4 +1,4 @@
-"""Azuris Gemological â€” Backend application entrypoint.
+"""Azuris Gemological — Backend application entrypoint.
 
 Through Sprint 3: application shell + configuration + MongoDB data backbone.
 - FastAPI app boot (metadata from Settings)
@@ -83,7 +83,7 @@ app.include_router(membership_admin_router, prefix=settings.api_prefix)
 app.include_router(membership_public_router, prefix=settings.api_prefix)
 app.include_router(analytics_admin_router, prefix=settings.api_prefix)
 
-# Sprint 8 â€” standardized response envelope + global exception handling.
+# Sprint 8 — standardized response envelope + global exception handling.
 # Added before CORS so the CORS middleware stays outer-most (headers applied to
 # every response, including wrapped success + standardized error envelopes).
 install_envelope(app, api_prefix=settings.api_prefix)
@@ -100,7 +100,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def on_startup() -> None:
     logger.info(
-        "Azuris backend starting â€” env=%s, sprint=%s.",
+        "Azuris backend starting — env=%s, sprint=%s.",
         settings.environment,
         settings.sprint,
     )
