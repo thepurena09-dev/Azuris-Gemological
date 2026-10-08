@@ -6,7 +6,7 @@ import pymupdf
 import pytest
 
 import services.issuance as issuance
-from services.certificate_pdf import build_card_pdf, build_certificate_pdf
+from services.certificate_pdf_custom import build_card_pdf, build_certificate_pdf
 
 
 def complete_gemstone(certificate_id=None):
@@ -77,7 +77,7 @@ async def test_publish_rejects_incomplete_gemstone(monkeypatch):
     assert "examination photo" in error.value.detail
 
 
-def test_certificate_and_two_sided_card_render_with_photo_and_signature():
+def test_active_certificate_and_two_sided_card_preserve_approved_artwork():
     assets = Path(__file__).parents[1] / "assets"
     payload = {
         "certificate_number": "AGR-EMD-000001-26",
@@ -110,10 +110,15 @@ def test_certificate_and_two_sided_card_render_with_photo_and_signature():
         assert len(certificate) == 4
         assert len(card) == 2
         assert certificate[2].get_images(), "gemstone presentation page must contain the uploaded photo"
-        assert card[0].get_images(), "card front must contain the gemstone photo and QR code"
-        assert len(card[1].get_images(full=True)) >= 2, (
-            "card back must contain both the AGR brand and authorised signature images"
-        )
+        assert card[0].get_images(), "card front must contain the approved front artwork and QR code"
+        back_images = card[1].get_images(full=True)
+        assert len(back_images) == 1, "card back must contain the exact approved artwork"
+        from PIL import Image
+        with Image.open(assets / "azuris_card_back_exact.png") as artwork:
+            assert pymupdf.Pixmap(card, back_images[0][0]).samples == artwork.convert("RGB").tobytes()
+        for page in card:
+            assert abs(page.rect.width * 25.4 / 72 - 105) < 0.001
+            assert abs(page.rect.height * 25.4 / 72 - 66) < 0.001
     finally:
         certificate.close()
         card.close()

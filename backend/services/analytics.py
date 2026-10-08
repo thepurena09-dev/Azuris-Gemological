@@ -1,4 +1,4 @@
-"""Operational analytics — Sprint 27 (BATCH D).
+"""Operational analytics â€” Sprint 27 (BATCH D).
 
 Read-only, privacy-safe aggregations for the admin dashboard. Never returns PII
 (no names, emails, phones, addresses), never returns secrets (security codes, QR
@@ -86,7 +86,7 @@ async def _certificate_counter(db: Any) -> dict:
     year = datetime.now(timezone.utc).year
     doc = await db["counters"].find_one({"name": "certificate", "year": year})
     last = int(doc["last_number"]) if doc and "last_number" in doc else 0
-    nxt = f"AZR-GEM-{last + 1:06d}-{year % 100:02d}"
+    nxt = f"AGR-{{CODE}}-{last + 1:06d}-{year % 100:02d}"
     return {"last_number": last, "next_number": nxt, "year": year}
 
 

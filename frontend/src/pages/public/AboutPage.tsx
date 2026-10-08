@@ -14,6 +14,7 @@ export default function AboutPage() {
     >
       <PlaceholderPage
         title={t("nav.about")}
+        description="Azuris Gemological Research provides gemstone examination, identification, documentation, and certification services. Each issued gemstone certificate has a unique number that can be checked through the digital verification system."
         testId={TEST_IDS.page.about}
         breadcrumbs={[{ label: t("nav.about") }]}
       />

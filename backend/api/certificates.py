@@ -1,4 +1,4 @@
-"""Admin certificate issuance + gemstone entry endpoints — FASE 3.
+"""Admin certificate issuance + gemstone entry endpoints â€” FASE 3.
 
 RBAC: SUPER_ADMIN + ADMINISTRATOR (server-side). Public gemstone photo endpoint
 serves only images referenced by an issued certificate snapshot.
@@ -41,7 +41,7 @@ _GEM_READ = require_permission(Permission.GEMSTONE_READ)
 _GEM_WRITE = require_permission(Permission.GEMSTONE_WRITE)
 _GEM_DELETE = require_permission(Permission.GEMSTONE_DELETE)
 
-# Locked gemstone lifecycle (BUSINESS_RULES_LOCK §1).
+# Locked gemstone lifecycle (BUSINESS_RULES_LOCK Â§1).
 _GEM_TRANSITIONS: dict[str, set[str]] = {
     GemstoneStatus.DRAFT.value: {GemstoneStatus.VERIFIED.value, GemstoneStatus.ARCHIVED.value},
     GemstoneStatus.VERIFIED.value: {GemstoneStatus.PUBLISHED.value, GemstoneStatus.ARCHIVED.value},
@@ -178,7 +178,7 @@ async def list_gemstones(
     if status:
         filters["status"] = status
     if q:
-        rx = {"$regex": q.strip(), "$options": "i"}
+        rx = {"$regex": re.escape(q.strip()), "$options": "i"}
         filters["$or"] = [
             {"name_id": rx}, {"name_en": rx},
             {"gemstone_type": rx}, {"category": rx}, {"origin": rx},
@@ -244,7 +244,7 @@ async def set_gemstone_status(
         raise HTTPException(status_code=404, detail="Not found")
     target = body.status.value if hasattr(body.status, "value") else str(body.status)
     if target != gem.status and target not in _GEM_TRANSITIONS.get(gem.status, set()):
-        raise ApiError(409, ErrorCode.CONFLICT, f"Invalid status transition: {gem.status} → {target}.")
+        raise ApiError(409, ErrorCode.CONFLICT, f"Invalid status transition: {gem.status} â†’ {target}.")
     await repo.update_one({"uuid": uuid}, {"status": target, "updated_by": admin.uuid, "updated_at": utcnow_iso()})
     await write_audit_log(
         db, actor_id=admin.uuid, actor_role=admin.role, action=AuditAction.STATUS_CHANGE,
@@ -304,7 +304,7 @@ async def publish(
 
 
 # ---------- CERTIFICATES ----------
-# SAMPLE PREVIEW — stateless UI-only certificate design preview. Creates NO
+# SAMPLE PREVIEW â€” stateless UI-only certificate design preview. Creates NO
 # certificate/gemstone/token, never touches the counter, never reaches Mongo.
 # Uses the fixed non-persistent sample number AGR-ZMD-000015-26 (Zamrud/Emerald).
 _SAMPLE_NUMBER = "AGR-ZMD-000015-26"
@@ -314,28 +314,28 @@ _SAMPLE_SNAP = {
     "name_en": "Emerald",
     "gem_code": "ZMD",
     "object_type": "Loose Gemstone",
-    "species": "Natural Beryl — Sample",
+    "species": "Natural Beryl â€” Sample",
     "carat": 3.25,
     "color": "Vivid Green",
     "clarity": "Transparent",
     "transparency": "Transparent",
     "cut": "Emerald Cut",
     "shape": "Rectangular",
-    "dimensions": "9.10 × 7.25 × 4.80 mm",
-    "origin": "SAMPLE — Colombia",
-    "treatment": "SAMPLE — No indication",
-    "examiner": "SAMPLE — AGR Gemologist",
+    "dimensions": "9.10 Ã— 7.25 Ã— 4.80 mm",
+    "origin": "SAMPLE â€” Colombia",
+    "treatment": "SAMPLE â€” No indication",
+    "examiner": "SAMPLE â€” AGR Gemologist",
     "signatory": "Azuris Gemological Research",
     "conclusion": "SAMPLE DATA FOR VISUAL REVIEW ONLY",
     "photo_id": None,
 }
 _SAMPLE_LEGALITY = {
-    "certificate_name": "SAMPLE — Gemological Accreditation",
+    "certificate_name": "SAMPLE â€” Gemological Accreditation",
     "certificate_number": "SAMPLE-ACC-0000",
-    "issuer": "SAMPLE — Accreditation Body",
+    "issuer": "SAMPLE â€” Accreditation Body",
     "expiry_date": "2030-12-31",
     "signatory_name": "A. Rahmani (SAMPLE)",
-    "signatory_position": "Chief Gemologist — SAMPLE",
+    "signatory_position": "Chief Gemologist â€” SAMPLE",
 }
 _SAMPLE_PHOTO_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "sample-gemstone.png")
 _SAMPLE_SIGNATURE_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "sample-signature.png")
@@ -411,7 +411,7 @@ async def demo_certificate_preview(admin: Admin = Depends(_ADMIN)):
 
 @admin_router.get("/certificates/sample-card")
 async def sample_certificate_card(admin: Admin = Depends(_ADMIN)):
-    """Non-persistent premium SAMPLE card preview (AGR-ZMD-000015-26, QR → /verify?sample=1)."""
+    """Non-persistent premium SAMPLE card preview (AGR-ZMD-000015-26, QR â†’ /verify?sample=1)."""
     verify_url = f"{PUBLIC_BASE_URL}/verify?sample=1"
     pdf = build_card_pdf(_sample_cert(), _sample_photo_bytes(), verify_url, sample=True)
     return Response(
@@ -422,36 +422,11 @@ async def sample_certificate_card(admin: Admin = Depends(_ADMIN)):
 
 
 @admin_router.get("/certificates")
-async def list_certificates(admin: Admin = Depends(_ADMIN), db=Depends(get_database)):
-    items, _ = await CertificateRepository(db).list({"is_current": True}, page=1, page_size=100)
-    published = []
-    gem_repo = GemstoneRepository(db)
-    for cert in items:
-        gem = await gem_repo.get_by_uuid(cert.gemstone_id)
-        if (
-            gem
-            and gem.status == GemstoneStatus.PUBLISHED.value
-            and gem.certificate_id == cert.uuid
-            and cert.status != CertificateStatus.REVOKED.value
-        ):
-            published.append((cert, gem))
-    return {
-        "items": [
-            {
-                "uuid": c.uuid,
-                "certificate_number": c.certificate_number,
-                "gemstone_id": c.gemstone_id,
-                "status": c.status,
-                "version": c.version,
-                "is_current": c.is_current,
-                "issued_at": c.issued_at,
-                "gemstone_name": g.name_en,
-                "gemstone_type": g.gemstone_type,
-                "origin": g.origin,
-            }
-            for c, g in published
-        ]
-    }
+async def list_certificates(
+    page: int = 1, page_size: int = 100,
+    admin: Admin = Depends(_ADMIN), db=Depends(get_database),
+):
+    return await CertificateRepository(db).list_published(max(1, page), max(1, min(200, page_size)))
 
 
 @admin_router.post("/certificates/issue", status_code=status.HTTP_201_CREATED)

@@ -12,12 +12,14 @@ interface PlaceholderPageProps {
   title: string;
   testId: string;
   breadcrumbs?: Crumb[];
+  description?: string;
 }
 
 export default function PlaceholderPage({
   title,
   testId,
   breadcrumbs = [],
+  description,
 }: PlaceholderPageProps) {
   const { t } = useLanguage();
 
@@ -62,7 +64,7 @@ export default function PlaceholderPage({
         data-testid={TEST_IDS.common.comingSoon}
         className="mt-14 max-w-2xl text-xl font-light leading-relaxed text-muted-foreground"
       >
-        {t("comingSoon")}
+        {description ?? t("comingSoon")}
       </p>
     </section>
   );

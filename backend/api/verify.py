@@ -1,4 +1,4 @@
-"""Public verification endpoints — FASE 2.
+"""Public verification endpoints â€” FASE 2.
 
 Manual (certificate number + security code) and QR (opaque token) verification.
 Generic, non-enumerable outcomes. Minimal in-memory rate limiting (smallest
@@ -6,8 +6,6 @@ production-ready anti-abuse; no external dependency).
 """
 
 import re
-import time
-from collections import defaultdict, deque
 
 from fastapi import APIRouter, Depends, Request, Response
 
@@ -24,21 +22,13 @@ router = APIRouter(prefix="/verify", tags=["verification"])
 
 CERT_RE = re.compile(r"^AGR-[A-Z]{3}-\d{6}-\d{2}$")
 
-# --- minimal per-IP rate limiter (in-memory, per process) ---
-_WINDOW_SECONDS = 60
-_MAX_ATTEMPTS = 20
-_attempts: dict[str, deque] = defaultdict(deque)
+# Verification limits use the client behind explicitly trusted proxies.
+from services.request_limits import WindowLimit, client_ip
+_verification_limit = WindowLimit(20)
 
 
 def _rate_limit(request: Request) -> None:
-    ip = request.client.host if request and request.client else "unknown"
-    now = time.time()
-    q = _attempts[ip]
-    while q and now - q[0] > _WINDOW_SECONDS:
-        q.popleft()
-    if len(q) >= _MAX_ATTEMPTS:
-        raise forbidden("Too many attempts. Please try again later.")
-    q.append(now)
+    _verification_limit.check(client_ip(request))
 
 
 class ManualVerifyRequest(BaseModel):
@@ -57,7 +47,7 @@ async def manual_verify(body: ManualVerifyRequest, request: Request, db=Depends(
     if not CERT_RE.match(number):
         # Generic outcome; do not confirm/deny record existence.
         return {"status": "not_found", "certificate": None}
-    ip = request.client.host if request.client else None
+    ip = client_ip(request)
     return await verify_manual(db, number, body.security_code.strip(), ip)
 
 
@@ -154,7 +144,7 @@ async def public_certificate_cover(number: str, request: Request, db=Depends(get
 @router.post("/qr", response_model_exclude_none=True)
 async def qr_verify(body: QrVerifyRequest, request: Request, db=Depends(get_database)):
     _rate_limit(request)
-    ip = request.client.host if request.client else None
+    ip = client_ip(request)
     return await verify_qr(db, body.token.strip(), ip)
 
 

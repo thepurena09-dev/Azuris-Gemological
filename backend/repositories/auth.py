@@ -1,4 +1,4 @@
-"""Refresh-token store repository — Sprint 6.
+"""Refresh-token store repository â€” Sprint 6.
 
 Server-side record of issued refresh tokens (by `jti`) enabling rotation and
 logout invalidation. Repositories are the only layer touching MongoDB.
@@ -35,6 +35,14 @@ class RefreshTokenRepository(BaseRepository):
 
     async def get(self, jti: str) -> Optional[dict]:
         return await self.collection.find_one({"jti": jti})
+
+    async def consume(self, jti: str, admin_id: str) -> bool:
+        now = utcnow_iso()
+        result = await self.collection.update_one(
+            {"jti": jti, "admin_id": admin_id, "revoked": False, "expires_at": {"$gt": now}},
+            {"$set": {"revoked": True, "revoked_at": now}},
+        )
+        return result.modified_count == 1
 
     async def revoke(self, jti: str) -> int:
         result = await self.collection.update_one(

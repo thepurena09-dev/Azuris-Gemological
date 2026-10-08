@@ -1,5 +1,5 @@
 /**
- * Azuris Gemological — centralized frontend configuration (Sprint 2).
+ * Azuris Gemological â€” centralized frontend configuration (Sprint 2).
  *
  * Single source of truth for environment-driven settings. Only variables
  * prefixed with REACT_APP_ are available in the browser (Create React App).
@@ -12,11 +12,7 @@ export type Environment = "development" | "production";
 function readBackendUrl(): string {
   const url = process.env.REACT_APP_BACKEND_URL;
   if (!url) {
-    // Fail loudly in development so misconfiguration is obvious.
-    // eslint-disable-next-line no-console
-    console.error(
-      "[config] REACT_APP_BACKEND_URL is not set. API calls will fail."
-    );
+    // An empty base intentionally uses the same-origin /api proxy.
     return "";
   }
   return url.replace(/\/+$/, ""); // strip trailing slashes

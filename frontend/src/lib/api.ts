@@ -28,33 +28,39 @@ export function mediaUrl(url?: string | null): string {
   return url.startsWith("http") ? url : `${API_BASE}${url}`;
 }
 
-async function refreshAccessToken(): Promise<string | null> {
-  const refresh = getRefreshToken();
-  if (!refresh) return null;
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refresh }),
-    });
-    if (!res.ok) {
-      clearTokens();
+async function refreshAccessToken(attemptedAccess: string | null): Promise<string | null> {
+  const rotate = async () => {
+    // Another tab may have refreshed while this request waited for the lock.
+    if (getToken() !== attemptedAccess) return getToken();
+    const refresh = getRefreshToken();
+    if (!refresh) return null;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refresh }),
+      });
+      if (getRefreshToken() !== refresh) return getToken();
+      if (!res.ok) {
+        if (res.status === 401) clearTokens();
+        return null;
+      }
+      const json = await res.json().catch(() => null);
+      const data = json && typeof json === "object" && "success" in json
+        ? (json.success ? json.data : null)
+        : json;
+      if (!data?.access_token || !data?.refresh_token) return null;
+      if (getRefreshToken() !== refresh) return getToken();
+      setTokens(data.access_token, data.refresh_token);
+      return data.access_token as string;
+    } catch {
+      // A temporary connection failure must not erase the saved session.
       return null;
     }
-    const json = await res.json().catch(() => null);
-    const data = json && typeof json === "object" && "success" in json
-      ? (json.success ? json.data : null)
-      : json;
-    if (!data?.access_token || !data?.refresh_token) {
-      clearTokens();
-      return null;
-    }
-    setTokens(data.access_token, data.refresh_token);
-    return data.access_token as string;
-  } catch {
-    clearTokens();
-    return null;
-  }
+  };
+  return navigator.locks
+    ? navigator.locks.request("azuris-token-refresh", rotate)
+    : rotate();
 }
 
 export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Response> {
@@ -67,11 +73,12 @@ export async function apiFetch(path: string, opts: RequestInit = {}): Promise<Re
     return fetch(`${API_BASE}${path}`, { ...opts, headers });
   };
 
-  let res = await run(getToken());
+  const attemptedAccess = getToken();
+  let res = await run(attemptedAccess);
   const isAuthBootstrap = path === "/api/auth/login" || path === "/api/auth/refresh";
   if (res.status === 401 && !isAuthBootstrap && getRefreshToken()) {
     if (!refreshInFlight) {
-      refreshInFlight = refreshAccessToken().finally(() => {
+      refreshInFlight = refreshAccessToken(attemptedAccess).finally(() => {
         refreshInFlight = null;
       });
     }

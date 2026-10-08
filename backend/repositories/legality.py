@@ -1,4 +1,4 @@
-"""Repositories for FASE 2 domains — legality, settings, verification lookups.
+"""Repositories for FASE 2 domains â€” legality, settings, verification lookups.
 
 Thin DomainRepository subclasses; the ONLY layer touching Mongo. No business
 logic here (that lives in services / routers).
@@ -56,6 +56,28 @@ class SettingsRepository(DomainRepository[BusinessSettings]):
 class CertificateRepository(DomainRepository[Certificate]):
     model = Certificate
     collection_name = "certificates"
+
+    async def list_published(self, page: int, page_size: int) -> dict:
+        pipeline = [
+            {"$match": self._active_filter({"is_current": True, "status": {"$ne": "revoked"}})},
+            {"$lookup": {"from": "gemstones", "localField": "gemstone_id", "foreignField": "uuid", "as": "gem"}},
+            {"$unwind": "$gem"},
+            {"$match": {"gem.status": "published", "gem.is_deleted": {"$ne": True}, "$expr": {"$eq": ["$gem.certificate_id", "$uuid"]}}},
+            {"$sort": {"created_at": -1, "uuid": 1}},
+            {"$facet": {
+                "items": [
+                    {"$skip": (page - 1) * page_size}, {"$limit": page_size},
+                    {"$project": {"_id": 0, "uuid": 1, "certificate_number": 1, "gemstone_id": 1,
+                                  "status": 1, "version": 1, "is_current": 1, "issued_at": 1,
+                                  "gemstone_name": "$gem.name_en", "gemstone_type": "$gem.gemstone_type", "origin": "$gem.origin"}},
+                ],
+                "total": [{"$count": "count"}],
+            }},
+        ]
+        rows = await self.collection.aggregate(pipeline).to_list(length=1)
+        row = rows[0] if rows else {"items": [], "total": []}
+        return {"items": row["items"], "total": row["total"][0]["count"] if row["total"] else 0,
+                "page": page, "page_size": page_size}
 
     async def get_current_by_number(self, number: str) -> Optional[Certificate]:
         doc = await self.find_one({"certificate_number": number, "is_current": True})

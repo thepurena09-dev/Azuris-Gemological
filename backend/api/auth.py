@@ -1,4 +1,4 @@
-"""Authentication endpoints — Sprint 6 (admin portal only).
+"""Authentication endpoints â€” Sprint 6 (admin portal only).
 
 Endpoints (all under /api/auth):
   POST /login    -> issue access + refresh (rotating) tokens
@@ -6,7 +6,7 @@ Endpoints (all under /api/auth):
   POST /logout   -> invalidate refresh token(s)
   GET  /me       -> current admin (no secrets)
 
-Bearer/JSON transport (no cookies this sprint — frontend integration is later).
+Bearer/JSON transport (no cookies this sprint â€” frontend integration is later).
 Generic errors only; every event is written to security_logs.
 """
 
@@ -29,6 +29,10 @@ from models.base import utcnow_iso
 from models.enums import SecurityEventType
 from models.people import Admin
 from repositories.auth import RefreshTokenRepository
+from services.request_limits import WindowLimit, client_ip
+
+_login_ip_limit = WindowLimit(10)
+_login_account_limit = WindowLimit(10)
 from repositories.people import AdminRepository
 from schemas.people import AdminResponse
 
@@ -73,6 +77,8 @@ async def _issue_tokens(db, admin: Admin) -> tuple[str, str]:
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest, request: Request, db=Depends(get_database)):
     email = body.email.lower().strip()
+    _login_ip_limit.check(client_ip(request))
+    _login_account_limit.check(email)
     admin = await AdminRepository(db).get_by_email(email)
 
     if not admin or not admin.is_active or not verify_password(
@@ -123,7 +129,8 @@ async def refresh(body: RefreshRequest, request: Request, db=Depends(get_databas
         raise unauthorized()
 
     # Rotation: revoke the presented refresh token, issue a fresh pair.
-    await store.revoke(jti)
+    if not await store.consume(jti, admin.uuid):
+        raise unauthorized()
     access, new_refresh = await _issue_tokens(db, admin)
     await AdminRepository(db).update_by_uuid(
         admin.uuid, {"last_activity": utcnow_iso()}
@@ -175,7 +182,7 @@ async def my_permissions(admin: Admin = Depends(get_current_admin)):
     """Role validation / RBAC introspection for the authenticated admin.
 
     Returns the caller's role and resolved permission set (SUPER_ADMIN => all).
-    Not a business feature — lets the future admin UI hide unauthorized actions.
+    Not a business feature â€” lets the future admin UI hide unauthorized actions.
     """
     from auth.rbac import ALL_PERMISSIONS, permissions_for
     from models.enums import AdminRole as _Role

@@ -1,4 +1,4 @@
-"""Centralized application configuration — Sprint 2.
+"""Centralized application configuration â€” Sprint 2.
 
 Environment-driven settings via Pydantic Settings. No secrets are hardcoded;
 every value is sourced from environment variables / the backend .env file.
@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     # --- Database (connection layer implemented in Sprint 3) ---
     mongo_url: str
     db_name: str
+    skip_database_init: bool = False
 
     # --- Auth / JWT (Sprint 6) ---
     # jwt_secret has NO default: it MUST come from the environment. Missing it

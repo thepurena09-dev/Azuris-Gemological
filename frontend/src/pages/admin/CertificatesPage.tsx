@@ -6,7 +6,8 @@ import {
   Printer,
 } from "@phosphor-icons/react";
 
-import { apiFetch, apiJson } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
+import { allPages } from "@/lib/pagedList";
 
 interface Certificate {
   uuid: string;
@@ -34,11 +35,11 @@ export default function CertificatesPage() {
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
-    void apiJson<{ items: Certificate[] }>(
-      "/api/admin/certificates"
-    ).then(({ items: records }) => {
-      setItems(records || []);
-    });
+    let active = true;
+    void allPages<Certificate>("/api/admin/certificates")
+      .then((records) => { if (active) setItems(records); })
+      .catch((e) => { if (active) setError(e instanceof Error ? e.message : "Unable to load certificates."); });
+    return () => { active = false; };
   }, []);
 
   React.useEffect(
@@ -230,13 +231,13 @@ export default function CertificatesPage() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     {c.gemstone_name}
                     {c.gemstone_type
-                      ? ` · ${c.gemstone_type}`
+                      ? ` Â· ${c.gemstone_type}`
                       : ""}
                     {c.origin
-                      ? ` · ${c.origin}`
+                      ? ` Â· ${c.origin}`
                       : ""}
-                    {` · Issued ${c.issued_at?.slice(0, 10)}`}
-                    {` · Version ${c.version}`}
+                    {` Â· Issued ${c.issued_at?.slice(0, 10)}`}
+                    {` Â· Version ${c.version}`}
                   </p>
                 </div>
 
